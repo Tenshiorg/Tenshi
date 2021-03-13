@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- tabs on top -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/category_tabs"
+        style="@style/Theme.Widget.Tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:layout_constraintBottom_toTopOf="@id/category_view_pager"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabMode="scrollable" />
+
+    <!-- tabs content -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/category_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/category_tabs" />
+
+    <!-- sort mode FAB-->
+    <io.github.kobakei.materialfabspeeddial.FabSpeedDial
+        android:id="@+id/sort_mode_fab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:fab_extraMargin="-10dp"
+        app:fab_fabBackgroundColor="?attr/colorPrimary"
+        app:fab_fabDrawable="@drawable/ic_round_filter_list_24"
+        app:fab_fabDrawableTint="?attr/colorOnPrimary"
+        app:fab_menu="@menu/sort_mode_fab_menu"
+        app:fab_miniFabBackgroundColor="?attr/colorPrimary"
+        app:fab_miniFabDrawableTint="?attr/colorOnPrimary"
+        app:fab_miniFabTextColor="?attr/colorOnBackground" />
+</androidx.constraintlayout.widget.ConstraintLayout>

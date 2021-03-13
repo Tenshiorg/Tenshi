@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Style for CardViews -->
+    <style name="CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="card_stroke_width">0dp</item>
+        <item name="cardElevation">5dp</item>
+        <item name="cardMaxElevation">100dp</item>
+        <item name="android:elevation">10dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <!-- Style for Toolbars -->
+    <style name="Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@drawable/toolbar_background</item>
+    </style>
+
+    <!-- Style for Alert Dialogs -->
+    <style name="AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="colorSurface">@color/surface</item>
+        <item name="shapeAppearance">@style/AppShapeAppearance.MediumComponent</item>
+    </style>
+</resources>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    app:layoutDescription="@xml/scene_fragment_home"
+    tools:context=".ui.fragments.HomeFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_home_header"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <!-- current season: title -->
+        <TextView
+            android:id="@+id/current_season_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/margin_text"
+            android:textColor="?attr/colorOnBackground"
+            android:text="@string/home_current_season_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- current season: loading-->
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/current_season_loading_indicator"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:padding="80dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_season_title" />
+
+        <!-- current season: content -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/current_season_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_season_title"
+            tools:listitem="@layout/recycler_anime_small" />
+
+        <!-- recommendations: title-->
+        <TextView
+            android:id="@+id/recommendations_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_text"
+            android:textColor="?attr/colorOnBackground"
+            android:text="@string/home_recommendations_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/current_season_recycler" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- recommendations: loading -->
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/recommendations_loading_indicator"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:padding="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_home_header" />
+
+    <!-- recommendations: content-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recommendations_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_home_header"
+        tools:listitem="@layout/recycler_anime_big" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

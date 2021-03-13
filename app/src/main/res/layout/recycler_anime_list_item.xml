@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="15dp"
+    android:layout_marginEnd="15dp"
+    android:layout_marginTop="15dp"
+    android:gravity="center_horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:minHeight="72dp"
+    app:cardElevation="5dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="5dp">
+
+    <!-- content -->
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:background="?attr/selectableItemBackgroundBorderless">
+
+        <!-- poster container -->
+        <FrameLayout
+            android:id="@+id/anime_main_poster_container"
+            android:layout_width="110dp"
+            android:layout_height="150dp"
+            android:transitionName="shared_poster_container">
+
+            <!-- poster -->
+            <ImageView
+                android:id="@+id/anime_main_poster"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:layout_gravity="start"
+                android:background="@color/placeholder"
+                android:scaleType="centerCrop"
+                android:transitionName="shared_poster_container"
+                android:contentDescription="@string/shared_desc_poster" />
+
+            <!-- anime score-->
+            <TextView
+                android:id="@+id/anime_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_gravity="start|bottom"
+                android:gravity="center"
+                android:background="@drawable/anime_list_item_score_background"
+                android:text="7"
+                android:textColor="@color/on_secondary"
+                android:textSize="14sp"
+                tools:ignore="HardcodedText"
+                android:drawablePadding="2dp"
+                app:drawableEndCompat="@drawable/ic_round_star_24"
+                app:drawableTint="@color/on_secondary" />
+        </FrameLayout>
+
+        <!-- anime details container-->
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- title -->
+            <TextView
+                android:id="@+id/anime_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_text"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="8dp"
+                android:text="Senko-San"
+                android:textColor="?attr/colorOnSurface"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textSize="17sp"
+                tools:ignore="HardcodedText" />
+
+            <!-- status-->
+            <TextView
+                android:id="@+id/anime_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_text"
+                android:layout_marginTop="8dp"
+                android:text="TV • Airing"
+                android:textColor="?attr/colorOnSurface"
+                tools:ignore="HardcodedText" />
+
+            <!-- container for progress text bar -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <!-- progress text -->
+                <TextView
+                    android:id="@+id/anime_episodes_progress_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="8dp"
+                    android:text="5/12"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
+                    android:layout_alignParentBottom="true"
+                    tools:ignore="HardcodedText" />
+
+                <!-- progress bar -->
+                <ProgressBar
+                    android:id="@+id/anime_episodes_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_alignParentBottom="true"
+                    android:progress="50"
+                    android:progressBackgroundTint="@color/anime_progress_background"
+                    style="?android:attr/progressBarStyleHorizontal"/>
+            </RelativeLayout>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</com.google.android.material.card.MaterialCardView>

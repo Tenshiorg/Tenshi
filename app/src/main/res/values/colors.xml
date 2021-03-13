@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- material app colors -->
+
+    <!-- primary app color and it's variant, used most frequently -->
+    <color name="primary">#1b91d1</color>
+    <color name="primary_variant">#00649f</color>
+    <color name="on_primary">#000000</color>
+
+    <!-- secondary app color, to add accents to elements -->
+    <color name="secondary">#d13f24</color>
+    <color name="secondary_variant">#980000</color>
+    <color name="on_secondary">#ffffff</color>
+
+    <!-- color for the main app background -->
+    <color name="background">#ffffff</color>
+    <color name="on_background">#000000</color>
+
+    <!-- color for app surfaces -->
+    <color name="surface">#ffffff</color>
+    <color name="on_surface">#000000</color>
+
+    <!-- color for error surfaces -->
+    <color name="error">#B00020</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- special colors -->
+    <color name="anime_progress_background">#c0c0c0</color>
+    <color name="placeholder">#dedede</color>
+
+    <!-- profile fragment donut -->
+    <color name="profile_donut_watching">#2db039</color>
+    <color name="profile_donut_completed">#26448f</color>
+    <color name="profile_donut_on_hold">#f9d457</color>
+    <color name="profile_donut_dropped">#a12f31</color>
+    <color name="profile_donut_plan_to_watch">#c3c3c3</color>
+</resources>

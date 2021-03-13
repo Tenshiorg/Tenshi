@@ -34,11 +34,32 @@ When creating a fork, remember to:
 - To allow login:
     - [Create a new API Client](https://myanimelist.net/apiconfig)
         - Please use a different redirect URL for your fork
-    - Paste your CLIENT_ID into the Constant in Secrets.java
     - Update the redirect URL
         - in Urls.java
         - in AndroidManifest.xml
+    - Create a Secrets.java and paste your client id
 
+## Sample Secrets.java
+
+To Allow Login with your Fork, you'll have to create a file 'Secrets.java' in '/app/src/main/java/io/github/shadow578/tenshi/secret/'
+
+```java
+package io.github.shadow578.tenshi.secret;
+
+/**
+ * A class for secrets, excluded from GIT
+ */
+public final class Secrets {
+
+    /**
+     * MAL client ID of this application
+     */
+     //TODO: paste your MAL client id here and rename to Secrets.java
+     // You can obtain one here: https://myanimelist.net/apiconfig
+     // Please make sure this file is NOT tracked by git after adding your client ID
+    public static final String MAL_CLIENT_ID = "";
+}
+```
 
 # Code Style Guidelines
 
@@ -62,6 +83,3 @@ These Guidelines outline what I think are useful rules to create readable and ma
     - _optionally_ private fields and methods
 - Usage of Lambda expression for handlers and callbacks is __strongly encouraged__.
 - Try to use [Tenshis language extensions](./LANG.md) instead of writing extra code.
-
-
-

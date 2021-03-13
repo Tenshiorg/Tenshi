@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragments.UserLibraryFragment">
+
+    <!-- content loading indicator-->
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/anime_list_loading_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="180dp"
+        android:elevation="10dp"
+        style="?android:attr/progressBarStyleLarge"/>
+
+    <!-- list recycler-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/anime_list_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="15dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/recycler_anime_list_item"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
