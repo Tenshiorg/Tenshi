@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- initial layout of header -->
+    <ConstraintSet android:id="@+id/scene_fragment_home_start">
+        <Constraint
+            android:id="@id/fragment_home_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <!-- fully scrolled off- screen layout of header -->
+    <ConstraintSet android:id="@+id/scene_fragment_home_end">
+        <Constraint
+            android:id="@id/fragment_home_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </ConstraintSet>
+
+    <!-- transition description -->
+    <Transition
+        app:constraintSetEnd="@id/scene_fragment_home_end"
+        app:constraintSetStart="@id/scene_fragment_home_start">
+        <OnSwipe
+            app:dragDirection="dragUp"
+            app:onTouchUp="stop"
+            app:touchAnchorId="@id/fragment_home_header" />
+    </Transition>
+</MotionScene>

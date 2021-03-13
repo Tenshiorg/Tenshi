@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- primary app color and it's variant, used most frequently -->
+    <color name="primary">#0b547c</color>
+    <color name="primary_variant">#002c50</color>
+    <color name="on_primary">#ffffff</color>
+
+    <!-- secondary app color, to add accents to elements -->
+    <color name="secondary">#8e2811</color>
+    <color name="secondary_variant">#5b0000</color>
+    <color name="on_secondary">#ffffff</color>
+
+    <!-- color for the main app background -->
+    <color name="background">#121212</color>
+    <color name="on_background">#ffffff</color>
+
+    <!-- color for app surfaces -->
+    <color name="surface">#121212</color>
+    <color name="on_surface">#ffffff</color>
+
+    <!-- color for error surfaces -->
+    <color name="error">#800016</color>
+    <color name="on_error">#ffffff</color>
+
+    <!-- special colors -->
+    <color name="anime_progress_background">#c0c0c0</color>
+    <color name="placeholder">#808080</color>
+</resources>

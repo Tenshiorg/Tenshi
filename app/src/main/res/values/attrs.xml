@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorBackground" format="color"/>
+    <attr name="card_stroke_width" format="dimension" />
+    <attr name="main_toolbar_style" format="reference" />
+</resources>

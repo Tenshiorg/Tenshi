@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sort_mode_by_title"
+        android:title="@string/list_sort_by_title"
+        android:icon="@drawable/ic_round_title_24"
+        android:orderInCategory="1"/>
+    <item
+        android:id="@+id/sort_mode_by_score"
+        android:title="@string/list_sort_by_score"
+        android:icon="@drawable/ic_round_star_24"
+        android:orderInCategory="2"/>
+    <item
+        android:id="@+id/sort_mode_by_updated"
+        android:title="@string/list_sort_by_updated"
+        android:icon="@drawable/ic_round_access_time_24"
+        android:orderInCategory="3"/>
+</menu>

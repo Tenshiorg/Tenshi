@@ -1,0 +1,101 @@
+<resources>
+    <!-- region Shared strings -->
+    <string name="shared_app_name" translatable="false">Tenshi</string>
+    <string name="shared_placeholder">Ingredients:\n360g flour\n350g chocolate chips\n230g butter\n200g white sugar\n220g brown sugar\n2 large eggs\n2 teaspoons vanilla extract\n1 teaspoon baking powder\n1 teaspoon salt\n\nPreheat the oven to 190 degrees Celsius. Line a baking pan with baking paper and set aside.\nIn a bowl, mix flour, salt and baking powder and set aside.\nCream butter and sugar until combined.\nBeat in eggs and vanilla until mixture is fluffy.\nMix in dry ingredients until combined.\nAdd chocolate chips and mix well.\nForm dough into balls and spread evenly on cookie sheet.\nBake in preheated oven for about 8–10 minutes. Take the cookies out when they just start to brown.\nLet the cookies rest on the cookie sheet for 2 minutes.</string>
+    <string name="shared_snack_server_connect_error">Error connecting to server</string>
+    <string name="shared_unknown">Unknown</string>
+    <string name="shared_no_value">-</string>
+    <string name="shared_num_episodes_fmt">%s Episodes</string>
+    <string name="shared_desc_poster">Poster</string>
+    <string name="shared_toast_copied_to_clip">Copied to Clipboard</string>
+    <!-- endregion -->
+
+    <!-- region Main Activity -->
+    <string name="main_search_mal">Search in MAL</string>
+
+    <!-- bottom nav titles -->
+    <string name="main_nav_title_home">Home</string>
+    <string name="main_nav_title_anime_list">Anime</string>
+    <string name="main_nav_title_profile">Profile</string>
+    <!-- endregion -->
+
+    <!-- region Home fragment-->
+    <string name="home_current_season_title">This Season</string>
+    <string name="home_recommendations_title">Recommendations</string>
+    <!-- endregion -->
+
+    <!-- region Profile fragment -->
+    <string name="profile_username">Username</string>
+    <string name="profile_view_on_mal">View profile on MAL</string>
+    <string name="profile_desc_profile_picture">Profile picture</string>
+    <string name="profile_days_wasted_fmt">%s\nDays</string>
+    <string name="profile_num_episodes_fmt">%s\nEpisodes</string>
+    <string name="profile_total_entries_fmt">%s\nAnime</string>
+
+    <string name="profile_donut_desc_watching_fmt">%s Watching</string>
+    <string name="profile_donut_desc_completed_fmt">%s Completed</string>
+    <string name="profile_donut_desc_on_hold_fmt">%s On Hold</string>
+    <string name="profile_donut_desc_dropped_fmt">%s Dropped</string>
+    <string name="profile_donut_desc_plan_to_watch_fmt">%s Plan to Watch</string>
+    <!-- endregion -->
+
+    <!-- region Anime list fragment -->
+    <string name="list_sort_by_title">Title</string>
+    <string name="list_sort_by_score">Score</string>
+    <string name="list_sort_by_updated">Last Updated</string>
+    <!-- endregion -->
+
+    <!-- region Anime Details -->
+    <string name="details_title">Anime Details</string>
+    <string name="details_synonyms">Synonyms</string>
+    <string name="details_title_jp">Japanese</string>
+    <string name="details_start_date">Start Date</string>
+    <string name="details_end_date">End Date</string>
+    <string name="details_season">Season</string>
+    <string name="details_broadcast_time">Broadcast</string>
+    <string name="details_episode_duration">Duration</string>
+    <string name="details_source">Source</string>
+    <string name="details_studios">Studios</string>
+    <string name="details_expand_synopsis">Expand synopsis</string>
+    <string name="details_related_title">Related</string>
+    <string name="details_opening_themes_title">Opening Themes</string>
+    <string name="details_ending_theme_title">Ending Themes</string>
+    <string name="details_add_to_list">Add to Profile</string>
+    <string name="details_watch_now">Watch Now</string>
+    <string name="details_anime_delete">Remove Entry</string>
+    <string name="details_anime_duration_minutes_fmt">%d minutes</string>
+    <string name="details_status_episode_select_fmt">Episode %d</string>
+    <string name="details_status_episode_select_none">None</string>
+    <string name="details_status_episodes_progress_fmt">%d / %d</string>
+
+    <!-- anime details snackbars -->
+    <string name="details_snack_entry_removed">Deleted</string>
+    <string name="details_snack_entry_remove_error">Error deleting entry</string>
+    <string name="details_snack_entry_updated">Updated</string>
+    <string name="details_snack_entry_update_error">Error updating list</string>
+    <string name="details_snack_entry_added">Added to Plan to Watch</string>
+    <string name="details_snack_update_no_changes">No changes</string>
+    <string name="details_snack_error_no_id">Invalid Anime ID. Have a helpful fox instead</string>
+
+    <!-- anime details top menu -->
+    <string name="details_menu_view_on_mal">View on MAL</string>
+    <string name="details_menu_share">Share</string>
+
+    <!-- region Login Activity -->
+    <string name="login_title">Login</string>
+    <string name="login_login">Login</string>
+    <string name="login_snack_login_error">Login error</string>
+    <string name="login_toast_browser_warn">Try with another browser if you can\'t login.</string>
+    <string name="login_toast_session_expired">Session Expired, please log in again</string>
+    <!-- endregion -->
+
+    <!-- region Search Activity -->
+    <string name="search_title">Search</string>
+    <string name="search_no_results">No results</string>
+    <string name="search_query_hint">Search</string>
+    <!-- endregion -->
+
+    <!-- region Fullscreen image Activity -->
+    <string name="fullscreen_img_title">Image</string>
+    <!-- endregion -->
+</resources>

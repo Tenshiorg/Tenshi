@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main App Theme-->
+    <style name="TenshiTheme.Amoled" parent="TenshiTheme">
+        <item name="colorSurface">@android:color/black</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="materialCardViewStyle">@style/CardView.Amoled</item>
+        <item name="alertDialogTheme">@style/AlertDialog.Amoled</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialog.Amoled</item>
+        <item name="main_toolbar_style">@style/Toolbar.Amoled</item>
+    </style>
+
+    <!-- Style for CardViews-->
+    <style name="CardView.Amoled" parent="Widget.MaterialComponents.CardView">
+        <item name="card_stroke_width">2dp</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@drawable/stroke_color</item>
+        <item name="cardBackgroundColor">#000</item>
+    </style>
+
+    <!-- Style for Toolbars -->
+    <style name="Toolbar.Amoled" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@drawable/toolbar_background_amoled</item>
+    </style>
+
+    <!-- Style for Alert Dialogs -->
+    <style name="AlertDialog.Amoled" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="colorSurface">@android:color/black</item>
+        <item name="shapeAppearance">@style/AppShapeAppearance.MediumComponent</item>
+    </style>
+
+
+</resources>

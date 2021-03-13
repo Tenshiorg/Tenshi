@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Primary preferences -->
+    <PreferenceCategory android:title="Settings">
+
+        <!-- App Theme -->
+        <ListPreference
+            android:key="Theme"
+            android:summary="App Theme"
+            android:title="Theme" />
+
+        <!-- Show NSFW -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="NSFW"
+            android:summaryOff="NSFW content is hidden"
+            android:summaryOn="NSFW content is visible"
+            android:title="Show NSFW" />
+
+        <!-- Startup Section-->
+        <ListPreference
+            android:key="StartupSection"
+            android:summary="Tab to open when the app opens"
+            android:title="Startup Section" />
+
+        <!-- logout -->
+        <Preference
+            android:key="logout_btn"
+            android:title="Logout"
+            android:summary="Logout from MAL"/>
+    </PreferenceCategory>
+
+    <!-- App information-->
+    <PreferenceCategory android:title="Info">
+        <!-- App Version -->
+        <Preference
+            android:key="app_version"
+            android:title="App Version" />
+    </PreferenceCategory>
+
+    <!-- Debug preferences, dynamically populated -->
+    <PreferenceCategory android:title="DEBUG" android:key="dbg_debug_category">
+    </PreferenceCategory>
+</PreferenceScreen>
