@@ -6,6 +6,9 @@ Tenshi is a free & open source client for [MyAnimeList](https://myanimelist.net)
 
 
 ## Features
+
+New Features and Improvements are Tracked on [Trello](https://trello.com/b/nD3WzVUS/tenshi).
+
 - Browsing Recommendations and Seasonal anime on MAL
 - Search MAL
 - Material Design
@@ -24,6 +27,7 @@ Please read the full guidelines first. Your issue may be closed if you don't.
 <summary>Issues</summary>
 
 - Before reporting a new issue, take a look at already opened [issues](https://github.com/shadow578/tenshi/issues).
+- Check if your issue is already listed on [Tenshis Trello Board](https://trello.com/b/nD3WzVUS/tenshi).
 - Do not group unrelated requests into one issue.
 
 </details>
