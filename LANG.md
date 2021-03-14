@@ -419,3 +419,16 @@ Write
 ```java
 ClassB casted = cast(obj, new ClassB());
 ```
+
+## async
+Run a action on in the background, with a callback that is called on the main (ui) thread.
+
+Instead of using AsyncTask (now Deprecated), just do:
+```java
+async(this::someLongFunction, r -> Log.i("Test", "async return is " + r));
+```
+
+__Or, if parameters are required__
+```java
+async(() -> someLongFunction("this is a parameter"), r -> Log.i("Test", "async return is " + r));
+```

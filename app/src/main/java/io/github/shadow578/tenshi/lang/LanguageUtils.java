@@ -1,6 +1,8 @@
 package io.github.shadow578.tenshi.lang;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,6 +12,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * expands the java language by some useful functions
@@ -521,6 +525,34 @@ public final class LanguageUtils {
         } catch (ClassCastException e) {
             return def;
         }
+    }
+    //endregion
+
+    //region async
+    /**
+     * executor to run background stuff in
+     */
+    private static final Executor backgroundExecutor = Executors.newSingleThreadExecutor();
+
+    /**
+     * handler in the main thread to post results
+     */
+    private static final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * run a action async and post the result to a callback in the main thread.
+     * @param action the action to execute
+     * @param callback the callback to post the result to. Result may be null
+     * @param <Rt> action return type
+     */
+    public static <Rt> void async(@NonNull Action<Rt> action, @NonNull Consumer<Rt> callback)
+    {
+        backgroundExecutor.execute(() -> {
+            final Rt r = action.invoke();
+            mainThreadHandler.post(() -> {
+                callback.invoke(r);
+            });
+        });
     }
     //endregion
 }

@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
+import io.github.shadow578.tenshi.content.ContentAdapter;
+import io.github.shadow578.tenshi.content.ContentAdapterManager;
 import io.github.shadow578.tenshi.mal.AuthInterceptor;
 import io.github.shadow578.tenshi.mal.CacheInterceptor;
 import io.github.shadow578.tenshi.mal.MALErrorInterceptor;
@@ -71,13 +73,32 @@ public class TenshiApp extends Application {
      */
     private boolean currentlyRefreshingToken = false;
 
+    /**
+     * manager for content adapters
+     */
+    private ContentAdapterManager contentAdapterManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
 
+        // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
+
+        // init and find content adapters
+        contentAdapterManager = new ContentAdapterManager(getApplicationContext());
+        contentAdapterManager.discoverContentAdapters();
+
+
+        //TODO: testing
+        Log.i("Tenshi", fmt("Found %d Content Adapters: ", contentAdapterManager.getAdapterCount()));
+        for (ContentAdapter ca : contentAdapterManager.getAdapters())
+            Log.i("Tenshi", fmt("Adapter: %s", ca.getServiceName()));
+
+        contentAdapterManager.getAdapters().get(0).getStreamUri(0, "", "", 1, p
+                -> Toast.makeText(getApplicationContext(), "StrUrl: " + p.toString(), Toast.LENGTH_SHORT).show());
     }
 
     /**
