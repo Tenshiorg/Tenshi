@@ -16,35 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.content.Constants.*;
 
 /**
  * Discovers and Manages {@link ContentAdapter} connections
  */
 public class ContentAdapterManager {
-
-    /**
-     * intent action for content adapters
-     */
-    public static final String ACTION_TENSHI_CONTENT = "io.github.shadow578.tenshi.TENSHI_CONTENT_ADAPTER";
-
-    /**
-     * intent category for content adapters
-     */
-    public static final String CATEGORY_TENSHI_CONTENT = ACTION_TENSHI_CONTENT;
-
-    /**
-     * metadata to content adapter version int
-     */
-    public static final String META_ADAPTER_API_VERSION = "io.github.shadow578.tenshi.TENSHI_CONTENT_ADAPTER_VERSION";
-
-    /**
-     * target for META_ADAPTER_API_VERSION.
-     * for a service to be bound, it has to have this or a higher version
-     */
-    public static final int TARGET_ADAPTER_API = 1;
 
     @NonNull
     private final Context ctx;
@@ -79,13 +57,23 @@ public class ContentAdapterManager {
         return Collections.unmodifiableList(contentAdapters);
     }
 
+    /**
+     * unbind all services.
+     * call before closing the application
+     */
+    public void unbindAll() {
+        for (ContentAdapter ca : contentAdapters)
+            ca.unbind(ctx);
+    }
 
     //region discovery
 
     /**
      * discover and bind to all found content adapters
+     *
+     * @param autoBind automatically bind all found adapters?
      */
-    public void discoverContentAdapters() {
+    public void discoverContentAdapters(boolean autoBind) {
         // get the package manager
         final PackageManager pm = ctx.getPackageManager();
 
@@ -103,8 +91,8 @@ public class ContentAdapterManager {
                 final ServiceInfo serviceWithMeta = getWithFlags(pm, resolvedAdapter.serviceInfo, PackageManager.GET_META_DATA);
 
                 if (notNull(serviceWithMeta)
-                        && shouldBindService(serviceWithMeta))
-                    bindService(serviceWithMeta);
+                        && shouldCreateAdapter(serviceWithMeta))
+                    createAndAddAdapter(serviceWithMeta, autoBind);
             }
     }
 
@@ -126,13 +114,13 @@ public class ContentAdapterManager {
     }
 
     /**
-     * should we attempt to bind the service?
+     * should we attempt to bind the service to a content adapter?
      * Check META_ADAPTER_API_VERSION matches
      *
      * @param adapterService the service to bind
      * @return should we bind the service?
      */
-    private boolean shouldBindService(@NonNull ServiceInfo adapterService) {
+    private boolean shouldCreateAdapter(@NonNull ServiceInfo adapterService) {
         // get metadata
         final Bundle meta = adapterService.metaData;
 
@@ -144,32 +132,37 @@ public class ContentAdapterManager {
         int apiVer = meta.getInt(META_ADAPTER_API_VERSION, -1);
 
         // only bind if api requirement is met
-        if (apiVer >= TARGET_ADAPTER_API)
+        if (apiVer >= TARGET_API_VERSION)
             return true;
         else {
-            Log.w("TenshiCP", fmt("Content adapter %s is outdated (found: %d ; target: %d)", adapterService.name, apiVer, TARGET_ADAPTER_API));
+            Log.w("TenshiCP", fmt("Content adapter %s is outdated (found: %d ; target: %d)", adapterService.name, apiVer, TARGET_API_VERSION));
             return false;
         }
     }
 
     /**
-     * bind to a content adapter service and add to contentAdapters list
+     * create the content adapter instance and add to the list of content adapters.
+     * optionally call .bind() on the adapter
      *
      * @param adapterService the service to bind
+     * @param bind           should we call .bind() on the adapter?
      */
-    private void bindService(@NonNull ServiceInfo adapterService) {
+    private void createAndAddAdapter(@NonNull ServiceInfo adapterService, boolean bind) {
         Log.i("TenshiCP", fmt("Binding Content Adapter %s", adapterService.name));
 
-        // create ContentAdapter instance and add to list
-        final ContentAdapter adapter = new ContentAdapter(adapterService);
+        // create ContentAdapter instance
+        final ContentAdapter adapter = ContentAdapter.fromServiceInfo(adapterService);
+
+        // abort if adapter is null (instantiation failed)
+        if (isNull(adapter))
+            return;
+
+        // add to the list of all adapters
         contentAdapters.add(adapter);
 
-        // bind the service
-        final Intent svcBindIntent = new Intent(ACTION_TENSHI_CONTENT);
-        svcBindIntent.addCategory(CATEGORY_TENSHI_CONTENT);
-        svcBindIntent.setComponent(new ComponentName(adapterService.packageName, adapterService.name));
-
-        ctx.bindService(svcBindIntent, adapter, Context.BIND_AUTO_CREATE);
+        // bind the adapter
+        if (bind)
+            adapter.bind(ctx);
     }
     //endregion
 }

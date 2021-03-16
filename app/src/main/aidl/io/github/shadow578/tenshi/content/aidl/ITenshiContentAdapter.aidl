@@ -5,20 +5,9 @@ import android.net.Uri;
 
 /**
 * AIDL interface class for Tenshi Content Adapters,
-* Version 1
+* Version 1 (Keep this in sync with io.github.shadow578.tenshi.content.Constants#TARGET_API_VERSION)
 */
 interface ITenshiContentAdapter {
-        /**
-        * get the internal name of this adapter.
-        * Can be human- readable or a randomized string, as long as it's unique.
-        */
-        String getName();
-
-        /**
-        * get the display name for this adapter
-        */
-        String getDisplayName();
-
         /**
          * query a video stream URI for a anime and episode.
          * if this anime is not found or no uri can be found for some other reason, return null

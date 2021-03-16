@@ -15,9 +15,15 @@ import com.google.gson.GsonBuilder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.github.shadow578.tenshi.content.ContentAdapter;
 import io.github.shadow578.tenshi.content.ContentAdapterManager;
+import io.github.shadow578.tenshi.lang.LanguageUtils;
 import io.github.shadow578.tenshi.mal.AuthInterceptor;
 import io.github.shadow578.tenshi.mal.CacheInterceptor;
 import io.github.shadow578.tenshi.mal.MALErrorInterceptor;
@@ -41,6 +47,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.lang.LanguageUtils.async;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
@@ -89,16 +96,23 @@ public class TenshiApp extends Application {
 
         // init and find content adapters
         contentAdapterManager = new ContentAdapterManager(getApplicationContext());
-        contentAdapterManager.discoverContentAdapters();
+        contentAdapterManager.discoverContentAdapters(false);
 
 
         //TODO: testing
         Log.i("Tenshi", fmt("Found %d Content Adapters: ", contentAdapterManager.getAdapterCount()));
         for (ContentAdapter ca : contentAdapterManager.getAdapters())
-            Log.i("Tenshi", fmt("Adapter: %s", ca.getServiceName()));
+            Log.i("Tenshi", fmt("Adapter: %s (%s)", ca.getDisplayName(), ca.getUniqueName()));
 
-        contentAdapterManager.getAdapters().get(0).getStreamUri(0, "", "", 1, p
+
+        // bind adapter, get url, then unbind
+        final ContentAdapter c = contentAdapterManager.getAdapters().get(0);
+        c.bind(getApplicationContext());
+
+        c.getStreamUri(0, "", "", 1, p
                 -> Toast.makeText(getApplicationContext(), "StrUrl: " + p.toString(), Toast.LENGTH_SHORT).show());
+
+        c.unbind(getApplicationContext());
     }
 
     /**
