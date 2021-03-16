@@ -58,6 +58,21 @@ public class ContentAdapterManager {
     }
 
     /**
+     * get a adapter by unique name
+     *
+     * @param uniqueName the unique name of the adapter to get
+     * @return the adapter found, or null if no adapter matched the name
+     */
+    @Nullable
+    public ContentAdapter getAdapter(@NonNull String uniqueName) {
+        for (ContentAdapter ca : contentAdapters)
+            if (ca.getUniqueName().equals(uniqueName))
+                return ca;
+
+        return null;
+    }
+
+    /**
      * unbind all services.
      * call before closing the application
      */
@@ -154,7 +169,8 @@ public class ContentAdapterManager {
         final ContentAdapter adapter = ContentAdapter.fromServiceInfo(adapterService);
 
         // abort if adapter is null (instantiation failed)
-        if (isNull(adapter))
+        // or anothe adapter with the same unique name already exists
+        if (isNull(adapter) || notNull(getAdapter(adapter.getUniqueName())))
             return;
 
         // add to the list of all adapters

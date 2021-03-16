@@ -225,12 +225,12 @@
                 android:layout_below="@id/div_anime_edit_watch_now"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:visibility="gone"
                 app:showDividers="middle">
 
-                <!-- watch now (disabled RN) -->
+                <!-- watch now -->
                 <Button
                     style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:visibility="gone"
                     android:id="@+id/anime_watch_now_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -240,9 +240,22 @@
                     android:gravity="center"
                     android:textColor="?attr/colorOnBackground"
                     android:text="@string/details_watch_now" />
+
+                <!-- adapter selection TODO: layout -->
+                <Button
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:id="@+id/anime_select_content_adapter_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableStart="@drawable/ic_baseline_play_arrow_24"
+                    android:drawableTint="?attr/colorOnBackground"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnBackground"
+                    android:text="v" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <!-- divider (disabled RN) -->
+            <!-- divider -->
             <View
                 android:id="@+id/div_watch_now_synopsis"
                 android:visibility="gone"

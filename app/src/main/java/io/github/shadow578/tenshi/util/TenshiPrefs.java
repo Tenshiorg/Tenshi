@@ -9,6 +9,7 @@ import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
+import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
 
@@ -62,7 +63,13 @@ public class TenshiPrefs {
         /**
          * are debug options enabled in Settings?
          */
-        ShowDebugOptions
+        ShowDebugOptions,
+
+        /**
+         * selected content provider unique name for a anime.
+         * extended key is anime_id
+         */
+        AnimeSelectedContentProvider
     }
 
     /**
@@ -261,6 +268,32 @@ public class TenshiPrefs {
     @NonNull
     public static String getString(@NonNull Key key, @NonNull String def) {
         return doesKeyExist(key) ? prefs.getString(getKeyName(key), def) : def;
+    }
+
+
+    /**
+     * set a string value with extended key
+     * @param key the key of the value to set
+     * @param extendedKey extended key of the value to get
+     * @param value the value to set
+     */
+    public static void setString(@NonNull Key key, @NonNull String extendedKey, @NonNull String value) {
+        prefs.edit()
+                .putString(concat(getKeyName(key), "_", extendedKey), value)
+                .apply();
+    }
+
+    /**
+     * get a string value with extended key from prefs
+     * @param key the key of the value to get
+     * @param extendedKey extended key of the value to get
+     * @param def the default value, if the key is not found
+     * @return the value loaded from prefs, or def
+     */
+    @NonNull
+    public static String getString(@NonNull Key key, @NonNull String extendedKey, @NonNull String def) {
+        final String k = concat(getKeyName(key), "_", extendedKey);
+        return prefs.contains(k) ? prefs.getString(k, def) : def;
     }
 
     /**
