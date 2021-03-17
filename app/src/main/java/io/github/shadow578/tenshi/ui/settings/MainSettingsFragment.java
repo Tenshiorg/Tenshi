@@ -1,5 +1,6 @@
 package io.github.shadow578.tenshi.ui.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -7,16 +8,28 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
+import io.github.shadow578.tenshi.content.ContentAdapter;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.util.TenshiPrefs.*;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.collect;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.join;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.str;
+import static io.github.shadow578.tenshi.util.TenshiPrefs.Key;
+import static io.github.shadow578.tenshi.util.TenshiPrefs.Theme;
+import static io.github.shadow578.tenshi.util.TenshiPrefs.doesKeyExist;
+import static io.github.shadow578.tenshi.util.TenshiPrefs.getKeyName;
+import static io.github.shadow578.tenshi.util.TenshiPrefs.setBool;
 
 public class MainSettingsFragment extends PreferenceFragmentCompat {
     private int hiddenMenuClicks = 0;
@@ -63,16 +76,58 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
 
 
         // DEBUG: readonly preference for all keys
-        setupDebugPrefs("dbg_debug_category");
+        setupDebugPrefs("dbg_prefs_category");
+
+        // DEBUG: list all found content adapters
+        setupContentAdapters("dbg_ca_category");
     }
 
     private void setupDebugPrefs(@SuppressWarnings("SameParameterValue") String category) {
+        // dump all prefs in Key enum
+        final ArrayList<String> dumpedKeys = new ArrayList<>();
         final PreferenceCategory cat = findPreference(category);
         for (Key key : Key.values()) {
             // create preference
             Preference pref = new Preference(requireContext());
             pref.setTitle(key.name());
             pref.setSummary(getAny(key, "-"));
+            dumpedKeys.add(TenshiPrefs.getKeyName(key));
+
+            // add preference to category
+            cat.addPreference(pref);
+        }
+
+        // dump any key that is not in Keys enum (with extended key)
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext().getApplicationContext());
+        final Map<String, ?> allPrefs = prefs.getAll();
+        for(String key : allPrefs.keySet())
+        {
+            // skip if already dumped this key
+            if(dumpedKeys.contains(key))
+                continue;
+
+            // get value
+            String value = allPrefs.get(key).toString();
+
+            // create preference
+            Preference pref = new Preference(requireContext());
+            pref.setTitle(key);
+            pref.setSummary(value);
+
+            // add preference
+            cat.addPreference(pref);
+        }
+    }
+
+    private void setupContentAdapters(@SuppressWarnings("SameParameterValue") String category)
+    {
+        final PreferenceCategory cat = findPreference(category);
+        for(ContentAdapter ca : TenshiApp.getContentAdapterManager().getAdapters())
+        {
+            // create preference
+            Preference pref = new Preference(requireContext());
+            pref.setTitle(ca.getDisplayName());
+            pref.setSummary(fmt("%s (API %d)", ca.getUniqueName(), ca.getApiVersion()));
 
             // add preference to category
             cat.addPreference(pref);

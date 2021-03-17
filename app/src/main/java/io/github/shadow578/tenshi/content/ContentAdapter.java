@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ServiceInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,6 +18,7 @@ import io.github.shadow578.tenshi.lang.Consumer;
 
 import static io.github.shadow578.tenshi.content.Constants.ACTION_TENSHI_CONTENT;
 import static io.github.shadow578.tenshi.content.Constants.CATEGORY_TENSHI_CONTENT;
+import static io.github.shadow578.tenshi.content.Constants.META_ADAPTER_API_VERSION;
 import static io.github.shadow578.tenshi.content.Constants.META_DISPLAY_NAME;
 import static io.github.shadow578.tenshi.content.Constants.META_UNIQUE_NAME;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.async;
@@ -37,6 +36,11 @@ public class ContentAdapter implements ServiceConnection {
      */
     @NonNull
     private final ServiceInfo service;
+
+    /**
+     * api version of this adapter.
+     */
+    private final int apiVersion;
 
     /**
      * the unique name of this adapter
@@ -68,8 +72,9 @@ public class ContentAdapter implements ServiceConnection {
      */
     private boolean didDisconnect = false;
 
-    private ContentAdapter(@NonNull ServiceInfo svc, @NonNull String uName, @NonNull String dName) {
+    private ContentAdapter(@NonNull ServiceInfo svc, int apiVer, @NonNull String uName, @NonNull String dName) {
         service = svc;
+        apiVersion = apiVer;
         uniqueName = uName;
         displayName = dName;
     }
@@ -90,6 +95,9 @@ public class ContentAdapter implements ServiceConnection {
         if (isNull(meta))
             return null;
 
+        // get api version from meta
+        final int apiVersion = meta.getInt(META_ADAPTER_API_VERSION, -1);
+
         // get unique and display name from meta
         final String uniqueName = meta.getString(META_UNIQUE_NAME, null);
         final String displayName = meta.getString(META_DISPLAY_NAME, uniqueName);
@@ -108,11 +116,11 @@ public class ContentAdapter implements ServiceConnection {
                     "If you're developing this adapter, please consider adding %s metadata to your adapter's manifest.", uniqueName, META_DISPLAY_NAME));
 
         // create the content adapter instance and return
-        return new ContentAdapter(svc, uniqueName, displayName);
+        return new ContentAdapter(svc, apiVersion, uniqueName, displayName);
     }
 
     /**
-     * bind the service of this content adapter. do this before calling {@link ContentAdapter#getStreamUri(int, String, String, int, Consumer)}
+     * bind the service of this content adapter. do this before calling {@link ContentAdapter#requestStreamUri(int, String, String, int, Consumer)}
      *
      * @param ctx the context to bind from
      */
@@ -127,6 +135,15 @@ public class ContentAdapter implements ServiceConnection {
      */
     public void unbind(@NonNull Context ctx) {
         ctx.stopService(getServiceIntent());
+    }
+
+    /**
+     * get the api / aidl version of this adapter
+     *
+     * @return the api / aidl version of this adapter
+     */
+    public int getApiVersion() {
+        return apiVersion;
     }
 
     /**
