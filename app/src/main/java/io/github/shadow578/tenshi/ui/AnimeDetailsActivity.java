@@ -541,8 +541,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             return;
 
         // create submenu for content adapter selection
-        //TODO hardcoded string
-        SubMenu sub = menu.addSubMenu("Content Adapter");
+        SubMenu sub = menu.addSubMenu(R.string.details_choose_content_provider_menu);
 
         // create a item for every content adapter
         for (ContentAdapter ca : TenshiApp.getContentAdapterManager().getAdapters()) {
@@ -717,12 +716,14 @@ public class AnimeDetailsActivity extends TenshiActivity {
                 uriStr -> {
                     Uri uri;
                     if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
-                        //TODO stub
-                        Toast.makeText(this, fmt("Episode %d : %s", episode, uri.toString()), Toast.LENGTH_SHORT).show();
-
+                        //open in player
+                        final Intent playIntent = new Intent(Intent.ACTION_VIEW);
+                        playIntent.setData(uri);
+                        playIntent.putExtra(Intent.EXTRA_TITLE, fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode));
+                        startActivity(playIntent);
                     } else {
                         // did not return a url, show error snackbar
-                        Snackbar.make(b.getRoot(), "Did not find playback url!", BaseTransientBottomBar.LENGTH_SHORT).show(); //TODO: hardcoded string
+                        Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, BaseTransientBottomBar.LENGTH_SHORT).show();
                     }
                     // unbind adapter
                     contentAdapterF.unbind(this);

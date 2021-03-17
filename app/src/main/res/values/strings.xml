@@ -61,12 +61,15 @@
     <string name="details_opening_themes_title">Opening Themes</string>
     <string name="details_ending_theme_title">Ending Themes</string>
     <string name="details_add_to_list">Add to Profile</string>
-    <string name="details_watch_now">Watch Now</string>
     <string name="details_anime_delete">Remove Entry</string>
     <string name="details_anime_duration_minutes_fmt">%d minutes</string>
     <string name="details_status_episode_select_fmt">Episode %d</string>
     <string name="details_status_episode_select_none">None</string>
     <string name="details_status_episodes_progress_fmt">%d / %d</string>
+    <string name="details_watch_now">Watch Now</string>
+    <string name="details_choose_content_provider_menu">Source</string>
+    <string name="details_watch_intent_title_fmt">%s Episode %d</string>
+
 
     <!-- anime details snackbars -->
     <string name="details_snack_entry_removed">Deleted</string>
@@ -76,6 +79,7 @@
     <string name="details_snack_entry_added">Added to Plan to Watch</string>
     <string name="details_snack_update_no_changes">No changes</string>
     <string name="details_snack_error_no_id">Invalid Anime ID. Have a helpful fox instead</string>
+    <string name="details_snack_content_empty_response">Could not start Playback. Try another Source</string>
 
     <!-- anime details top menu -->
     <string name="details_menu_view_on_mal">View on MAL</string>
