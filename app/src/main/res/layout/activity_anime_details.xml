@@ -240,19 +240,6 @@
                     android:gravity="center"
                     android:textColor="?attr/colorOnBackground"
                     android:text="@string/details_watch_now" />
-
-                <!-- adapter selection TODO: layout -->
-                <Button
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:id="@+id/anime_select_content_adapter_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableStart="@drawable/ic_baseline_play_arrow_24"
-                    android:drawableTint="?attr/colorOnBackground"
-                    android:gravity="center"
-                    android:textColor="?attr/colorOnBackground"
-                    android:text="v" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <!-- divider -->
