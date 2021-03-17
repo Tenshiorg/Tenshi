@@ -3,6 +3,7 @@ package io.github.shadow578.tenshi.ui;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -685,9 +686,10 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // bind the adapter and request playback url
         contentAdapterF.bind(this);
-        contentAdapterF.getStreamUri(animeID, animeDetails.titleSynonyms.en, animeDetails.titleSynonyms.jp, episode,
-                uri -> {
-                    if (notNull(uri)) {
+        contentAdapterF.requestStreamUri(animeID, animeDetails.titleSynonyms.en, animeDetails.titleSynonyms.jp, episode,
+                uriStr -> {
+                    Uri uri;
+                    if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
                         //TODO stub
                         Toast.makeText(this, fmt("Episode %d : %s", episode, uri.toString()), Toast.LENGTH_SHORT).show();
 
@@ -695,7 +697,6 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         // did not return a url, show error snackbar
                         Snackbar.make(b.getRoot(), "Did not find playback url!", BaseTransientBottomBar.LENGTH_SHORT).show(); //TODO: hardcoded string
                     }
-
                     // unbind adapter
                     contentAdapterF.unbind(this);
                 });

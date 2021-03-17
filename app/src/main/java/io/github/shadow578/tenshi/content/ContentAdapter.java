@@ -14,11 +14,19 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import io.github.shadow578.tenshi.content.aidl.ITenshiContentAdapter;
+import io.github.shadow578.tenshi.content.aidl.IContentAdapter;
+import io.github.shadow578.tenshi.content.aidl.IContentAdapterCallback;
 import io.github.shadow578.tenshi.lang.Consumer;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
-import static io.github.shadow578.tenshi.content.Constants.*;
+import static io.github.shadow578.tenshi.content.Constants.ACTION_TENSHI_CONTENT;
+import static io.github.shadow578.tenshi.content.Constants.CATEGORY_TENSHI_CONTENT;
+import static io.github.shadow578.tenshi.content.Constants.META_DISPLAY_NAME;
+import static io.github.shadow578.tenshi.content.Constants.META_UNIQUE_NAME;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.async;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
 
 /**
  * Handles binding to ITenshiContentAdapter services and provides a async wrapper to the service
@@ -46,7 +54,7 @@ public class ContentAdapter implements ServiceConnection {
      * the AIDL service connection. null if not yet connected or disconnected
      */
     @Nullable
-    private ITenshiContentAdapter adapter;
+    private IContentAdapter adapter;
 
     /**
      * lock for adapter
@@ -102,10 +110,10 @@ public class ContentAdapter implements ServiceConnection {
         // create the content adapter instance and return
         return new ContentAdapter(svc, uniqueName, displayName);
     }
-    
+
     /**
      * bind the service of this content adapter. do this before calling {@link ContentAdapter#getStreamUri(int, String, String, int, Consumer)}
-     * 
+     *
      * @param ctx the context to bind from
      */
     public void bind(@NonNull Context ctx) {
@@ -114,6 +122,7 @@ public class ContentAdapter implements ServiceConnection {
 
     /**
      * unbind the service of this content adatper. If not bound, nothing will happen
+     *
      * @param ctx the context to unbind from
      */
     public void unbind(@NonNull Context ctx) {
@@ -122,27 +131,30 @@ public class ContentAdapter implements ServiceConnection {
 
     /**
      * get the unique name of this adapter
+     *
      * @return the unique name of this adapter
      */
     @NonNull
-    public String getUniqueName(){
+    public String getUniqueName() {
         return uniqueName;
     }
 
     /**
      * get the display name of this adapter
+     *
      * @return the display name of this adapter
      */
     @NonNull
-    public String getDisplayName(){
+    public String getDisplayName() {
         return displayName;
     }
 
     /**
      * get a intent for the service
+     *
      * @return the intent for the service
      */
-    private Intent getServiceIntent(){
+    private Intent getServiceIntent() {
         final Intent i = new Intent(ACTION_TENSHI_CONTENT);
         i.addCategory(CATEGORY_TENSHI_CONTENT);
         i.setComponent(new ComponentName(service.packageName, service.name));
@@ -154,7 +166,7 @@ public class ContentAdapter implements ServiceConnection {
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.i("TenshiCP", fmt("Content Adapter Service %s connected", name.getClassName()));
         synchronized (ADAPTER_LOCK) {
-            adapter = ITenshiContentAdapter.Stub.asInterface(service);
+            adapter = IContentAdapter.Stub.asInterface(service);
             didDisconnect = false;
             ADAPTER_LOCK.notifyAll();
         }
@@ -183,19 +195,28 @@ public class ContentAdapter implements ServiceConnection {
      * @param episode  the episode number to get the stream url of
      * @param callback the callback called as soon as the service answered. The result may be null if the service died or answered null.
      */
-    public void getStreamUri(int malID, @NonNull String enTitle, @NonNull String jpTitle, int episode, @NonNull Consumer<Uri> callback) {
+    public void requestStreamUri(int malID, @NonNull String enTitle, @NonNull String jpTitle, int episode, @NonNull Consumer<String> callback) {
         async(() -> {
+            synchronized (ADAPTER_LOCK) {
+                return waitUntilServiceConnected();
+            }
+        }, isConnected -> {
+            // service is connected, request uri with callback
             try {
                 synchronized (ADAPTER_LOCK) {
-                    if (waitUntilServiceConnected())
-                        return adapter.getStreamUri(malID, enTitle, jpTitle, episode);
-                    else
-                        return null;
+                    if (notNull(adapter) && isConnected)
+                        adapter.requestStreamUri(malID, enTitle, jpTitle, episode, new IContentAdapterCallback.Stub() {
+                            @Override
+                            public void streamUriResult(String streamUri) {
+                                callback.invoke(streamUri);
+                            }
+                        });
                 }
-            } catch (RemoteException e) {
-                return null;
+            } catch (Exception e) {
+                Log.e("TenshiCP", e.toString());
+                callback.invoke(null);
             }
-        }, callback);
+        });
     }
 
     /**

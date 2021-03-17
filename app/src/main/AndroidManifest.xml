@@ -7,7 +7,7 @@
 
     <queries>
         <intent>
-            <action android:name="io.github.shadow578.tenshi.TENSHI_CONTENT_ADAPTER" />
+            <action android:name="io.github.shadow578.tenshi.content.ADAPTER" />
         </intent>
     </queries>
 
