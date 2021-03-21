@@ -16,8 +16,9 @@ interface IContentAdapter {
          * @param enTitle the english title of the anime (from MAL)
          * @param jpTitle the japanese title of the anime (from MAL)
          * @param episode the episode number to get the stream url of
+         * @param persistentStorage persistent storage for this content adatper, per anime (return the modified storage in callback). This can be whatever string, tho not null (use json if you need multiple values)
          * @param callback callback that is called when the stream uri was found
          * @return the url for streaming
          */
-        void requestStreamUri(in int malID, in String enTitle, in String jpTitle, in int episode, IContentAdapterCallback callback);
+        void requestStreamUri(in int malID, in String enTitle, in String jpTitle, in int episode, in String peristentStorage, IContentAdapterCallback callback);
 }

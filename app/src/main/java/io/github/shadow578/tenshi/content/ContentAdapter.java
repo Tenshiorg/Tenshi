@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import io.github.shadow578.tenshi.content.aidl.IContentAdapter;
 import io.github.shadow578.tenshi.content.aidl.IContentAdapterCallback;
 import io.github.shadow578.tenshi.lang.Consumer;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 
 import static io.github.shadow578.tenshi.content.Constants.ACTION_TENSHI_CONTENT;
 import static io.github.shadow578.tenshi.content.Constants.CATEGORY_TENSHI_CONTENT;
@@ -22,10 +23,13 @@ import static io.github.shadow578.tenshi.content.Constants.META_ADAPTER_API_VERS
 import static io.github.shadow578.tenshi.content.Constants.META_DISPLAY_NAME;
 import static io.github.shadow578.tenshi.content.Constants.META_UNIQUE_NAME;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.async;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
 import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
+import static io.github.shadow578.tenshi.lang.LanguageUtils.str;
 
 /**
  * Handles binding to ITenshiContentAdapter services and provides a async wrapper to the service
@@ -221,13 +225,24 @@ public class ContentAdapter implements ServiceConnection {
             // service is connected, request uri with callback
             try {
                 synchronized (ADAPTER_LOCK) {
-                    if (notNull(adapter) && isConnected)
-                        adapter.requestStreamUri(malID, enTitle, jpTitle, episode, new IContentAdapterCallback.Stub() {
+                    if (notNull(adapter) && isConnected) {
+                        // load persistent storage for this adapter
+                        final String extKey = concat("_", str(malID), "_", getUniqueName());
+                        final String storageIn = TenshiPrefs.getString(TenshiPrefs.Key.ContentAdapterPersistentStorage, extKey, "");
+
+                        // request uri
+                        adapter.requestStreamUri(malID, enTitle, jpTitle, episode, storageIn, new IContentAdapterCallback.Stub() {
                             @Override
-                            public void streamUriResult(String streamUri) {
+                            public void streamUriResult(String streamUri, String persistentStorage) {
+                                // save modified storage
+                                final String storageOut = elvisEmpty(persistentStorage, "");
+                                TenshiPrefs.setString(TenshiPrefs.Key.ContentAdapterPersistentStorage, extKey, storageOut);
+
+                                // run callback
                                 callback.invoke(streamUri);
                             }
                         });
+                    }
                 }
             } catch (Exception e) {
                 Log.e("TenshiCP", e.toString());

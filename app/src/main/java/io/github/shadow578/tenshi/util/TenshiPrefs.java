@@ -69,7 +69,13 @@ public class TenshiPrefs {
          * selected content provider unique name for a anime.
          * extended key is anime_id
          */
-        AnimeSelectedContentProvider
+        AnimeSelectedContentProvider,
+
+        /**
+         * persistent storage for a content provider, per anime
+         * extended key is anime_id + provider unique name
+         */
+        ContentAdapterPersistentStorage
     }
 
     /**

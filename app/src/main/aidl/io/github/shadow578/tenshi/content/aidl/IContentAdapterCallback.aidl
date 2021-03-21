@@ -14,6 +14,7 @@ interface IContentAdapterCallback {
     * Contains the found stream uri, if found
     *
     * @param streamUri the stream uri, or null if not found.
+    * @param persistentStorage persistent storage for this adatper, per anime
     */
-    void streamUriResult(in String streamUri);
+    void streamUriResult(in String streamUri, in String persistentStorage);
 }
