@@ -218,14 +218,9 @@ public class ContentAdapter implements ServiceConnection {
      */
     public void requestStreamUri(int malID, @NonNull String enTitle, @NonNull String jpTitle, int episode, @NonNull Consumer<String> callback) {
         async(() -> {
-            synchronized (ADAPTER_LOCK) {
-                return waitUntilServiceConnected();
-            }
-        }, isConnected -> {
-            // service is connected, request uri with callback
             try {
                 synchronized (ADAPTER_LOCK) {
-                    if (notNull(adapter) && isConnected) {
+                    if (waitUntilServiceConnected() && notNull(adapter)) {
                         // load persistent storage for this adapter
                         final String extKey = concat("_", str(malID), "_", getUniqueName());
                         final String storageIn = TenshiPrefs.getString(TenshiPrefs.Key.ContentAdapterPersistentStorage, extKey, "");
@@ -238,17 +233,21 @@ public class ContentAdapter implements ServiceConnection {
                                 final String storageOut = elvisEmpty(persistentStorage, "");
                                 TenshiPrefs.setString(TenshiPrefs.Key.ContentAdapterPersistentStorage, extKey, storageOut);
 
-                                // run callback
-                                callback.invoke(streamUri);
+                                // run callback on ui thread
+                                async(() -> streamUri, callback);
                             }
                         });
                     }
                 }
             } catch (Exception e) {
                 Log.e("TenshiCP", e.toString());
-                callback.invoke(null);
+                e.printStackTrace();
+
+                // run callback on ui thread
+                async(() -> null, callback);
             }
-        });
+            return null;
+        }, ignored -> {});
     }
 
     /**

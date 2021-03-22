@@ -712,7 +712,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // bind the adapter and request playback url
         contentAdapterF.bind(this);
-        contentAdapterF.requestStreamUri(animeID, animeDetails.titleSynonyms.en, animeDetails.titleSynonyms.jp, episode,
+        contentAdapterF.requestStreamUri(animeID, animeDetails.title, animeDetails.titleSynonyms.jp, episode,
                 uriStr -> {
                     Uri uri;
                     if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
