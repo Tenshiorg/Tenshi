@@ -20,7 +20,6 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.chip.Chip;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -520,14 +519,9 @@ public class AnimeDetailsActivity extends TenshiActivity {
      * update the "watch now" views
      */
     private void updateWatchNowViews() {
-        // get selected content adapter for this anime
-        final String selectedAdapter = TenshiPrefs.getString(TenshiPrefs.Key.AnimeSelectedContentProvider, str(animeID), null);
-        ContentAdapter contentAdapter = TenshiApp.getContentAdapterManager().getAdapters().get(0);
-        if (!nullOrWhitespace(selectedAdapter))
-            contentAdapter = TenshiApp.getContentAdapterManager().getAdapter(selectedAdapter);
-
         // update button text
-        b.animeWatchNowButton.setText(fmt("Watch on %s", contentAdapter.getDisplayName()));
+        final ContentAdapter contentAdapter = getSelectedContentAdapter();
+        b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_on_fmt, contentAdapter.getDisplayName()));
     }
 
     /**
@@ -553,7 +547,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             if (!nullOrEmpty(displayName) && !nullOrEmpty(uniqueName))
                 sub.add(displayName).setOnMenuItemClickListener(item -> {
                     // set content adapter for this anime
-                    TenshiPrefs.setString(TenshiPrefs.Key.AnimeSelectedContentProvider, str(animeID), uniqueName);
+                    TenshiPrefs.setString(TenshiPrefs.Key.AnimeSelectedContentProvider, "" + animeID, uniqueName);
 
                     // update views
                     updateWatchNowViews();
@@ -703,12 +697,16 @@ public class AnimeDetailsActivity extends TenshiActivity {
         if (TenshiApp.getContentAdapterManager().getAdapterCount() <= 0)
             return;
 
-        // get content adapter, fallback to first loaded
-        final String selectedAdapter = TenshiPrefs.getString(TenshiPrefs.Key.AnimeSelectedContentProvider, str(animeID), null);
-        ContentAdapter contentAdapter = TenshiApp.getContentAdapterManager().getAdapters().get(0);
-        if (!nullOrWhitespace(selectedAdapter))
-            contentAdapter = TenshiApp.getContentAdapterManager().getAdapter(selectedAdapter);
-        final ContentAdapter contentAdapterF = contentAdapter;
+        // get content adapter
+        final ContentAdapter contentAdapterF = getSelectedContentAdapter();
+
+        // make sure we have all infos for the call
+        if (isNull(animeDetails)
+                || isNull(animeDetails.title)
+                || isNull(animeDetails.titleSynonyms)) {
+            Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
 
         // bind the adapter and request playback url
         contentAdapterF.bind(this);
@@ -723,11 +721,32 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         startActivity(playIntent);
                     } else {
                         // did not return a url, show error snackbar
-                        Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, BaseTransientBottomBar.LENGTH_SHORT).show();
+                        Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
                     }
                     // unbind adapter
                     contentAdapterF.unbind(this);
                 });
+    }
+
+    /**
+     * get the selected content adapter for this anime.
+     * if no preference is saved, or it is invalid, uses the first adapter
+     *
+     * @return the content adapter
+     */
+    @NonNull
+    private ContentAdapter getSelectedContentAdapter() {
+        // get selected content adapter for this anime
+        final String selectedAdapter = TenshiPrefs.getString(TenshiPrefs.Key.AnimeSelectedContentProvider, "" + animeID, "");
+        ContentAdapter contentAdapter = null;
+        if (!nullOrWhitespace(selectedAdapter))
+            contentAdapter = TenshiApp.getContentAdapterManager().getAdapter(selectedAdapter);
+
+        // fallback to adapter 0
+        if (contentAdapter == null)
+            contentAdapter = TenshiApp.getContentAdapterManager().getAdapters().get(0);
+
+        return contentAdapter;
     }
 
     /**

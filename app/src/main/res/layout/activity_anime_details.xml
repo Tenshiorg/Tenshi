@@ -239,7 +239,7 @@
                     android:drawableTint="?attr/colorOnBackground"
                     android:gravity="center"
                     android:textColor="?attr/colorOnBackground"
-                    android:text="@string/details_watch_now" />
+                    android:text="@string/details_watch_on_fmt" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <!-- divider -->
