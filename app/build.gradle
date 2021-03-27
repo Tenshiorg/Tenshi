@@ -70,4 +70,7 @@ dependencies {
 
     //FAB speed dial
     implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1'
+
+    // Tenshi ExtensionsLib
+    implementation project(":extensionsLib")
 }

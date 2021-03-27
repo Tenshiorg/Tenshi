@@ -16,15 +16,12 @@ import java.util.Map;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.content.ContentAdapter;
+import io.github.shadow578.tenshi.extensionslib.content.ContentAdapter;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.collect;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.join;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.str;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Key;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Theme;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.doesKeyExist;

@@ -22,8 +22,8 @@ import io.github.shadow578.tenshi.ui.settings.SettingsActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+
 
 /**
  * the main activity

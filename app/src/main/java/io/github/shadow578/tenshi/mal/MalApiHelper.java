@@ -24,11 +24,7 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.listOf;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * helper class for everything MAL api

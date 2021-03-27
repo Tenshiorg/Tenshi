@@ -39,10 +39,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.str;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+
 
 /**
  * home fragment, showing recommendations and seasonal anime to the user

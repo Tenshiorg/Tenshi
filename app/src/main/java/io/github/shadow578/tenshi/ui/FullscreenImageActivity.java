@@ -18,7 +18,7 @@ import io.github.shadow578.tenshi.databinding.ActivityFullPosterBinding;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import kotlin.Unit;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 public class FullscreenImageActivity extends TenshiActivity {
     /**

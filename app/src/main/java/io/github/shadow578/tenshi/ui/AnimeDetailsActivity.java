@@ -31,8 +31,8 @@ import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.adapter.AnimeThemesAdapter;
 import io.github.shadow578.tenshi.adapter.RelatedMediaAdapter;
-import io.github.shadow578.tenshi.content.ContentAdapter;
 import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
+import io.github.shadow578.tenshi.extensionslib.content.ContentAdapter;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.LibraryStatus;
@@ -50,22 +50,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.cast;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvis;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.foreach;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.join;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.listOf;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.repeat;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.str;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.withRet;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * activity for viewing anime details and updating the library status.

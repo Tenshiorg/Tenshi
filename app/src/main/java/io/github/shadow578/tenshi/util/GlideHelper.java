@@ -13,7 +13,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import io.github.shadow578.tenshi.GlideApp;
 import io.github.shadow578.tenshi.R;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * helper class for Glide, to ensure all images are handled the same

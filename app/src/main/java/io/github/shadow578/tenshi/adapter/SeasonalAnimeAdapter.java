@@ -13,13 +13,12 @@ import java.util.List;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.RecyclerAnimeSmallBinding;
-import io.github.shadow578.tenshi.lang.BiConsumer;
-import io.github.shadow578.tenshi.lang.Consumer;
+import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
+import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.model.AnimeRankingItem;
 import io.github.shadow578.tenshi.util.GlideHelper;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * recycler view adapter for a list of {@link AnimeRankingItem}

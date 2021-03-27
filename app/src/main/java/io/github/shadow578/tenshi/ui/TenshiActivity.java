@@ -14,7 +14,7 @@ import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * base activity for all activities

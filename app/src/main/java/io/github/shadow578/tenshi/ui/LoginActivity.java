@@ -25,9 +25,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+
 
 /**
  * The activity that handles logging in
