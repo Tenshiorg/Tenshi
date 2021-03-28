@@ -17,6 +17,7 @@ import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapter;
+import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
@@ -118,17 +119,19 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
 
     private void setupContentAdapters(@SuppressWarnings("SameParameterValue") String category)
     {
-        final PreferenceCategory cat = findPreference(category);
-        for(ContentAdapter ca : TenshiApp.getContentAdapterManager().getAdapters())
-        {
-            // create preference
-            Preference pref = new Preference(requireContext());
-            pref.setTitle(ca.getDisplayName());
-            pref.setSummary(fmt("%s (API %d)", ca.getUniqueName(), ca.getApiVersion()));
+        // wait until discovery finsihed
+        TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
+            final PreferenceCategory cat = findPreference(category);
+            for (ContentAdapterWrapper ca : manager.getAdapters()) {
+                // create preference
+                Preference pref = new Preference(requireContext());
+                pref.setTitle(ca.getDisplayName());
+                pref.setSummary(fmt("%s (API %d)", ca.getUniqueName(), ca.getApiVersion()));
 
-            // add preference to category
-            cat.addPreference(pref);
-        }
+                // add preference to category
+                cat.addPreference(pref);
+            }
+        });
     }
 
     private String getAny(Key key, String def) {

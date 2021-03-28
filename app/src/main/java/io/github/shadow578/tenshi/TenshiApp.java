@@ -40,7 +40,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * Tenshi Core logic
@@ -94,7 +99,9 @@ public class TenshiApp extends Application {
                 TenshiPrefs.setString(TenshiPrefs.Key.ContentAdapterPersistentStorage, uniqueName + "_" + animeId, persistentStorage);
             }
         });
-        contentAdapterManager.discoverContentAdapters(false);
+        contentAdapterManager.discoverAndInit(false);
+        contentAdapterManager.addOnDiscoveryEndCallback(p
+                -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
     }
 
     /**
