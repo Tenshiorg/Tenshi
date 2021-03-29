@@ -1,4 +1,4 @@
-Looking to report a Bug or make a feature request? Take a look [here](https://github.com/shadow578/tenshi#issues-feature-requests-and-contributing).
+Looking to report a Bug or make a feature request? Take a look [here](https://github.com/Tenshiorg/Tenshi#issues-feature-requests-and-contributing).
 
 ---
 
@@ -17,7 +17,7 @@ Translations are currently only possible by directly editing the strings.xml fil
 __Pull requests are welcome!__
 Please read follow the Code Style Guidelines below.
 
-If you're interested in taking on [an open issue](https://github.com/shadow578/tenshi/issues), please comment on it so others are aware.
+If you're interested in taking on [an open issue](https://github.com/Tenshiorg/Tenshi/issues), please comment on it so others are aware.
 
 # Forks
 
@@ -82,4 +82,4 @@ These Guidelines outline what I think are useful rules to create readable and ma
     - __all__ public fields and methods
     - _optionally_ private fields and methods
 - Usage of Lambda expression for handlers and callbacks is __strongly encouraged__.
-- Try to use [Tenshis language extensions](./LANG.md) instead of writing extra code.
+- Have a look at [Tenshis' Language Extensions](https://github.com/Tenshiorg/Extensions-Lib/blob/kohai/LANG.md).
