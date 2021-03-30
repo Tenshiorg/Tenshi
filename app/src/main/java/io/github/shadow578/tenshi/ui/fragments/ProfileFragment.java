@@ -31,7 +31,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * fragment for viewing the current user's profile and stats

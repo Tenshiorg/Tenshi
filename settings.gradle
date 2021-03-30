@@ -1,2 +1,4 @@
+include ':extensionsLib'
 include ':app'
+project(':extensionsLib').projectDir = new File(rootDir, 'Extensions-Lib/extensionsLib/')
 rootProject.name = "Tenshi"

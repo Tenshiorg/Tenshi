@@ -23,7 +23,7 @@ import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.adapter.UserAnimeListAdapter;
 import io.github.shadow578.tenshi.databinding.FragmentAnimelistCategoryBinding;
-import io.github.shadow578.tenshi.lang.BiConsumer;
+import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.UserLibraryList;
@@ -36,8 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * fragment for viewing a specific category of the user library

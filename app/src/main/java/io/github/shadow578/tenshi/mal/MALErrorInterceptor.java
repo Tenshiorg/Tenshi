@@ -6,12 +6,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import io.github.shadow578.tenshi.lang.Consumer;
+import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.model.ErrorResponse;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * interceptor for intercepting and calling back on error responses by MAL api

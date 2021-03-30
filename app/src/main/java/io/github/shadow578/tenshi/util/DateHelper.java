@@ -13,7 +13,7 @@ import java.time.format.FormatStyle;
 import io.github.shadow578.tenshi.mal.model.Season;
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class DateHelper {

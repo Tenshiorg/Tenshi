@@ -7,9 +7,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+
 
 /**
  * helper class for working with enums

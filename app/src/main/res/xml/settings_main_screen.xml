@@ -39,7 +39,9 @@
             android:title="App Version" />
     </PreferenceCategory>
 
-    <!-- Debug preferences, dynamically populated -->
-    <PreferenceCategory android:title="DEBUG" android:key="dbg_debug_category">
-    </PreferenceCategory>
+    <!-- Preference debug, dynamically populated -->
+    <PreferenceCategory android:title="PREFS" android:key="dbg_prefs_category"/>
+
+    <!-- content adapters debug, dynamically populated -->
+    <PreferenceCategory android:title="CONTENT_ADAPTERS" android:key="dbg_ca_category"/>
 </PreferenceScreen>

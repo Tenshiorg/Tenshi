@@ -26,7 +26,7 @@ import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * fragment for viewing the user library, with categories in tabs

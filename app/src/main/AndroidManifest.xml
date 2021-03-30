@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <queries>
+        <intent>
+            <action android:name="io.github.shadow578.tenshi.content.ADAPTER" />
+        </intent>
+    </queries>
+
     <application
         android:name=".TenshiApp"
         android:allowBackup="true"
@@ -80,6 +86,5 @@
             android:label="Settings"
             android:hardwareAccelerated="true"
             android:configChanges="keyboard|orientation|screenSize"/>
-
     </application>
 </manifest>

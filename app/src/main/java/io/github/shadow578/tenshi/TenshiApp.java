@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
+import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterManager;
 import io.github.shadow578.tenshi.mal.AuthInterceptor;
 import io.github.shadow578.tenshi.mal.CacheInterceptor;
 import io.github.shadow578.tenshi.mal.MALErrorInterceptor;
@@ -39,12 +40,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * Tenshi Core logic
@@ -71,13 +72,36 @@ public class TenshiApp extends Application {
      */
     private boolean currentlyRefreshingToken = false;
 
+    /**
+     * manager for content adapters
+     */
+    private ContentAdapterManager contentAdapterManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
 
+        // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
+
+        // init and find content adapters
+        contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
+            @NonNull
+            @Override
+            public String getPersistentStorage(@NonNull String uniqueName, int animeId) {
+                return TenshiPrefs.getString(TenshiPrefs.Key.ContentAdapterPersistentStorage, uniqueName + "_" + animeId, "");
+            }
+
+            @Override
+            public void setPersistentStorage(@NonNull String uniqueName, int animeId, @NonNull String persistentStorage) {
+                TenshiPrefs.setString(TenshiPrefs.Key.ContentAdapterPersistentStorage, uniqueName + "_" + animeId, persistentStorage);
+            }
+        });
+        contentAdapterManager.discoverAndInit(false);
+        contentAdapterManager.addOnDiscoveryEndCallback(p
+                -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
     }
 
     /**
@@ -278,6 +302,14 @@ public class TenshiApp extends Application {
     @NonNull
     public static MalService getMal() {
         return INSTANCE.mal;
+    }
+
+    /**
+     * @return the content adapter manager instance
+     */
+    @NonNull
+    public static ContentAdapterManager getContentAdapterManager() {
+        return INSTANCE.contentAdapterManager;
     }
 
     /**
