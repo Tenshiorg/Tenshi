@@ -319,19 +319,6 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // init shared popout window
         sharedListPopout = new ListPopupWindow(this, null, R.attr.listPopupWindowStyle);
 
-        // expand synopsis
-        b.expandSynopsis.setOnClickListener(v -> {
-            if (b.synopsis.getMaxLines() == 5) {
-                // expand
-                b.synopsis.setMaxLines(Integer.MAX_VALUE);
-                b.expandSynopsis.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_keyboard_arrow_up_24));
-            } else {
-                // subtract
-                b.synopsis.setMaxLines(5);
-                b.expandSynopsis.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_keyboard_arrow_down_24));
-            }
-        });
-
         // setup adapter for related anime/manga
         relatedMediaAdapter = new RelatedMediaAdapter(getApplicationContext(), relatedMedia, (v, related) -> openDetails(related.relatedAnime.animeId, related.relatedAnime.mediaType));
         b.relatedMediaRecycler.setAdapter(relatedMediaAdapter);
@@ -364,7 +351,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // create adapter for episodes
         final boolean hasEpisodes = notNull(animeDetails.episodesCount) && animeDetails.episodesCount > 0;
-        String[] episodesItems = { getString(R.string.details_status_episodes_progress_no_episodes) };
+        String[] episodesItems = {getString(R.string.details_status_episodes_progress_no_episodes)};
         if (hasEpisodes)
             episodesItems = repeat(0, animeDetails.episodesCount,
                     e -> e == 0 ? getString(R.string.details_status_episode_select_none) : fmt(this, R.string.details_status_episode_select_fmt, e))
@@ -604,6 +591,40 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         //synopsis
         with(animeDetails.synopsis, unknown, p -> b.synopsis.setText(p));
+
+        // region expand synopsis logic
+        final int SYNOPSIS_MINIMIZED_MAX_LINES = 5;
+
+        // setup after view rendered once
+        // currently, the synopsis textview has no maximum line count
+        b.synopsis.post(() -> {
+            // get current line count after render
+            final int lns = b.synopsis.getLineCount();
+
+            // set max lines of synopsis view
+            b.synopsis.setMaxLines(SYNOPSIS_MINIMIZED_MAX_LINES);
+
+            // setup expand button
+            if (lns <= SYNOPSIS_MINIMIZED_MAX_LINES) {
+                // hide expand button if the text fits as- is
+                b.expandSynopsis.setVisibility(View.GONE);
+            } else {
+                // setup expand button
+                b.expandSynopsis.setVisibility(View.VISIBLE);
+                b.expandSynopsis.setOnClickListener(v -> {
+                    if (b.synopsis.getMaxLines() <= SYNOPSIS_MINIMIZED_MAX_LINES) {
+                        // expand to max size
+                        b.synopsis.setMaxLines(Integer.MAX_VALUE);
+                        b.expandSynopsis.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_keyboard_arrow_up_24));
+                    } else {
+                        // collapse
+                        b.synopsis.setMaxLines(SYNOPSIS_MINIMIZED_MAX_LINES);
+                        b.expandSynopsis.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_keyboard_arrow_down_24));
+                    }
+                });
+            }
+        });
+        //endregion
 
         // genre chips
         b.genresChips.removeAllViews();

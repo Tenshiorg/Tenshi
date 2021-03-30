@@ -260,7 +260,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/div_watch_now_synopsis"
                 android:ellipsize="end"
-                android:maxLines="5"
                 android:paddingStart="@dimen/margin_text"
                 android:paddingEnd="@dimen/margin_text"
                 android:textColor="?attr/colorOnBackground"
