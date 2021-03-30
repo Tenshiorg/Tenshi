@@ -32,7 +32,6 @@ import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.adapter.AnimeThemesAdapter;
 import io.github.shadow578.tenshi.adapter.RelatedMediaAdapter;
 import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
-import io.github.shadow578.tenshi.extensionslib.content.ContentAdapter;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
@@ -51,7 +50,22 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.foreach;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.join;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.repeat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.str;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withRet;
 
 /**
  * activity for viewing anime details and updating the library status.
@@ -349,9 +363,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
         final ArrayAdapter<String> ratingsAdapter = new ArrayAdapter<>(this, R.layout.recylcer_generic_text, ratingItems);
 
         // create adapter for episodes
-        final String[] episodesItems = repeat(0, elvis(animeDetails.episodesCount, 1),
-                e -> e == 0 ? getString(R.string.details_status_episode_select_none) : fmt(this, R.string.details_status_episode_select_fmt, e))
-                .toArray(new String[0]);
+        final boolean hasEpisodes = notNull(animeDetails.episodesCount) && animeDetails.episodesCount > 0;
+        String[] episodesItems = { getString(R.string.details_status_episodes_progress_no_episodes) };
+        if (hasEpisodes)
+            episodesItems = repeat(0, animeDetails.episodesCount,
+                    e -> e == 0 ? getString(R.string.details_status_episode_select_none) : fmt(this, R.string.details_status_episode_select_fmt, e))
+                    .toArray(new String[0]);
         final ArrayAdapter<String> episodesAdapter = new ArrayAdapter<>(this, R.layout.recylcer_generic_text, episodesItems);
 
         // set on click listeners
@@ -391,7 +408,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             sharedListPopout.show();
         });
 
-        // episode count
+        // episode count (disable list onclick action when no animes are available)
         b.animeEditEpisodeCountBtn.setOnClickListener(v -> {
             // setup the popup
             sharedListPopout.setAnchorView(v);
@@ -403,15 +420,13 @@ public class AnimeDetailsActivity extends TenshiActivity {
             // setup onclick listener
             sharedListPopout.setOnItemClickListener((px, vx, episode, ix) -> {
                 // update anime and dismiss
-                updateEntry(null, null, episode);
+                // only update if we have episodes (otherwise the list is just one entry "No Episodes available")
+                if (hasEpisodes)
+                    updateEntry(null, null, episode);
                 sharedListPopout.dismiss();
             });
             sharedListPopout.show();
         });
-
-        // disable episode count button if the total number of episodes is unknown
-        if (isNull(animeDetails.episodesCount) || animeDetails.episodesCount <= 0)
-            b.animeEditEpisodeCountBtn.setEnabled(false);
 
         // add listener for add to list button
         b.animeAddToListBtn.setOnClickListener(v -> addEntry());
@@ -465,7 +480,10 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // wait until discovery finsihed
         TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
             // hide controls if no content adapters were discovered
-            if (manager.getAdapterCount() <= 0) {
+            // or if the anime does not have any episodes yet
+            if (manager.getAdapterCount() <= 0
+                    || isNull(animeDetails.episodesCount)
+                    || animeDetails.episodesCount <= 0) {
                 b.animeWatchNowGroup.setVisibility(View.GONE);
                 b.divWatchNowSynopsis.setVisibility(View.GONE);
                 return;
@@ -476,7 +494,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             b.divWatchNowSynopsis.setVisibility(View.VISIBLE);
 
             // create adapter for episodes
-            final String[] episodesItems = repeat(1, elvis(animeDetails.episodesCount, 1),
+            final String[] episodesItems = repeat(1, animeDetails.episodesCount,
                     e -> fmt(this, R.string.details_status_episode_select_fmt, e))
                     .toArray(new String[0]);
             final ArrayAdapter<String> episodesAdapter = new ArrayAdapter<>(this, R.layout.recylcer_generic_text, episodesItems);
@@ -510,7 +528,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
     private void updateWatchNowViews() {
         // update button text
         final ContentAdapterWrapper contentAdapter = getSelectedContentAdapter();
-        b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_on_fmt, contentAdapter.getDisplayName()));
+        with(contentAdapter, ca ->
+                b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_on_fmt, ca.getDisplayName())));
     }
 
     /**
@@ -696,7 +715,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // make sure we have all infos for the call
         if (isNull(animeDetails)
                 || isNull(animeDetails.title)
-                || isNull(animeDetails.titleSynonyms)) {
+                || isNull(animeDetails.titleSynonyms)
+                || isNull(contentAdapterF)) {
             Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
             return;
         }
@@ -727,7 +747,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
      *
      * @return the content adapter
      */
-    @NonNull
+    @Nullable
     private ContentAdapterWrapper getSelectedContentAdapter() {
         // get selected content adapter for this anime
         final String selectedAdapter = TenshiPrefs.getString(TenshiPrefs.Key.AnimeSelectedContentProvider, "" + animeID, "");
