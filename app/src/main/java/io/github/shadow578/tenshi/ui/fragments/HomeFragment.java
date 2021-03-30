@@ -40,7 +40,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.str;
 
 
 /**
@@ -97,9 +100,10 @@ public class HomeFragment extends TenshiFragment {
         b.currentSeasonTitle.setText(concat(LocalizationHelper.localizeSeason(currentSeason.season, requireContext()), " ", str(currentSeason.year)));
 
         // hide/show loading indicator for recommended anime
-        b.recommendationsLoadingIndicator.show();
         if (!animeListRecommend.isEmpty())
             b.recommendationsLoadingIndicator.hide();
+        else
+            b.recommendationsLoadingIndicator.show();
 
         // init adapter for recommended anime
         recommendedAnimeAdapter = new AnimeListAdapter(
@@ -119,7 +123,8 @@ public class HomeFragment extends TenshiFragment {
         b.getRoot().setProgress(lastMotionProgress);
         b.getRoot().addTransitionListener(new MotionLayout.TransitionListener() {
             @Override
-            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) { }
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+            }
 
             @Override
             public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float progress) {
@@ -127,10 +132,12 @@ public class HomeFragment extends TenshiFragment {
             }
 
             @Override
-            public void onTransitionCompleted(MotionLayout motionLayout, int i) {}
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+            }
 
             @Override
-            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {}
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+            }
         });
 
         // fetch data from MAL
@@ -233,7 +240,6 @@ public class HomeFragment extends TenshiFragment {
                     }
                 } else if (response.code() == 401 && isAdded())
                     Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
-
             }
 
             @Override
