@@ -80,7 +80,9 @@
             android:parentActivityName=".ui.MainActivity"
             android:label="@string/search_title"
             android:hardwareAccelerated="true"
+            android:exported="true"
             android:configChanges="keyboard|orientation|screenSize"/>
+
         <activity android:name=".ui.settings.SettingsActivity"
             android:parentActivityName=".ui.MainActivity"
             android:label="Settings"

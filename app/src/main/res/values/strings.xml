@@ -17,6 +17,7 @@
     <string name="main_nav_title_home">Home</string>
     <string name="main_nav_title_anime_list">Anime</string>
     <string name="main_nav_title_profile">Profile</string>
+    <string name="main_nav_title_search">Search</string>
     <!-- endregion -->
 
     <!-- region Home fragment-->
