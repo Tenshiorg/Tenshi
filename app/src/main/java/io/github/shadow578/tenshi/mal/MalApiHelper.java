@@ -137,12 +137,25 @@ public class MalApiHelper {
             // append to query string
             query.append(fieldName);
 
-            // if this field is a data type, include fields too
+            // setup sub- fields to query for this field
+            final StringBuilder subFields = new StringBuilder();
+
+            // if the fields type has @Data annotation, get fields from that and add them
             if (notNull(field.getType().getAnnotation(Data.class))) {
-                String subFields = getQueryableFields(field.getType());
-                if (!nullOrEmpty(subFields))
-                    query.append("{").append(subFields).append("}");
+                String sf = getQueryableFields(field.getType());
+                if (!nullOrEmpty(sf))
+                    subFields.append(sf);
             }
+
+            // if the field has @DataInclude annotation, add that too
+            final DataInclude di = field.getAnnotation(DataInclude.class);
+            if(notNull(di))
+                for(String include : di.includeFields())
+                    subFields.append(include);
+
+            // add subfields to query
+            if (subFields.length() > 0)
+                query.append("{").append(subFields.toString()).append("}");
 
             // comma for the next one
             query.append(",");

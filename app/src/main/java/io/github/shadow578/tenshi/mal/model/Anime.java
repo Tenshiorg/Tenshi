@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.github.shadow578.tenshi.mal.Data;
+import io.github.shadow578.tenshi.mal.DataInclude;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.ContentRating;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
@@ -206,6 +207,7 @@ public final class Anime {
      * a list of anime related to this anime
      */
     @Nullable
+    @DataInclude(includeFields = {"media_type"})
     @SerializedName("related_anime")
     public List<RelatedMedia> relatedAnime;
 
@@ -213,6 +215,7 @@ public final class Anime {
      * a list of manga related to this anime
      */
     @Nullable
+    @DataInclude(includeFields = {"media_type"})
     @SerializedName("related_manga")
     public List<RelatedMedia> relatedManga;
 

@@ -320,7 +320,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         sharedListPopout = new ListPopupWindow(this, null, R.attr.listPopupWindowStyle);
 
         // setup adapter for related anime/manga
-        relatedMediaAdapter = new RelatedMediaAdapter(getApplicationContext(), relatedMedia, (v, related) -> openDetails(related.relatedAnime.animeId, related.relatedAnime.mediaType));
+        relatedMediaAdapter = new RelatedMediaAdapter(getApplicationContext(), relatedMedia,
+                (v, related) -> openDetails(related.relatedAnime.animeId, related.relatedAnime.mediaType));
         b.relatedMediaRecycler.setAdapter(relatedMediaAdapter);
     }
 
