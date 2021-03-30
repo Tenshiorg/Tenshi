@@ -79,7 +79,8 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
         b.animeTitle.setText(elvisEmpty(anime.anime.title, unknown));
 
         // score
-        b.animeScore.setText(elvis(withRet(anime.libraryStatus, p -> p.score != 0 ? fmt(p.score) : null), noValue));
+        with(anime.libraryStatus, st
+                -> b.animeScore.setText(isNull(st.score) ? fmt(st.score) : noValue));
 
         // watch progress
         int watchedEp = elvis(withRet(anime.libraryStatus, p -> p.watchedEpisodes), 0);
@@ -89,7 +90,13 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
         b.animeEpisodesProgressBar.setMax(totalEp);
 
         // media status
-        b.animeStatus.setText(LocalizationHelper.localizeBroadcastStatus(anime.anime.broadcastStatus, ctx));
+        // mal seems to no longer include this one... hide it instead of showing "unknown"
+        if(isNull(anime.anime.broadcastStatus))
+            b.animeStatus.setVisibility(View.GONE);
+        else {
+            b.animeStatus.setVisibility(View.VISIBLE);
+            b.animeStatus.setText(LocalizationHelper.localizeBroadcastStatus(anime.anime.broadcastStatus, ctx));
+        }
 
         // setup onclick listener
         holder.itemView.setOnClickListener(view -> onClickListener.invoke(view, anime));
