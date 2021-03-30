@@ -1,290 +1,309 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
-    <!-- content -->
-    <RelativeLayout
+    <!-- loading indicator -->
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/loading_indicator"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_gravity="center"
+        android:background="?attr/colorBackground"
+        android:elevation="10dp"
+        android:padding="180dp"
+        android:visibility="visible" />
 
-        <!-- user details group -->
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/user_details_group"
+    <!-- content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <!-- profile picture -->
-            <ImageView
-                android:id="@+id/user_profile_picture"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:contentDescription="@string/profile_desc_profile_picture"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_round_account_circle_24"
-                android:transitionName="shared_poster_container" />
-
-            <!-- user details -->
+            <!-- user details group -->
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
+                android:id="@+id/user_details_group"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical">
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="32dp"
+                android:orientation="horizontal">
 
-                <!-- username -->
-                <TextView
-                    android:id="@+id/user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
-                    android:text="@string/profile_username"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <!-- location -->
-                <TextView
-                    android:id="@+id/user_location"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:drawablePadding="4dp"
-                    android:gravity="center_vertical"
-                    android:text="Germany"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_location_pin_24"
-                    app:drawableTint="?attr/colorPrimary"
-                    tools:ignore="HardcodedText" />
-
-                <!-- join date -->
-                <TextView
-                    android:id="@+id/user_joined_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:drawablePadding="4dp"
-                    android:gravity="center_vertical"
-                    android:text="Apr 11, 2016"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_access_time_24"
-                    app:drawableTint="?attr/colorPrimary"
-                    tools:ignore="HardcodedText" />
-
-                <!-- birthday -->
-                <TextView
-                    android:id="@+id/user_birthday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:drawablePadding="4dp"
-                    android:gravity="bottom"
-                    android:text="June 10, 2000"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_cake_24"
-                    app:drawableTint="?attr/colorPrimary"
-                    tools:ignore="HardcodedText" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <!-- divider -->
-        <View
-            android:id="@+id/div_user_details_stats_chart"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/user_details_group"
-            android:background="?android:attr/listDivider" />
-
-        <!-- anime stats donut and color descriptions -->
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/user_stats_donut_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/div_user_details_stats_chart"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp">
-
-            <!-- donut + center text -->
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
-
-                <!-- main donut-->
-                <app.futured.donut.DonutProgressView
-                    android:id="@+id/user_stats_donut"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:layout_centerInParent="true"
+                <!-- profile picture -->
+                <ImageView
+                    android:id="@+id/user_profile_picture"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="24dp"
                     android:layout_marginEnd="24dp"
-                    app:donut_bgLineColor="@android:color/transparent"
-                    app:donut_gapAngle="90"
-                    app:donut_gapWidth="20"
-                    app:donut_strokeWidth="16dp" />
+                    android:contentDescription="@string/profile_desc_profile_picture"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_round_account_circle_24"
+                    android:transitionName="shared_poster_container" />
 
-                <!-- text inside donut -->
-                <TextView
-                    android:id="@+id/donut_total_entries"
+                <!-- user details -->
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="400\nEntries"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
-            </RelativeLayout>
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical">
 
-            <!-- color titles -->
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="vertical">
+                    <!-- username -->
+                    <TextView
+                        android:id="@+id/user_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:text="@string/profile_username"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
 
-                <!-- watching -->
-                <TextView
-                    android:id="@+id/donut_desc_watching"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_text"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="@dimen/margin_text"
-                    android:layout_marginBottom="10dp"
-                    android:drawablePadding="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/list_status_watching"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_circle_24"
-                    app:drawableTint="@color/profile_donut_watching" />
+                    <!-- location -->
+                    <TextView
+                        android:id="@+id/user_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:drawablePadding="4dp"
+                        android:gravity="center_vertical"
+                        android:text="Germany"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_location_pin_24"
+                        app:drawableTint="?attr/colorPrimary"
+                        tools:ignore="HardcodedText" />
 
-                <!-- completed -->
-                <TextView
-                    android:id="@+id/donut_desc_completed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_text"
-                    android:layout_marginEnd="@dimen/margin_text"
-                    android:layout_marginBottom="10dp"
-                    android:drawablePadding="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/list_status_completed"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_circle_24"
-                    app:drawableTint="@color/profile_donut_completed" />
+                    <!-- join date -->
+                    <TextView
+                        android:id="@+id/user_joined_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:drawablePadding="4dp"
+                        android:gravity="center_vertical"
+                        android:text="Apr 11, 2016"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_access_time_24"
+                        app:drawableTint="?attr/colorPrimary"
+                        tools:ignore="HardcodedText" />
 
-                <!-- on hold -->
-                <TextView
-                    android:id="@+id/donut_desc_on_hold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_text"
-                    android:layout_marginEnd="@dimen/margin_text"
-                    android:layout_marginBottom="10dp"
-                    android:drawablePadding="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/list_status_on_hold"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_circle_24"
-                    app:drawableTint="@color/profile_donut_on_hold" />
-
-                <!-- dropped -->
-                <TextView
-                    android:id="@+id/donut_desc_dropped"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_text"
-                    android:layout_marginEnd="@dimen/margin_text"
-                    android:layout_marginBottom="10dp"
-                    android:drawablePadding="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/list_status_dropped"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_circle_24"
-                    app:drawableTint="@color/profile_donut_dropped" />
-
-                <!-- plan to watch -->
-                <TextView
-                    android:id="@+id/donut_desc_plan_to_watch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_text"
-                    android:layout_marginEnd="@dimen/margin_text"
-                    android:layout_marginBottom="10dp"
-                    android:drawablePadding="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/list_status_plan_to_watch"
-                    android:textColor="?attr/colorOnBackground"
-                    app:drawableStartCompat="@drawable/ic_round_circle_24"
-                    app:drawableTint="@color/profile_donut_plan_to_watch" />
+                    <!-- birthday -->
+                    <TextView
+                        android:id="@+id/user_birthday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:drawablePadding="4dp"
+                        android:gravity="bottom"
+                        android:text="June 10, 2000"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_cake_24"
+                        app:drawableTint="?attr/colorPrimary"
+                        tools:ignore="HardcodedText" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.appcompat.widget.LinearLayoutCompat>
-        </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <!-- stats-->
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/stats_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/user_stats_donut_group"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="24dp"
-            app:showDividers="middle">
+            <!-- divider -->
+            <View
+                android:id="@+id/div_user_details_stats_chart"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/user_details_group"
+                android:background="?android:attr/listDivider" />
 
-            <!-- days wasted -->
-            <TextView
-                android:id="@+id/stat_days_wasted"
+            <!-- anime stats donut and color descriptions -->
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/user_stats_donut_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/div_user_details_stats_chart"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp">
+
+                <!-- donut + center text -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <!-- main donut-->
+                    <app.futured.donut.DonutProgressView
+                        android:id="@+id/user_stats_donut"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_centerInParent="true"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginEnd="24dp"
+                        app:donut_bgLineColor="@android:color/transparent"
+                        app:donut_gapAngle="90"
+                        app:donut_gapWidth="20"
+                        app:donut_strokeWidth="16dp" />
+
+                    <!-- text inside donut -->
+                    <TextView
+                        android:id="@+id/donut_total_entries"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="400\nEntries"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+
+                <!-- color titles -->
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <!-- watching -->
+                    <TextView
+                        android:id="@+id/donut_desc_watching"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_text"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="@dimen/margin_text"
+                        android:layout_marginBottom="10dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/list_status_watching"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_circle_24"
+                        app:drawableTint="@color/profile_donut_watching" />
+
+                    <!-- completed -->
+                    <TextView
+                        android:id="@+id/donut_desc_completed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_text"
+                        android:layout_marginEnd="@dimen/margin_text"
+                        android:layout_marginBottom="10dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/list_status_completed"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_circle_24"
+                        app:drawableTint="@color/profile_donut_completed" />
+
+                    <!-- on hold -->
+                    <TextView
+                        android:id="@+id/donut_desc_on_hold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_text"
+                        android:layout_marginEnd="@dimen/margin_text"
+                        android:layout_marginBottom="10dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/list_status_on_hold"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_circle_24"
+                        app:drawableTint="@color/profile_donut_on_hold" />
+
+                    <!-- dropped -->
+                    <TextView
+                        android:id="@+id/donut_desc_dropped"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_text"
+                        android:layout_marginEnd="@dimen/margin_text"
+                        android:layout_marginBottom="10dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/list_status_dropped"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_circle_24"
+                        app:drawableTint="@color/profile_donut_dropped" />
+
+                    <!-- plan to watch -->
+                    <TextView
+                        android:id="@+id/donut_desc_plan_to_watch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_text"
+                        android:layout_marginEnd="@dimen/margin_text"
+                        android:layout_marginBottom="10dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/list_status_plan_to_watch"
+                        android:textColor="?attr/colorOnBackground"
+                        app:drawableStartCompat="@drawable/ic_round_circle_24"
+                        app:drawableTint="@color/profile_donut_plan_to_watch" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <!-- stats-->
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/stats_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/user_stats_donut_group"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="24dp"
+                app:showDividers="middle">
+
+                <!-- days wasted -->
+                <TextView
+                    android:id="@+id/stat_days_wasted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="20\nDays"
+                    android:textColor="?attr/colorOnBackground"
+                    tools:ignore="HardcodedText" />
+
+                <!-- total episodes watched-->
+                <TextView
+                    android:id="@+id/stat_total_episodes_watched"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="400\nEpisodes"
+                    android:textColor="?attr/colorOnBackground"
+                    tools:ignore="HardcodedText" />
+
+                <!-- TODO: more stats -->
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <!-- divider -->
+            <View
+                android:id="@+id/div_stats_view_on_mal"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/stats_group"
+                android:background="?android:attr/listDivider" />
+
+            <!-- view profile on MAL-->
+            <Button
+                android:id="@+id/view_on_mal_btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="20\nDays"
-                android:textColor="?attr/colorOnBackground"
-                tools:ignore="HardcodedText" />
-
-            <!-- total episodes watched-->
-            <TextView
-                android:id="@+id/stat_total_episodes_watched"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="400\nEpisodes"
-                android:textColor="?attr/colorOnBackground"
-                tools:ignore="HardcodedText" />
-
-            <!-- TODO: more stats -->
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <!-- divider -->
-        <View
-            android:id="@+id/div_stats_view_on_mal"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/stats_group"
-            android:background="?android:attr/listDivider" />
-
-        <!-- view profile on MAL-->
-        <Button
-            android:id="@+id/view_on_mal_btn"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/div_stats_view_on_mal"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="@dimen/margin_text"
-            android:text="@string/profile_view_on_mal"
-            android:textColor="?attr/colorOnBackground" />
-    </RelativeLayout>
-</androidx.core.widget.NestedScrollView>
+                android:layout_below="@id/div_stats_view_on_mal"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="@dimen/margin_text"
+                android:text="@string/profile_view_on_mal"
+                android:textColor="?attr/colorOnBackground" />
+        </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

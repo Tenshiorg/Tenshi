@@ -164,6 +164,9 @@ public class ProfileFragment extends TenshiFragment {
             Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://myanimelist.net/profile/" + user.name));
             startActivity(i);
         });
+
+        // hide loading indicator
+        b.loadingIndicator.hide();
     }
 
     /**
