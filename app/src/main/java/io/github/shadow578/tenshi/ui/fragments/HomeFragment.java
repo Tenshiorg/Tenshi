@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -58,6 +59,7 @@ public class HomeFragment extends TenshiFragment {
     private AnimeListRanking seasonalAnimeResponse = null;
     private AnimeList recommendedAnimeResponse = null;
     private int showNSFW = 0;
+    private float lastMotionProgress = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,6 +114,24 @@ public class HomeFragment extends TenshiFragment {
             }
         });
         b.recommendationsRecycler.setAdapter(recommendedAnimeAdapter);
+
+        // save and restore motion layout progress
+        b.getRoot().setProgress(lastMotionProgress);
+        b.getRoot().addTransitionListener(new MotionLayout.TransitionListener() {
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) { }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float progress) {
+                lastMotionProgress = progress;
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {}
+
+            @Override
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {}
+        });
 
         // fetch data from MAL
         fetchAnime();
