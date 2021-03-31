@@ -10,4 +10,8 @@
         android:id="@+id/view_on_mal_btn"
         android:title="@string/details_menu_view_on_mal"
         app:showAsAction="collapseActionView"/>
+    <item
+        android:id="@+id/add_homescreen_pin"
+        android:title="@string/details_menu_add_homescreen_pin"
+        app:showAsAction="collapseActionView"/>
 </menu>

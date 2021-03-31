@@ -18,6 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.ListPopupWindow;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
@@ -188,9 +191,44 @@ public class AnimeDetailsActivity extends TenshiActivity {
             return true;
         });
 
+        // add listener for "pin to homescreen" menu item
+        menu.findItem(R.id.add_homescreen_pin).setOnMenuItemClickListener(item -> {
+            addPin();
+            return true;
+        });
+
         // add listener for "select content adapter" menu item
         setupSelectContentAdapterMenuItem(menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * pin a link to this anime to the homescreen using {@link ShortcutManagerCompat}
+     */
+    private void addPin() {
+        // make sure the anime has a valid title
+        if (isNull(animeDetails) || nullOrWhitespace(animeDetails.title)) {
+            Snackbar.make(b.getRoot(), R.string.details_snack_failed_to_create_pin, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        // build the intent to launch
+        final Intent intent = new Intent(this, AnimeDetailsActivity.class)
+                .setAction(Intent.ACTION_VIEW)
+                .putExtra(EXTRA_ANIME_ID, animeID);
+
+        // build shortcut info
+        final ShortcutInfoCompat pinInfo = new ShortcutInfoCompat.Builder(this, fmt("TENSHI_PIN_%d_%s", animeID, animeDetails.title))
+                .setIntent(intent)
+                .setIcon(IconCompat.createWithResource(this, R.mipmap.ic_launcher_round))
+                .setShortLabel(animeDetails.title)
+                .setLongLabel(animeDetails.title)
+                //.setAlwaysBadged()
+                .build();
+
+        // add the pin
+        if (!ShortcutManagerCompat.requestPinShortcut(this, pinInfo, null))
+            Snackbar.make(b.getRoot(), R.string.details_snack_launcher_does_not_support_pins, Snackbar.LENGTH_SHORT).show();
     }
 
     /**
