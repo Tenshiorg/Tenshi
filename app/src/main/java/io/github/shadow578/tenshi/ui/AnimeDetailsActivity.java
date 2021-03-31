@@ -25,6 +25,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -842,8 +843,17 @@ public class AnimeDetailsActivity extends TenshiActivity {
                     if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
                         //open in player
                         final Intent playIntent = new Intent(Intent.ACTION_VIEW);
-                        playIntent.setData(uri);
-                        playIntent.putExtra(Intent.EXTRA_TITLE, fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode));
+                        String guessedType = URLConnection.guessContentTypeFromName(uriStr);
+                        if(nullOrWhitespace(guessedType))
+                            guessedType = "video/*";
+
+                        playIntent.setDataAndTypeAndNormalize(uri, guessedType);
+
+                        // set title extras
+                        // bc VLC has to be extra -_-
+                        final String title = fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode);
+                        playIntent.putExtra(Intent.EXTRA_TITLE, title);
+                        playIntent.putExtra("title", title);
 
                         // start activity
                         if (watchNextEpisode)
