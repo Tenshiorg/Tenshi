@@ -85,6 +85,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
      */
     public static final String EXTRA_ENTRY_UPDATED = "entryUpdated";
 
+    /**
+     * request to watch the next episode.
+     * in onActivityResult, if a response to this request is received, the current anime' s episode is incremented by 1 and updated
+     */
+    public static final int REQUEST_WATCH_NEXT_EPISODE = 12;
+
     private static final int FALLBACK_ANIME = 38759; // You may need this if you get this :P
     private static final Pattern URL_ID_PATTERN = Pattern.compile("(?:https|http)://(?:www.)*myanimelist.net/anime/(\\d*)");
     private static final String REQUEST_FIELDS = MalApiHelper.getQueryableFields(Anime.class);
@@ -165,6 +171,24 @@ public class AnimeDetailsActivity extends TenshiActivity {
         retIntent.putExtra(EXTRA_ENTRY_UPDATED, wasUpdated);
         setResult(RESULT_OK, retIntent);
         super.finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // check if this is next episode request
+        if (requestCode == REQUEST_WATCH_NEXT_EPISODE) {
+            // if we already have a library status, just increment episode by 1
+            // otherwise, add this anime as a new entry in Watching with 1 episode watched
+            if (notNull(animeDetails.userListStatus))
+                updateEntry(null, null, ++animeDetails.userListStatus.watchedEpisodes);
+            else
+                updateEntry(LibraryEntryStatus.Watching, null, 1);
+
+            // update the controls next
+            updateWatchNowViews();
+        }
     }
 
     @Override
@@ -295,6 +319,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
                                 animeDetails.userListStatus = listStatus;
                                 updateStatusViewData(listStatus);
                                 updateLibraryControls();
+                                updateWatchNowViews();
                                 wasUpdated = true;
 
                                 // show a snackbar to user
@@ -525,27 +550,54 @@ public class AnimeDetailsActivity extends TenshiActivity {
                     .toArray(new String[0]);
             final ArrayAdapter<String> episodesAdapter = new ArrayAdapter<>(this, R.layout.recylcer_generic_text, episodesItems);
 
-            // setup click listener for watch now button
+            // setup short click listener == watch next episode + auto- update MAL
             b.animeWatchNowButton.setOnClickListener(v -> {
-                // setup the popup
-                sharedListPopout.setAnchorView(v);
-                sharedListPopout.setAdapter(episodesAdapter);
+                // find the next episode
+                final int nextEp = animeDetails.userListStatus.watchedEpisodes + 1;
 
-                // use as much width as the content requires
-                sharedListPopout.setWidth(ViewsHelper.measureContentWidth(this, episodesAdapter));
+                // show a popup if the next episode is higher than the total episode count
+                if (nextEp > animeDetails.episodesCount) {
+                    showAnimeWatchEpisodeSelection(v, episodesAdapter);
+                    return;
+                }
 
-                // setup onclick listener
-                sharedListPopout.setOnItemClickListener((px, vx, episode, ix) -> {
-                    // open player and dismiss popout
-                    openPlayer(episode + 1);
-                    sharedListPopout.dismiss();
-                });
-                sharedListPopout.show();
+                // open the player with the next episode
+                openPlayer(nextEp, true);
+            });
+
+            // setup long click listener == select episode
+            b.animeWatchNowButton.setOnLongClickListener(v -> {
+                showAnimeWatchEpisodeSelection(v, episodesAdapter);
+                return true;
             });
 
             // update views
             updateWatchNowViews();
         });
+    }
+
+    /**
+     * show a popout window for episode selection.
+     * on item selection, call openPlayer with the selected episode index (+1)
+     *
+     * @param v               the view to anchor to
+     * @param episodesAdapter the episode adapter. index 0 == episode 1, ...
+     */
+    private void showAnimeWatchEpisodeSelection(@NonNull View v, @NonNull ArrayAdapter<String> episodesAdapter) {
+        // setup the popup
+        sharedListPopout.setAnchorView(v);
+        sharedListPopout.setAdapter(episodesAdapter);
+
+        // use as much width as the content requires
+        sharedListPopout.setWidth(ViewsHelper.measureContentWidth(this, episodesAdapter));
+
+        // setup onclick listener
+        sharedListPopout.setOnItemClickListener((px, vx, episode, ix) -> {
+            // open player and dismiss popout
+            openPlayer(episode + 1, false);
+            sharedListPopout.dismiss();
+        });
+        sharedListPopout.show();
     }
 
     /**
@@ -555,7 +607,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // update button text
         final ContentAdapterWrapper contentAdapter = getSelectedContentAdapter();
         with(contentAdapter, ca ->
-                b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_on_fmt, ca.getDisplayName())));
+                b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_episode_on_fmt, animeDetails.userListStatus.watchedEpisodes + 1, ca.getDisplayName())));
     }
 
     /**
@@ -762,9 +814,10 @@ public class AnimeDetailsActivity extends TenshiActivity {
     /**
      * get the playback url from the selected or default adapter and start playback.
      *
-     * @param episode the selected episode. used for title
+     * @param episode          the selected episode. used for title
+     * @param watchNextEpisode if set, the player activity is started with {@link #REQUEST_WATCH_NEXT_EPISODE} (and thus auto- increments the episode after watching)
      */
-    private void openPlayer(int episode) {
+    private void openPlayer(int episode, boolean watchNextEpisode) {
         // abort if no adapters available
         if (TenshiApp.getContentAdapterManager().getAdapterCount() <= 0)
             return;
@@ -791,7 +844,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         final Intent playIntent = new Intent(Intent.ACTION_VIEW);
                         playIntent.setData(uri);
                         playIntent.putExtra(Intent.EXTRA_TITLE, fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode));
-                        startActivity(playIntent);
+
+                        // start activity
+                        if (watchNextEpisode)
+                            startActivityForResult(playIntent, REQUEST_WATCH_NEXT_EPISODE);
+                        else
+                            startActivity(playIntent);
                     } else {
                         // did not return a url, show error snackbar
                         Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();

@@ -68,7 +68,7 @@
     <string name="details_status_episode_select_none">None</string>
     <string name="details_status_episodes_progress_fmt">%d / %d</string>
     <string name="details_status_episodes_progress_no_episodes">No Episodes Yet</string>
-    <string name="details_watch_on_fmt">Watch on %s</string>
+    <string name="details_watch_episode_on_fmt">Watch EP %d on %s</string>
     <string name="details_choose_content_provider_menu">Source</string>
     <string name="details_watch_intent_title_fmt">%s Episode %d</string>
 

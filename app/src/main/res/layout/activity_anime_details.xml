@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    tools:background="#FFFFFF">
 
     <!-- loading indicator -->
     <androidx.core.widget.ContentLoadingProgressBar
@@ -16,7 +17,8 @@
         android:background="?attr/colorBackground"
         android:elevation="10dp"
         android:padding="180dp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:visibility="gone"/>
 
     <!-- main content -->
     <androidx.core.widget.NestedScrollView
@@ -128,7 +130,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="?android:attr/listDivider"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <!-- add to list controls -->
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -162,7 +165,8 @@
                 android:layout_below="@id/anime_add_to_list_group"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                app:showDividers="middle">
+                app:showDividers="middle"
+                tools:visibility="visible">
 
                 <!-- status -->
                 <Button
@@ -215,7 +219,8 @@
                 android:layout_below="@id/anime_edit_group"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="?android:attr/listDivider" />
+                android:background="?android:attr/listDivider"
+                tools:visibility="visible"/>
 
             <!-- watch now controls -->
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -226,7 +231,8 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:visibility="gone"
-                app:showDividers="middle">
+                app:showDividers="middle"
+                tools:visibility="visible">
 
                 <!-- watch now -->
                 <Button
@@ -239,7 +245,7 @@
                     android:drawableTint="?attr/colorOnBackground"
                     android:gravity="center"
                     android:textColor="?attr/colorOnBackground"
-                    android:text="@string/details_watch_on_fmt" />
+                    android:text="@string/details_watch_episode_on_fmt" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <!-- divider -->
@@ -251,7 +257,8 @@
                 android:layout_below="@id/anime_watch_now_group"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="?android:attr/listDivider" />
+                android:background="?android:attr/listDivider"
+                tools:visibility="visible"/>
 
             <!-- synopsis -->
             <androidx.appcompat.widget.AppCompatTextView
