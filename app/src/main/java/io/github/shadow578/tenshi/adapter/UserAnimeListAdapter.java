@@ -19,7 +19,14 @@ import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withRet;
 
 /**
  * recycler view adapter for a list of {@link UserLibraryEntry}
@@ -80,7 +87,7 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
 
         // score
         with(anime.libraryStatus, st
-                -> b.animeScore.setText(isNull(st.score) ? fmt(st.score) : noValue));
+                -> b.animeScore.setText((notNull(st.score) && st.score > 0) ? fmt(st.score) : noValue));
 
         // watch progress
         int watchedEp = elvis(withRet(anime.libraryStatus, p -> p.watchedEpisodes), 0);
@@ -91,7 +98,7 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
 
         // media status
         // mal seems to no longer include this one... hide it instead of showing "unknown"
-        if(isNull(anime.anime.broadcastStatus))
+        if (isNull(anime.anime.broadcastStatus))
             b.animeStatus.setVisibility(View.GONE);
         else {
             b.animeStatus.setVisibility(View.VISIBLE);
