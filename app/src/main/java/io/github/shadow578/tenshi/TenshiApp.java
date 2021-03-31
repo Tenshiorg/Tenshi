@@ -8,6 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,6 +28,8 @@ import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.ui.LoginActivity;
+import io.github.shadow578.tenshi.ui.MainActivity;
+import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.converter.GSONLocalDateAdapter;
 import io.github.shadow578.tenshi.util.converter.GSONLocalTimeAdapter;
@@ -43,6 +48,7 @@ import retrofit2.internal.EverythingIsNonNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
@@ -82,6 +88,9 @@ public class TenshiApp extends Application {
         super.onCreate();
         INSTANCE = this;
 
+        // create app shortcuts
+        initAppShortcuts();
+
         // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
@@ -103,6 +112,51 @@ public class TenshiApp extends Application {
         contentAdapterManager.addOnDiscoveryEndCallback(p
                 -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
     }
+
+    /**
+     * dynamically initialize the "static" app shortcuts
+     * because debug builds use a different app package, this is way less of a pain than using xml
+     */
+    private void initAppShortcuts() {
+        // create shortcut infos
+        // home
+        final ShortcutInfoCompat scHome = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_HOME")
+                .setShortLabel(getString(R.string.main_nav_title_home))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_home_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Home.name()))
+                .build();
+
+        // library
+        final ShortcutInfoCompat scLibrary = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_LIBRARY")
+                .setShortLabel(getString(R.string.main_nav_title_anime_list))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_anime_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Library.name()))
+                .build();
+
+        // profile
+        final ShortcutInfoCompat scProfile = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_PROFILE")
+                .setShortLabel(getString(R.string.main_nav_title_profile))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_profile_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Profile.name()))
+                .build();
+
+        // search
+        final ShortcutInfoCompat scSearch = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_SEARCH")
+                .setShortLabel(getString(R.string.main_nav_title_search))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_search_48))
+                .setIntent(new Intent(this, SearchActivity.class)
+                        .setAction(Intent.ACTION_VIEW))
+                .build();
+
+        // add the shortcuts
+        if (!ShortcutManagerCompat.addDynamicShortcuts(this, listOf(scSearch, scProfile, scLibrary, scHome)))
+            Log.w("Tenshi", "failed to add static app shortcuts!");
+    }
+
+    // region AUTH
 
     /**
      * try to load the auth token from prefs and initialize the MAL service
@@ -201,6 +255,9 @@ public class TenshiApp extends Application {
             }
         });
     }
+    //endregion
+
+    // region Init API
 
     /**
      * create the MAL service retrofit instance.
@@ -279,6 +336,7 @@ public class TenshiApp extends Application {
         long cacheSize = 50 * 1024 * 1024; // 50MiB
         return new Cache(getCacheDir(), cacheSize);
     }
+    //endregion
 
     //region Static Access
 
@@ -315,6 +373,7 @@ public class TenshiApp extends Application {
     /**
      * @return is a user authenticated and we have a access token?
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isUserAuthenticated() {
         return notNull(INSTANCE.token) && !nullOrWhitespace(INSTANCE.token.token);
     }

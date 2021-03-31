@@ -72,7 +72,6 @@
     <string name="details_choose_content_provider_menu">Source</string>
     <string name="details_watch_intent_title_fmt">%s Episode %d</string>
 
-
     <!-- anime details snackbars -->
     <string name="details_snack_entry_removed">Deleted</string>
     <string name="details_snack_entry_remove_error">Error deleting entry</string>
@@ -82,9 +81,12 @@
     <string name="details_snack_update_no_changes">No changes</string>
     <string name="details_snack_error_no_id">Invalid Anime ID. Have a helpful fox instead</string>
     <string name="details_snack_content_empty_response">Could not start Playback. Try another Source</string>
+    <string name="details_snack_failed_to_create_pin">Failed to Pin to Homescreen</string>
+    <string name="details_snack_launcher_does_not_support_pins">Your launcher does not seem to support creating Pins</string>
 
     <!-- anime details top menu -->
     <string name="details_menu_view_on_mal">View on MAL</string>
+    <string name="details_menu_add_homescreen_pin">Pin to Homescreen</string>
     <string name="details_menu_share">Share</string>
 
     <!-- region Login Activity -->
