@@ -63,6 +63,11 @@ public class TenshiApp extends Application {
     public static TenshiApp INSTANCE;
 
     /**
+     * global gson instance, with extra adapters
+     */
+    private Gson gson;
+
+    /**
      * retrofit MAL api
      */
     private MalService mal;
@@ -273,25 +278,12 @@ public class TenshiApp extends Application {
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Urls.API)
                 .addConverterFactory(new RetrofitEnumConverterFactory())
-                .addConverterFactory(GsonConverterFactory.create(createGson()))
+                .addConverterFactory(GsonConverterFactory.create(getGson()))
                 .client(client)
                 .build();
 
         // create service
         mal = retrofit.create(MalService.class);
-    }
-
-    /**
-     * create a Gson instance with required adapters for MAL api
-     *
-     * @return the gson instance
-     */
-    private Gson createGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new GSONLocalDateAdapter().nullSafe())
-                .registerTypeAdapter(LocalTime.class, new GSONLocalTimeAdapter().nullSafe())
-                .registerTypeAdapter(ZonedDateTime.class, new GSONZonedDateTimeAdapter().nullSafe())
-                .create();
     }
 
     /**
@@ -352,6 +344,22 @@ public class TenshiApp extends Application {
         // check if this response failed with 401
         if (response.code() == 401)
             INSTANCE.tryRefreshAuth(ctx);
+    }
+
+    /**
+     * @return the global GSON instance, with additional adapters
+     */
+    @NonNull
+    public static Gson getGson() {
+        if (isNull(INSTANCE.gson)) {
+            INSTANCE.gson = new GsonBuilder()
+                    .registerTypeAdapter(LocalDate.class, new GSONLocalDateAdapter().nullSafe())
+                    .registerTypeAdapter(LocalTime.class, new GSONLocalTimeAdapter().nullSafe())
+                    .registerTypeAdapter(ZonedDateTime.class, new GSONZonedDateTimeAdapter().nullSafe())
+                    .create();
+        }
+
+        return INSTANCE.gson;
     }
 
     /**
