@@ -12,13 +12,13 @@ import androidx.room.PrimaryKey;
  */
 @Entity(tableName = "themes",
         indices = {
-        @Index(value = "id", unique = true)
+        @Index(value = "theme_id", unique = true)
 })
 public final class Theme {
     /**
      * the id of this theme
      */
-    @ColumnInfo(name = "id")
+    @ColumnInfo(name = "theme_id")
     @PrimaryKey
     public int id;
 

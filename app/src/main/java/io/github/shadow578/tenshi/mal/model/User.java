@@ -18,7 +18,7 @@ import io.github.shadow578.tenshi.mal.Data;
  */
 @Entity(tableName = "users",
         indices = {
-        @Index(value = "id", unique = true)
+        @Index(value = "user_id", unique = true)
 })
 @Data
 public final class User {
@@ -26,7 +26,7 @@ public final class User {
      * the users MAL id
      */
     @SerializedName("id")
-    @ColumnInfo(name = "id")
+    @ColumnInfo(name = "user_id")
     @PrimaryKey
     public int userID;
 

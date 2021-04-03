@@ -6,12 +6,12 @@ import androidx.room.Entity;
 /**
  * describes a relation between a anime and a genre
  */
-@Entity(tableName = "genre_relations",
+@Entity(tableName = "anime_genre_ref",
         primaryKeys = {
                 "anime_id",
                 "genre_id"
         })
-public class GenreRelation {
+public class AnimeXGenreCrossReference {
 
     /**
      * id of the anime that has this genre
@@ -26,4 +26,9 @@ public class GenreRelation {
      */
     @ColumnInfo(name = "genre_id")
     public int genreId;
+
+    public AnimeXGenreCrossReference(int animeId, int genreId) {
+        this.animeId = animeId;
+        this.genreId = genreId;
+    }
 }

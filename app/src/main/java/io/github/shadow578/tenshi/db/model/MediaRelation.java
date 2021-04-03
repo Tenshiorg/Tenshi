@@ -1,11 +1,11 @@
 package io.github.shadow578.tenshi.db.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
-import com.google.gson.annotations.SerializedName;
-
+import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.RelationType;
 
 /**
@@ -36,7 +36,6 @@ public class MediaRelation {
      * raw relation type
      */
     @Nullable
-    @SerializedName("relation_type")
     @ColumnInfo(name = "relation_type")
     public RelationType relationType;
 
@@ -44,7 +43,32 @@ public class MediaRelation {
      * relation type, formatted by MAL
      */
     @Nullable
-    @SerializedName("relation_type_formatted")
     @ColumnInfo(name = "relation_type_formatted")
     public String relationTypeFormatted;
+
+    /**
+     * is the child a manga or anime?
+     */
+    @ColumnInfo(name = "is_manga")
+    public boolean isManga;
+
+    public MediaRelation(int parentId, int childId, @Nullable RelationType relationType, @Nullable String relationTypeFormatted, boolean isManga) {
+        this.parentId = parentId;
+        this.childId = childId;
+        this.relationType = relationType;
+        this.relationTypeFormatted = relationTypeFormatted;
+        this.isManga = isManga;
+    }
+
+    /**
+     * create a media relation from a related media
+     *
+     * @param parentId the parent id the media is related to
+     * @param related  the related media (anime/manga)
+     * @param isManga  is this relation for a manga (the child)
+     * @return the relation
+     */
+    public static MediaRelation fromRelatedMedia(int parentId, @NonNull RelatedMedia related, boolean isManga) {
+        return new MediaRelation(parentId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, isManga);
+    }
 }

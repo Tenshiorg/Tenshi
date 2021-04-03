@@ -10,13 +10,13 @@ import androidx.room.PrimaryKey;
  */
 @Entity(tableName = "genres",
         indices = {
-        @Index(value = "id", unique = true)
+        @Index(value = "genre_id", unique = true)
 })
 public final class Genre {
     /**
      * MAL id of the genre
      */
-    @ColumnInfo(name = "id")
+    @ColumnInfo(name = "genre_id")
     @PrimaryKey
     public int id;
 

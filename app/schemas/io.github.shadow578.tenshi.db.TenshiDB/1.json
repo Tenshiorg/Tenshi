@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e771050ce0f5fa8f33600ade9bb9df13",
+    "identityHash": "6e21bbc3c377a6f304ca4c918246c26b",
     "entities": [
       {
         "tableName": "anime",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `average_episode_duration` INTEGER, `created_at` TEXT, `end_date` TEXT, `mean` REAL, `media_type` TEXT, `nsfw` TEXT, `num_episodes` INTEGER, `num_favorites` INTEGER, `num_list_users` INTEGER, `num_scoring_users` INTEGER, `popularity` INTEGER, `rank` INTEGER, `start_date` TEXT, `status` TEXT, `synopsis` TEXT, `source` TEXT, `title` TEXT, `updated_at` TEXT, `background` TEXT, `rating` TEXT, `pictures` TEXT, `alternative_titlesen` TEXT, `alternative_titlesjp` TEXT, `alternative_titlessynonyms` TEXT, `broadcastday_of_the_week` TEXT, `broadcaststart_time` TEXT, `main_picturemedium` TEXT, `main_picturelarge` TEXT, `start_seasonseason` TEXT, `start_seasonyear` INTEGER, `my_list_statusstatus` TEXT, `my_list_statuscomments` TEXT, `my_list_statusis_rewatching` INTEGER, `my_list_statusnum_episodes_watched` INTEGER, `my_list_statusnum_times_rewatched` INTEGER, `my_list_statusscore` INTEGER, `my_list_statusupdated_at` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anime_id` INTEGER NOT NULL, `average_episode_duration` INTEGER, `created_at` TEXT, `end_date` TEXT, `mean` REAL, `media_type` TEXT, `nsfw` TEXT, `num_episodes` INTEGER, `num_favorites` INTEGER, `num_list_users` INTEGER, `num_scoring_users` INTEGER, `popularity` INTEGER, `rank` INTEGER, `start_date` TEXT, `status` TEXT, `synopsis` TEXT, `source` TEXT, `title` TEXT, `updated_at` TEXT, `background` TEXT, `rating` TEXT, `pictures` TEXT, `alternative_titles.en` TEXT, `alternative_titles.jp` TEXT, `alternative_titles.synonyms` TEXT, `broadcast.day_of_the_week` TEXT, `broadcast.start_time` TEXT, `main_picture.medium` TEXT, `main_picture.large` TEXT, `start_season.season` TEXT, `start_season.year` INTEGER, `my_list_status.status` TEXT, `my_list_status.comments` TEXT, `my_list_status.is_rewatching` INTEGER, `my_list_status.num_episodes_watched` INTEGER, `my_list_status.num_times_rewatched` INTEGER, `my_list_status.score` INTEGER, `my_list_status.updated_at` TEXT, PRIMARY KEY(`anime_id`))",
         "fields": [
           {
             "fieldPath": "animeId",
-            "columnName": "id",
+            "columnName": "anime_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -142,126 +142,126 @@
           },
           {
             "fieldPath": "titleSynonyms.en",
-            "columnName": "alternative_titlesen",
+            "columnName": "alternative_titles.en",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "titleSynonyms.jp",
-            "columnName": "alternative_titlesjp",
+            "columnName": "alternative_titles.jp",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "titleSynonyms.synonyms",
-            "columnName": "alternative_titlessynonyms",
+            "columnName": "alternative_titles.synonyms",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "broadcastInfo.weekday",
-            "columnName": "broadcastday_of_the_week",
+            "columnName": "broadcast.day_of_the_week",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "broadcastInfo.startTime",
-            "columnName": "broadcaststart_time",
+            "columnName": "broadcast.start_time",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "poster.mediumUrl",
-            "columnName": "main_picturemedium",
+            "columnName": "main_picture.medium",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "poster.largeUrl",
-            "columnName": "main_picturelarge",
+            "columnName": "main_picture.large",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "startSeason.season",
-            "columnName": "start_seasonseason",
+            "columnName": "start_season.season",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "startSeason.year",
-            "columnName": "start_seasonyear",
+            "columnName": "start_season.year",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.status",
-            "columnName": "my_list_statusstatus",
+            "columnName": "my_list_status.status",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.comments",
-            "columnName": "my_list_statuscomments",
+            "columnName": "my_list_status.comments",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.isRewatching",
-            "columnName": "my_list_statusis_rewatching",
+            "columnName": "my_list_status.is_rewatching",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.watchedEpisodes",
-            "columnName": "my_list_statusnum_episodes_watched",
+            "columnName": "my_list_status.num_episodes_watched",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.rewatchCount",
-            "columnName": "my_list_statusnum_times_rewatched",
+            "columnName": "my_list_status.num_times_rewatched",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.score",
-            "columnName": "my_list_statusscore",
+            "columnName": "my_list_status.score",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "userListStatus.lastUpdate",
-            "columnName": "my_list_statusupdated_at",
+            "columnName": "my_list_status.updated_at",
             "affinity": "TEXT",
             "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "anime_id"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_anime_id",
+            "name": "index_anime_anime_id",
             "unique": true,
             "columnNames": [
-              "id"
+              "anime_id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_anime_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_anime_anime_id` ON `${TABLE_NAME}` (`anime_id`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "genres",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`genre_id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`genre_id`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "genre_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -274,24 +274,24 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "genre_id"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_genres_id",
+            "name": "index_genres_genre_id",
             "unique": true,
             "columnNames": [
-              "id"
+              "genre_id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_genres_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_genres_genre_id` ON `${TABLE_NAME}` (`genre_id`)"
           }
         ],
         "foreignKeys": []
       },
       {
-        "tableName": "genre_relations",
+        "tableName": "anime_genre_ref",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anime_id` INTEGER NOT NULL, `genre_id` INTEGER NOT NULL, PRIMARY KEY(`anime_id`, `genre_id`))",
         "fields": [
           {
@@ -319,11 +319,11 @@
       },
       {
         "tableName": "studios",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`studio_id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`studio_id`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "studio_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -336,24 +336,24 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "studio_id"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_studios_id",
+            "name": "index_studios_studio_id",
             "unique": true,
             "columnNames": [
-              "id"
+              "studio_id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_studios_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_studios_studio_id` ON `${TABLE_NAME}` (`studio_id`)"
           }
         ],
         "foreignKeys": []
       },
       {
-        "tableName": "studio_relations",
+        "tableName": "anime_studio_ref",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anime_id` INTEGER NOT NULL, `studio_id` INTEGER NOT NULL, PRIMARY KEY(`anime_id`, `studio_id`))",
         "fields": [
           {
@@ -381,11 +381,11 @@
       },
       {
         "tableName": "themes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `text` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`theme_id` INTEGER NOT NULL, `text` TEXT, PRIMARY KEY(`theme_id`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "theme_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -398,25 +398,25 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "theme_id"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_themes_id",
+            "name": "index_themes_theme_id",
             "unique": true,
             "columnNames": [
-              "id"
+              "theme_id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_themes_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_themes_theme_id` ON `${TABLE_NAME}` (`theme_id`)"
           }
         ],
         "foreignKeys": []
       },
       {
-        "tableName": "theme_relations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anime_id` INTEGER NOT NULL, `theme_id` INTEGER NOT NULL, `ending_theme` INTEGER NOT NULL, PRIMARY KEY(`anime_id`, `theme_id`))",
+        "tableName": "anime_theme_ref",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anime_id` INTEGER NOT NULL, `theme_id` INTEGER NOT NULL, `is_ending` INTEGER NOT NULL, PRIMARY KEY(`anime_id`, `theme_id`))",
         "fields": [
           {
             "fieldPath": "animeId",
@@ -431,8 +431,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "isEndingTheme",
-            "columnName": "ending_theme",
+            "fieldPath": "isEnding",
+            "columnName": "is_ending",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -488,11 +488,11 @@
       },
       {
         "tableName": "users",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `gender` TEXT, `birthday` TEXT, `location` TEXT, `joined_at` TEXT, `picture` TEXT, `anime_statisticsnum_items_watching` INTEGER, `anime_statisticsnum_items_completed` INTEGER, `anime_statisticsnum_items_on_hold` INTEGER, `anime_statisticsnum_items_dropped` INTEGER, `anime_statisticsnum_items_plan_to_watch` INTEGER, `anime_statisticsnum_items` INTEGER, `anime_statisticsnum_days_watched` REAL, `anime_statisticsnum_days_watching` REAL, `anime_statisticsnum_days_completed` REAL, `anime_statisticsnum_days_on_hold` REAL, `anime_statisticsnum_days_dropped` REAL, `anime_statisticsnum_days` REAL, `anime_statisticsnum_episodes` INTEGER, `anime_statisticsnum_times_rewatched` INTEGER, `anime_statisticsmean_score` REAL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`user_id` INTEGER NOT NULL, `name` TEXT, `gender` TEXT, `birthday` TEXT, `location` TEXT, `joined_at` TEXT, `picture` TEXT, `anime_statisticsnum_items_watching` INTEGER, `anime_statisticsnum_items_completed` INTEGER, `anime_statisticsnum_items_on_hold` INTEGER, `anime_statisticsnum_items_dropped` INTEGER, `anime_statisticsnum_items_plan_to_watch` INTEGER, `anime_statisticsnum_items` INTEGER, `anime_statisticsnum_days_watched` REAL, `anime_statisticsnum_days_watching` REAL, `anime_statisticsnum_days_completed` REAL, `anime_statisticsnum_days_on_hold` REAL, `anime_statisticsnum_days_dropped` REAL, `anime_statisticsnum_days` REAL, `anime_statisticsnum_episodes` INTEGER, `anime_statisticsnum_times_rewatched` INTEGER, `anime_statisticsmean_score` REAL, PRIMARY KEY(`user_id`))",
         "fields": [
           {
             "fieldPath": "userID",
-            "columnName": "id",
+            "columnName": "user_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -625,18 +625,18 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "user_id"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_users_id",
+            "name": "index_users_user_id",
             "unique": true,
             "columnNames": [
-              "id"
+              "user_id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_user_id` ON `${TABLE_NAME}` (`user_id`)"
           }
         ],
         "foreignKeys": []
@@ -680,7 +680,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e771050ce0f5fa8f33600ade9bb9df13')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e21bbc3c377a6f304ca4c918246c26b')"
     ]
   }
 }

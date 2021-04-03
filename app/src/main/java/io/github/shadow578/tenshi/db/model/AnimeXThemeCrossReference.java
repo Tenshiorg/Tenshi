@@ -6,12 +6,12 @@ import androidx.room.Entity;
 /**
  * describes a relation between a anime and a theme
  */
-@Entity(tableName = "theme_relations",
+@Entity(tableName = "anime_theme_ref",
         primaryKeys = {
                 "anime_id",
                 "theme_id"
         })
-public class ThemeRelation {
+public class AnimeXThemeCrossReference {
     /**
      * id of the anime that has this genre
      * {@link io.github.shadow578.tenshi.mal.model.Anime#animeId}
@@ -27,8 +27,14 @@ public class ThemeRelation {
     public int themeId;
 
     /**
-     * is this a ending theme?
+     * is this theme a ending theme of the anime?
      */
-    @ColumnInfo(name = "ending_theme")
-    public boolean isEndingTheme;
+    @ColumnInfo(name = "is_ending")
+    public boolean isEnding;
+
+    public AnimeXThemeCrossReference(int animeId, int themeId, boolean isEnding) {
+        this.animeId = animeId;
+        this.themeId = themeId;
+        this.isEnding = isEnding;
+    }
 }

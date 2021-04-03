@@ -6,6 +6,7 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
+import androidx.room.Junction;
 import androidx.room.PrimaryKey;
 import androidx.room.Relation;
 
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.mal.Data;
 import io.github.shadow578.tenshi.mal.DataInclude;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
@@ -30,14 +32,14 @@ import io.github.shadow578.tenshi.mal.model.type.Source;
 @Data
 @Entity(tableName = "anime",
         indices = {
-        @Index(value = "id", unique = true)
+        @Index(value = "anime_id", unique = true)
 })
 public final class Anime {
     /**
      * the id of this anime
      */
     @SerializedName("id")
-    @ColumnInfo(name = "id")
+    @ColumnInfo(name = "anime_id")
     @PrimaryKey
     public int animeId;
 
@@ -46,7 +48,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("alternative_titles")
-    @Embedded(prefix = "alternative_titles")
+    @Embedded(prefix = "alternative_titles.")
     public TitleSynonyms titleSynonyms;
 
     /**
@@ -62,7 +64,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("broadcast")
-    @Embedded(prefix = "broadcast")
+    @Embedded(prefix = "broadcast.")
     public BroadcastInfo broadcastInfo;
 
     /**
@@ -93,7 +95,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("main_picture")
-    @Embedded(prefix = "main_picture")
+    @Embedded(prefix = "main_picture.")
     public Image poster;
 
     /**
@@ -178,7 +180,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("start_season")
-    @Embedded(prefix = "start_season")
+    @Embedded(prefix = "start_season.")
     public Season startSeason;
 
     /**
@@ -231,7 +233,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("my_list_status")
-    @Embedded(prefix = "my_list_status")
+    @Embedded(prefix = "my_list_status.")
     public LibraryStatus userListStatus;
 
     /**
