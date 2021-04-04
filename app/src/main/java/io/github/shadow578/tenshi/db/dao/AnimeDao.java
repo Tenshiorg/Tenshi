@@ -34,6 +34,8 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull
 
 /**
  * DAO for {@link Anime} and {@link UserLibraryEntry}
+ * <p>
+ * There has to be a better way to do this, but i couldn't find it :(
  */
 @Dao
 public abstract class AnimeDao {
@@ -104,10 +106,16 @@ public abstract class AnimeDao {
             foreach(anime.relatedAnime, related -> {
                 // create relation
                 relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, false));
+
+                // insert or update the related anime into the db
+                _mergeUpdateAnime(related.relatedAnime);
             });
             foreach(anime.relatedManga, related -> {
                 // create relation
                 relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, true));
+
+                // insert or update the related manga into the db
+                _mergeUpdateAnime(related.relatedAnime);
             });
 
             // insert relations
@@ -119,6 +127,9 @@ public abstract class AnimeDao {
             foreach(anime.recommendations, recommended -> {
                 // create relation
                 recommendedMediaRelations.add(new RecommendedMediaRelation(anime.animeId, recommended.animeRecommendation.animeId, recommended.recommendationCount));
+
+                // insert or update the recommended anime into the db
+                _mergeUpdateAnime(recommended.animeRecommendation);
             });
 
             // insert relations
