@@ -1,6 +1,5 @@
 package io.github.shadow578.tenshi.db.dao;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -12,6 +11,7 @@ import io.github.shadow578.tenshi.mal.model.User;
 /**
  * DAO for {@link User}
  */
+@SuppressWarnings({"unused", "RedundantSuppression"})
 @Dao
 public abstract class UserDao {
 
@@ -31,7 +31,7 @@ public abstract class UserDao {
      * @param user the user to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void insertUser(@NonNull User... user);
+    public abstract void insertUser(User... user);
 
     /**
      * delete one or more users from the database
@@ -40,5 +40,5 @@ public abstract class UserDao {
      * @param users the users to delete
      */
     @Delete
-    public abstract void deleteUser(@NonNull User... users);
+    public abstract void deleteUser(User... users);
 }

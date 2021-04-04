@@ -50,6 +50,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull
  * <p>
  * There has to be a better way to do this, but i couldn't find it :(
  */
+@SuppressWarnings({"UnusedReturnValue", "unused", "RedundantSuppression"})
 @Dao
 public abstract class AnimeDao {
 
@@ -187,7 +188,6 @@ public abstract class AnimeDao {
      * @param resolveCrossRef resolve cross references? if not, studios, themes, genres and related anime will be missing
      * @return the anime loaded
      */
-    @Nullable
     @Transaction
     public Anime getAnime(int animeId, boolean resolveCrossRef) {
         // get the anime
@@ -289,7 +289,6 @@ public abstract class AnimeDao {
      * @param query the search query
      * @return all anime matching that title
      */
-    @NonNull
     @Transaction
     public List<AnimeListItem> searchAnime(String query) {
         final List<AnimeListItem> results = new ArrayList<>();
@@ -308,7 +307,6 @@ public abstract class AnimeDao {
      * @param season the season
      * @return all anime in that season
      */
-    @NonNull
     @Transaction
     public List<AnimeRankingItem> getSeasonalAnime(Season season) {
         final ArrayList<AnimeRankingItem> result = new ArrayList<>();
@@ -522,7 +520,6 @@ public abstract class AnimeDao {
      */
     @RawQuery
     protected abstract List<Anime> _getAnimeRaw(SupportSQLiteQuery query);
-
 
     /**
      * insert a anime into the database.
