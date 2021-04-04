@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6e21bbc3c377a6f304ca4c918246c26b",
+    "identityHash": "b1b606601f5f0109d2445d6515348215",
     "entities": [
       {
         "tableName": "anime",
@@ -448,8 +448,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "relations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parent_id` INTEGER NOT NULL, `child_id` INTEGER NOT NULL, `relation_type` TEXT, `relation_type_formatted` TEXT, PRIMARY KEY(`parent_id`, `child_id`))",
+        "tableName": "media_relations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parent_id` INTEGER NOT NULL, `child_id` INTEGER NOT NULL, `relation_type` TEXT, `relation_type_formatted` TEXT, `is_manga` INTEGER NOT NULL, PRIMARY KEY(`parent_id`, `child_id`))",
         "fields": [
           {
             "fieldPath": "parentId",
@@ -473,6 +473,45 @@
             "fieldPath": "relationTypeFormatted",
             "columnName": "relation_type_formatted",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isManga",
+            "columnName": "is_manga",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "parent_id",
+            "child_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "media_recommendations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parent_id` INTEGER NOT NULL, `child_id` INTEGER NOT NULL, `num_recommendations` INTEGER, PRIMARY KEY(`parent_id`, `child_id`))",
+        "fields": [
+          {
+            "fieldPath": "parentId",
+            "columnName": "parent_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "childId",
+            "columnName": "child_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recommendationCount",
+            "columnName": "num_recommendations",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -680,7 +719,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e21bbc3c377a6f304ca4c918246c26b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b1b606601f5f0109d2445d6515348215')"
     ]
   }
 }

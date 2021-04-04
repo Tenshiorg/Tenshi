@@ -268,6 +268,7 @@ public abstract class AnimeDao {
      *
      * @param anime the anime to insert or update
      */
+    @Transaction
     protected void _mergeUpdateAnime(@NonNull Anime anime) {
         final Anime old = _getAnimeById(anime.animeId);
         if (isNull(old)) {
@@ -286,6 +287,7 @@ public abstract class AnimeDao {
      *
      * @param studio the studio to insert or update
      */
+    @Transaction
     protected void _mergeUpdateStudio(@NonNull Studio studio) {
         final Studio old = _getStudioById(studio.id);
         if (isNull(old)) {
@@ -304,6 +306,7 @@ public abstract class AnimeDao {
      *
      * @param genre the genre to insert or update
      */
+    @Transaction
     protected void _mergeUpdateGenre(@NonNull Genre genre) {
         final Genre old = _getGenreById(genre.id);
         if (isNull(old)) {
@@ -322,6 +325,7 @@ public abstract class AnimeDao {
      *
      * @param theme the theme to insert or update
      */
+    @Transaction
     protected void _mergeUpdateTheme(@NonNull Theme theme) {
         final Theme old = _getThemeById(theme.id);
         if (isNull(old)) {
@@ -363,7 +367,7 @@ public abstract class AnimeDao {
      * @return all anime with that status
      */
     @Query("SELECT * FROM anime WHERE `my_list_status.status` = :status")
-    protected abstract List<Anime> _getUserLibrary(@NonNull LibraryEntryStatus status);
+    protected abstract List<Anime> _getUserLibrary(LibraryEntryStatus status);
 
     /**
      * insert a anime into the database.
@@ -373,7 +377,7 @@ public abstract class AnimeDao {
      * @return id of the inserted anime, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract int _insertAnime(@NonNull Anime anime);
+    protected abstract long _insertAnime(Anime anime);
 
     /**
      * update a anime entry
@@ -381,7 +385,7 @@ public abstract class AnimeDao {
      * @param anime the anime to update
      */
     @Update
-    protected abstract void _updateAnime(@NonNull Anime anime);
+    protected abstract void _updateAnime(Anime anime);
 
     /**
      * delete one or more anime from the database
@@ -389,7 +393,7 @@ public abstract class AnimeDao {
      * @param anime the anime to delete
      */
     @Delete
-    protected abstract void _deleteAnime(@NonNull Anime... anime);
+    protected abstract void _deleteAnime(Anime... anime);
     // endregion
 
     // region genre
@@ -411,7 +415,7 @@ public abstract class AnimeDao {
      * @return id of the inserted genre, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract int _insertGenre(@NonNull Genre genre);
+    protected abstract long _insertGenre(Genre genre);
 
     /**
      * update a genre entry
@@ -419,7 +423,7 @@ public abstract class AnimeDao {
      * @param genre the genre to update
      */
     @Update
-    protected abstract void _updateGenre(@NonNull Genre genre);
+    protected abstract void _updateGenre(Genre genre);
 
     /**
      * delete one or more genres from the database
@@ -427,7 +431,7 @@ public abstract class AnimeDao {
      * @param genres the genres to delete
      */
     @Delete
-    protected abstract void _deleteGenres(@NonNull Genre... genres);
+    protected abstract void _deleteGenres(Genre... genres);
     //endregion
 
     // region studio
@@ -449,7 +453,7 @@ public abstract class AnimeDao {
      * @return id of the inserted studio, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract int _insertStudio(@NonNull Studio studio);
+    protected abstract long _insertStudio(Studio studio);
 
     /**
      * update a studio entry
@@ -457,7 +461,7 @@ public abstract class AnimeDao {
      * @param studio the studio to update
      */
     @Update
-    protected abstract void _updateStudio(@NonNull Studio studio);
+    protected abstract void _updateStudio(Studio studio);
 
     /**
      * delete one or more studios from the database
@@ -465,7 +469,7 @@ public abstract class AnimeDao {
      * @param studios the studios to delete
      */
     @Delete
-    protected abstract void _deleteStudio(@NonNull Studio... studios);
+    protected abstract void _deleteStudio(Studio... studios);
     // endregion
 
     // region themes
@@ -487,7 +491,7 @@ public abstract class AnimeDao {
      * @return id of the inserted theme, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract int _insertTheme(@NonNull Theme theme);
+    protected abstract long _insertTheme(Theme theme);
 
     /**
      * update a theme entry
@@ -495,7 +499,7 @@ public abstract class AnimeDao {
      * @param theme the theme to update
      */
     @Update
-    protected abstract void _updateTheme(@NonNull Theme theme);
+    protected abstract void _updateTheme(Theme theme);
 
     /**
      * delete one or more themes from the database
@@ -503,7 +507,7 @@ public abstract class AnimeDao {
      * @param themes the theme to delete
      */
     @Delete
-    protected abstract void _deleteTheme(@NonNull Theme... themes);
+    protected abstract void _deleteTheme(Theme... themes);
     // endregion
 
     // region Anime X Genre cross reference
@@ -524,7 +528,7 @@ public abstract class AnimeDao {
      * @param ref the ref to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertGenreReference(@NonNull List<AnimeXGenreCrossReference> ref);
+    protected abstract void _insertGenreReference(List<AnimeXGenreCrossReference> ref);
 
     /**
      * delete a genre reference for a anime in the database
@@ -532,7 +536,7 @@ public abstract class AnimeDao {
      * @param ref the reference to delete
      */
     @Delete
-    protected abstract void _deleteGenreReference(@NonNull List<AnimeXGenreCrossReference> ref);
+    protected abstract void _deleteGenreReference(List<AnimeXGenreCrossReference> ref);
     //endregion
 
     // region Anime X Studio cross reference
@@ -553,7 +557,7 @@ public abstract class AnimeDao {
      * @param ref the ref to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertStudioReference(@NonNull List<AnimeXStudioCrossReference> ref);
+    protected abstract void _insertStudioReference(List<AnimeXStudioCrossReference> ref);
 
     /**
      * delete a studio reference for a anime in the database
@@ -561,7 +565,7 @@ public abstract class AnimeDao {
      * @param ref the reference to delete
      */
     @Delete
-    protected abstract void _deleteStudioReference(@NonNull List<AnimeXStudioCrossReference> ref);
+    protected abstract void _deleteStudioReference(List<AnimeXStudioCrossReference> ref);
     //endregion
 
     // region Anime X Theme cross reference
@@ -582,7 +586,7 @@ public abstract class AnimeDao {
      * @param ref the ref to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertThemeReference(@NonNull List<AnimeXThemeCrossReference> ref);
+    protected abstract void _insertThemeReference(List<AnimeXThemeCrossReference> ref);
 
     /**
      * delete a theme reference for a anime in the database
@@ -590,7 +594,7 @@ public abstract class AnimeDao {
      * @param ref the reference to delete
      */
     @Delete
-    protected abstract void _deleteThemeReference(@NonNull List<AnimeXThemeCrossReference> ref);
+    protected abstract void _deleteThemeReference(List<AnimeXThemeCrossReference> ref);
     //endregion
 
     // region RelatedMediaRelation
@@ -611,7 +615,7 @@ public abstract class AnimeDao {
      * @param relations the relations to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertMediaRelations(@NonNull List<RelatedMediaRelation> relations);
+    protected abstract void _insertMediaRelations(List<RelatedMediaRelation> relations);
 
     /**
      * delete media relations from the db.
@@ -619,7 +623,7 @@ public abstract class AnimeDao {
      * @param relations the relations to delete
      */
     @Delete
-    protected abstract void _deleteMediaRelations(@NonNull List<RelatedMediaRelation> relations);
+    protected abstract void _deleteMediaRelations(List<RelatedMediaRelation> relations);
     // endregion
 
     // region RecommendedMediaRelation
@@ -640,7 +644,7 @@ public abstract class AnimeDao {
      * @param recommendations the recommendations to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertMediaRecommendations(@NonNull List<RecommendedMediaRelation> recommendations);
+    protected abstract void _insertMediaRecommendations(List<RecommendedMediaRelation> recommendations);
 
     /**
      * delete media recommendations from the db.
@@ -648,7 +652,7 @@ public abstract class AnimeDao {
      * @param recommendations the recommendations to delete
      */
     @Delete
-    protected abstract void _deleteMediaRecommendations(@NonNull List<RecommendedMediaRelation> recommendations);
+    protected abstract void _deleteMediaRecommendations(List<RecommendedMediaRelation> recommendations);
     // endregion
     // endregion
 }

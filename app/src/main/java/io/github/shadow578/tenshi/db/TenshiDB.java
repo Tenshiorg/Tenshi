@@ -14,6 +14,7 @@ import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXStudioCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXThemeCrossReference;
 import io.github.shadow578.tenshi.db.model.LastAccess;
+import io.github.shadow578.tenshi.db.model.RecommendedMediaRelation;
 import io.github.shadow578.tenshi.db.model.RelatedMediaRelation;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.Genre;
@@ -36,6 +37,7 @@ import io.github.shadow578.tenshi.mal.model.User;
         Theme.class,
         AnimeXThemeCrossReference.class,
         RelatedMediaRelation.class,
+        RecommendedMediaRelation.class,
         User.class,
         LastAccess.class //TODO implementation missing
 }, version = 1)
