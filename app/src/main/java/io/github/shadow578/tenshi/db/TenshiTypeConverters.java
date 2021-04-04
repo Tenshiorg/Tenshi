@@ -31,6 +31,12 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
  */
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class TenshiTypeConverters {
+
+    /**
+     * instance
+     */
+    public static final TenshiTypeConverters INSTANCE = new TenshiTypeConverters();
+
     /**
      * gson from TenshiApp
      */

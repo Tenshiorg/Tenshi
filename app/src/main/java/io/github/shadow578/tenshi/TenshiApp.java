@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
+import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterManager;
 import io.github.shadow578.tenshi.mal.AuthInterceptor;
 import io.github.shadow578.tenshi.mal.CacheInterceptor;
@@ -88,6 +89,11 @@ public class TenshiApp extends Application {
      */
     private ContentAdapterManager contentAdapterManager;
 
+    /**
+     * offline database of the app
+     */
+    private TenshiDB database;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -99,6 +105,9 @@ public class TenshiApp extends Application {
         // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
+
+        // init database
+        database = TenshiDB.create(getApplicationContext());
 
         // init and find content adapters
         contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
@@ -376,6 +385,14 @@ public class TenshiApp extends Application {
     @NonNull
     public static ContentAdapterManager getContentAdapterManager() {
         return INSTANCE.contentAdapterManager;
+    }
+
+    /**
+     * @return the offline database instance
+     */
+    @NonNull
+    public static TenshiDB getDB() {
+        return INSTANCE.database;
     }
 
     /**

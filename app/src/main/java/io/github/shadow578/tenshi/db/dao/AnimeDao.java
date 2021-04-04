@@ -7,25 +7,38 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.RawQuery;
 import androidx.room.Transaction;
 import androidx.room.Update;
+import androidx.sqlite.db.SimpleSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQuery;
+
+import org.intellij.lang.annotations.Language;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.shadow578.tenshi.db.TenshiTypeConverters;
 import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXStudioCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXThemeCrossReference;
 import io.github.shadow578.tenshi.db.model.RecommendedMediaRelation;
 import io.github.shadow578.tenshi.db.model.RelatedMediaRelation;
 import io.github.shadow578.tenshi.mal.model.Anime;
+import io.github.shadow578.tenshi.mal.model.AnimeListItem;
+import io.github.shadow578.tenshi.mal.model.AnimeRankingItem;
 import io.github.shadow578.tenshi.mal.model.Genre;
+import io.github.shadow578.tenshi.mal.model.Ranking;
 import io.github.shadow578.tenshi.mal.model.RecommendedMedia;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
+import io.github.shadow578.tenshi.mal.model.Season;
 import io.github.shadow578.tenshi.mal.model.Studio;
 import io.github.shadow578.tenshi.mal.model.Theme;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
+import io.github.shadow578.tenshi.mal.model.type.LibrarySortMode;
+import io.github.shadow578.tenshi.mal.model.type.NSFWRating;
+import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
 import static io.github.shadow578.tenshi.db.DBUtil.merge;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.foreach;
@@ -39,103 +52,131 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull
  */
 @Dao
 public abstract class AnimeDao {
+
+    /**
+     * insert OR update one or more anime of the user library in the database.
+     * uses {@link #insertAnime(Anime)} and does all it does
+     *
+     * @param animeList the library anime to insert
+     */
+    @Transaction
+    public void insertLibraryAnime(@Nullable List<UserLibraryEntry> animeList) {
+        foreach(animeList, entry -> {
+            // make sure the entry level anime is also set on the anime
+            if (isNull(entry.anime.userListStatus))
+                entry.anime.userListStatus = entry.libraryStatus;
+
+            // normally insert the anime
+            insertAnime(entry.anime);
+        });
+    }
+
     /**
      * insert OR update one or more anime in the database.
-     * Also inserts / updates the genres, studios and themes, aswell as adding the required cross reference values.
+     * uses {@link #insertAnime(Anime)} and does all it does
      *
      * @param animeList the anime to insert or update
      */
     @Transaction
     public void insertAnime(@Nullable List<Anime> animeList) {
-        foreach(animeList, anime -> {
-            // insert or update the anime
-            _mergeUpdateAnime(anime);
+        foreach(animeList, this::insertAnime);
+    }
 
-            // create and update cross references:
-            //region genres
-            final ArrayList<AnimeXGenreCrossReference> genreRefs = new ArrayList<>();
-            foreach(anime.genres, genre -> {
-                // insert or update
-                _mergeUpdateGenre(genre);
+    /**
+     * insert OR update one anime in the database.
+     * Also inserts / updates the genres, studios and themes, aswell as adding the required cross reference values.
+     *
+     * @param anime the anime to insert or update
+     */
+    @Transaction
+    public void insertAnime(Anime anime) {
+        // insert or update the anime
+        _mergeUpdateAnime(anime);
 
-                // create ref
-                genreRefs.add(new AnimeXGenreCrossReference(anime.animeId, genre.id));
-            });
+        // create and update cross references:
+        //region genres
+        final ArrayList<AnimeXGenreCrossReference> genreRefs = new ArrayList<>();
+        foreach(anime.genres, genre -> {
+            // insert or update
+            _mergeUpdateGenre(genre);
 
-            // insert refs
-            _insertGenreReference(genreRefs);
-            //endregion
-
-            //region studios
-            final ArrayList<AnimeXStudioCrossReference> studioRefs = new ArrayList<>();
-            foreach(anime.studios, studio -> {
-                // insert or update
-                _mergeUpdateStudio(studio);
-
-                // create ref
-                studioRefs.add(new AnimeXStudioCrossReference(anime.animeId, studio.id));
-            });
-
-            // insert refs
-            _insertStudioReference(studioRefs);
-            //endregion
-
-            //region themes
-            final ArrayList<AnimeXThemeCrossReference> themeRefs = new ArrayList<>();
-            foreach(anime.openingThemes, theme -> {
-                // insert or update
-                _mergeUpdateTheme(theme);
-
-                // create ref
-                themeRefs.add(new AnimeXThemeCrossReference(anime.animeId, theme.id, false));
-            });
-            foreach(anime.endingThemes, theme -> {
-                // insert or update
-                _mergeUpdateTheme(theme);
-
-                // create ref
-                themeRefs.add(new AnimeXThemeCrossReference(anime.animeId, theme.id, true));
-            });
-
-            // insert refs
-            _insertThemeReference(themeRefs);
-            //endregion
-
-            // region related media
-            final ArrayList<RelatedMediaRelation> relatedMediaRelations = new ArrayList<>();
-            foreach(anime.relatedAnime, related -> {
-                // create relation
-                relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, false));
-
-                // insert or update the related anime into the db
-                _mergeUpdateAnime(related.relatedAnime);
-            });
-            foreach(anime.relatedManga, related -> {
-                // create relation
-                relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, true));
-
-                // insert or update the related manga into the db
-                _mergeUpdateAnime(related.relatedAnime);
-            });
-
-            // insert relations
-            _insertMediaRelations(relatedMediaRelations);
-            // endregion
-
-            // region recommended media
-            final ArrayList<RecommendedMediaRelation> recommendedMediaRelations = new ArrayList<>();
-            foreach(anime.recommendations, recommended -> {
-                // create relation
-                recommendedMediaRelations.add(new RecommendedMediaRelation(anime.animeId, recommended.animeRecommendation.animeId, recommended.recommendationCount));
-
-                // insert or update the recommended anime into the db
-                _mergeUpdateAnime(recommended.animeRecommendation);
-            });
-
-            // insert relations
-            _insertMediaRecommendations(recommendedMediaRelations);
-            // endregion
+            // create ref
+            genreRefs.add(new AnimeXGenreCrossReference(anime.animeId, genre.id));
         });
+
+        // insert refs
+        _insertGenreReference(genreRefs);
+        //endregion
+
+        //region studios
+        final ArrayList<AnimeXStudioCrossReference> studioRefs = new ArrayList<>();
+        foreach(anime.studios, studio -> {
+            // insert or update
+            _mergeUpdateStudio(studio);
+
+            // create ref
+            studioRefs.add(new AnimeXStudioCrossReference(anime.animeId, studio.id));
+        });
+
+        // insert refs
+        _insertStudioReference(studioRefs);
+        //endregion
+
+        //region themes
+        final ArrayList<AnimeXThemeCrossReference> themeRefs = new ArrayList<>();
+        foreach(anime.openingThemes, theme -> {
+            // insert or update
+            _mergeUpdateTheme(theme);
+
+            // create ref
+            themeRefs.add(new AnimeXThemeCrossReference(anime.animeId, theme.id, false));
+        });
+        foreach(anime.endingThemes, theme -> {
+            // insert or update
+            _mergeUpdateTheme(theme);
+
+            // create ref
+            themeRefs.add(new AnimeXThemeCrossReference(anime.animeId, theme.id, true));
+        });
+
+        // insert refs
+        _insertThemeReference(themeRefs);
+        //endregion
+
+        // region related media
+        final ArrayList<RelatedMediaRelation> relatedMediaRelations = new ArrayList<>();
+        foreach(anime.relatedAnime, related -> {
+            // create relation
+            relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, false));
+
+            // insert or update the related anime into the db
+            _mergeUpdateAnime(related.relatedAnime);
+        });
+        foreach(anime.relatedManga, related -> {
+            // create relation
+            relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, true));
+
+            // insert or update the related manga into the db
+            _mergeUpdateAnime(related.relatedAnime);
+        });
+
+        // insert relations
+        _insertMediaRelations(relatedMediaRelations);
+        // endregion
+
+        // region recommended media
+        final ArrayList<RecommendedMediaRelation> recommendedMediaRelations = new ArrayList<>();
+        foreach(anime.recommendations, recommended -> {
+            // create relation
+            recommendedMediaRelations.add(new RecommendedMediaRelation(anime.animeId, recommended.animeRecommendation.animeId, recommended.recommendationCount));
+
+            // insert or update the recommended anime into the db
+            _mergeUpdateAnime(recommended.animeRecommendation);
+        });
+
+        // insert relations
+        _insertMediaRecommendations(recommendedMediaRelations);
+        // endregion
     }
 
     /**
@@ -165,14 +206,65 @@ public abstract class AnimeDao {
     /**
      * get the entries in the user library from the database
      *
-     * @param status the status to get. this supports {@link LibraryEntryStatus#All}
+     * @param status   the status to get. this supports {@link LibraryEntryStatus#All}
+     * @param sortMode sort mode for the libary
+     * @param showNSFW include nsfw entries?
      * @return the library entries.
      */
-    @NonNull
     @Transaction
-    public List<UserLibraryEntry> getUserLibrary(@NonNull LibraryEntryStatus status) {
-        // get all anime with that status
-        final List<Anime> library = (status == LibraryEntryStatus.All) ? _getUserLibrary() : _getUserLibrary(status);
+    public List<UserLibraryEntry> getUserLibrary(LibraryEntryStatus status, LibrarySortMode sortMode, boolean showNSFW) {
+        // region build query
+        // get status as serialized string for sort
+        final String statusForQuery = TenshiTypeConverters.INSTANCE.serializeLibraryEntryStatus(status);
+
+        // find what field to order by
+        // and if we want to order ascending or descending
+        final String queryOrderByField;
+        final String queryOrderByOrder;
+        switch (sortMode) {
+            default:
+            case anime_title:
+                queryOrderByField = "title";
+                queryOrderByOrder = "ASC";
+                break;
+            case list_score:
+                queryOrderByField = "my_list_status_score";
+                queryOrderByOrder = "DESC";
+                break;
+            case list_updated_at:
+                queryOrderByField = "my_list_status_updated_at";
+                queryOrderByOrder = "DESC";
+                break;
+            case anime_start_date:
+                queryOrderByField = "start_date";
+                queryOrderByOrder = "DESC";
+                break;
+            case anime_id:
+                queryOrderByField = "anime_id";
+                queryOrderByOrder = "ASC";
+                break;
+        }
+
+
+        // build the query depending on nsfw filtering status
+        @Language("RoomSql") final String querySql;
+        final Object[] queryParams;
+        if (showNSFW) {
+            // do not filter on NSFW rating
+            querySql = "SELECT * FROM anime WHERE my_list_status_status = ? ORDER BY " + queryOrderByField + " " + queryOrderByOrder;
+            queryParams = new Object[]{statusForQuery};
+        } else {
+            // only include anime with NSFW rating 'white'
+            querySql = "SELECT * FROM anime WHERE my_list_status_status = ? AND nsfw = ? ORDER BY " + queryOrderByField + " " + queryOrderByOrder;
+            queryParams = new Object[]{statusForQuery, TenshiTypeConverters.INSTANCE.serializeNSFWRating(NSFWRating.White)};
+        }
+
+        // create the query instance
+        final SimpleSQLiteQuery query = new SimpleSQLiteQuery(querySql, queryParams);
+        // endregion
+
+        // query anime
+        final List<Anime> library = _getAnimeRaw(query);
 
         // create UserLibraryEntries for all anime found
         final ArrayList<UserLibraryEntry> libraryEntries = new ArrayList<>();
@@ -189,6 +281,46 @@ public abstract class AnimeDao {
         });
 
         return libraryEntries;
+    }
+
+    /**
+     * search for a anime with a given title
+     *
+     * @param query the search query
+     * @return all anime matching that title
+     */
+    @NonNull
+    @Transaction
+    public List<AnimeListItem> searchAnime(String query) {
+        final List<AnimeListItem> results = new ArrayList<>();
+        foreach(_searchAnime(query), anime -> {
+            final AnimeListItem ali = new AnimeListItem();
+            ali.anime = anime;
+            results.add(ali);
+        });
+
+        return results;
+    }
+
+    /**
+     * get all anime in a given season
+     *
+     * @param season the season
+     * @return all anime in that season
+     */
+    @NonNull
+    @Transaction
+    public List<AnimeRankingItem> getSeasonalAnime(Season season) {
+        final ArrayList<AnimeRankingItem> result = new ArrayList<>();
+        foreach(_getAnimeBySeason(season.season, season.year), anime -> {
+            final AnimeRankingItem ali = new AnimeRankingItem();
+            ali.anime = anime;
+            ali.ranking = new Ranking();
+            ali.ranking_type = null;
+            result.add(ali);
+        });
+
+        return result;
     }
 
     /**
@@ -280,7 +412,7 @@ public abstract class AnimeDao {
      * @param anime the anime to insert or update
      */
     @Transaction
-    protected void _mergeUpdateAnime(@NonNull Anime anime) {
+    protected void _mergeUpdateAnime(Anime anime) {
         final Anime old = _getAnimeById(anime.animeId);
         if (isNull(old)) {
             // does not exist, just insert normally
@@ -299,7 +431,7 @@ public abstract class AnimeDao {
      * @param studio the studio to insert or update
      */
     @Transaction
-    protected void _mergeUpdateStudio(@NonNull Studio studio) {
+    protected void _mergeUpdateStudio(Studio studio) {
         final Studio old = _getStudioById(studio.id);
         if (isNull(old)) {
             // does not exist, just insert normally
@@ -318,7 +450,7 @@ public abstract class AnimeDao {
      * @param genre the genre to insert or update
      */
     @Transaction
-    protected void _mergeUpdateGenre(@NonNull Genre genre) {
+    protected void _mergeUpdateGenre(Genre genre) {
         final Genre old = _getGenreById(genre.id);
         if (isNull(old)) {
             // does not exist, just insert normally
@@ -337,7 +469,7 @@ public abstract class AnimeDao {
      * @param theme the theme to insert or update
      */
     @Transaction
-    protected void _mergeUpdateTheme(@NonNull Theme theme) {
+    protected void _mergeUpdateTheme(Theme theme) {
         final Theme old = _getThemeById(theme.id);
         if (isNull(old)) {
             // does not exist, just insert normally
@@ -364,21 +496,33 @@ public abstract class AnimeDao {
     protected abstract Anime _getAnimeById(int animeId);
 
     /**
-     * get all anime that have a library status.
+     * get all anime in a season
      *
-     * @return all anime in the user library
+     * @param season the season to select
+     * @param year   the year to select
+     * @return all anime starting in that season and year
      */
-    @Query("SELECT * FROM anime WHERE `my_list_status_status` IS NOT NULL")
-    protected abstract List<Anime> _getUserLibrary();
+    @Query("SELECT * FROM anime WHERE start_season_season = :season AND start_season_year = :year")
+    protected abstract List<Anime> _getAnimeBySeason(YearSeason season, int year);
 
     /**
-     * get all anime with the given library entry status.
+     * search all anime by title
      *
-     * @param status the status to get
-     * @return all anime with that status
+     * @param titleQuery the anime title to search for
+     * @return all anime matching that title query
      */
-    @Query("SELECT * FROM anime WHERE `my_list_status_status` = :status")
-    protected abstract List<Anime> _getUserLibrary(LibraryEntryStatus status);
+    @Query("SELECT * FROM anime WHERE title LIKE :titleQuery")
+    protected abstract List<Anime> _searchAnime(String titleQuery);
+
+    /**
+     * execute a raw query on the anime database
+     *
+     * @param query the query to execute
+     * @return all anime found
+     */
+    @RawQuery
+    protected abstract List<Anime> _getAnimeRaw(SupportSQLiteQuery query);
+
 
     /**
      * insert a anime into the database.

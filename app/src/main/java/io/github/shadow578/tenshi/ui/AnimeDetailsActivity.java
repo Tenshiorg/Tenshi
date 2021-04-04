@@ -54,6 +54,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
@@ -260,6 +261,16 @@ public class AnimeDetailsActivity extends TenshiActivity {
      * load the anime details from MAL
      */
     private void fetchAnime() {
+        // load from db
+        async(() -> TenshiApp.getDB().animeDB().getAnime(animeID, true), a -> {
+            // ONLY set the anime IF we did not already load it from MAL
+            if (isNull(animeDetails) && notNull(a)) {
+                animeDetails = a;
+                populateViewData();
+            }
+        });
+
+        // request from MAL
         TenshiApp.getMal().getAnime(animeID, REQUEST_FIELDS)
                 .enqueue(new Callback<Anime>() {
                     @Override
@@ -269,9 +280,13 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         TenshiApp.malReauthCallback(AnimeDetailsActivity.this, response);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            // call success
+                            // call success, set data to views
                             animeDetails = response.body();
                             populateViewData();
+
+                            // insert into db
+                            //TODO async
+                            TenshiApp.getDB().animeDB().insertAnime(animeDetails);
                         } else if (response.code() == 404) {
                             // anime not found, use fallback
                             c.cancel();
@@ -533,9 +548,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
         TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
             // hide controls if no content adapters were discovered
             // or if the anime does not have any episodes yet
+            // or the anime is not in the library
+            // TODO allow watching of anime that are NOT in the library -> add them after the first episode
             if (manager.getAdapterCount() <= 0
                     || isNull(animeDetails.episodesCount)
-                    || animeDetails.episodesCount <= 0) {
+                    || animeDetails.episodesCount <= 0
+                    || isNull(animeDetails.userListStatus)) {
                 b.animeWatchNowGroup.setVisibility(View.GONE);
                 b.divWatchNowSynopsis.setVisibility(View.GONE);
                 return;
@@ -844,7 +862,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         //open in player
                         final Intent playIntent = new Intent(Intent.ACTION_VIEW);
                         String guessedType = URLConnection.guessContentTypeFromName(uriStr);
-                        if(nullOrWhitespace(guessedType))
+                        if (nullOrWhitespace(guessedType))
                             guessedType = "video/*";
 
                         playIntent.setDataAndTypeAndNormalize(uri, guessedType);

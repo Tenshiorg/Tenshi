@@ -79,6 +79,6 @@ public final class User {
      */
     @Nullable
     @SerializedName("anime_statistics")
-    @Embedded(prefix = "anime_statistics")
+    @Embedded(prefix = "anime_statistics_")
     public UserStatistics statistics;
 }
