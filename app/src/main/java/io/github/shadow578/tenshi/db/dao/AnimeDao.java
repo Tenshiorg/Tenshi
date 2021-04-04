@@ -511,7 +511,7 @@ public abstract class AnimeDao {
      * @param titleQuery the anime title to search for
      * @return all anime matching that title query
      */
-    @Query("SELECT * FROM anime WHERE title LIKE :titleQuery")
+    @Query("SELECT * FROM anime WHERE title LIKE '%' || :titleQuery || '%'")
     protected abstract List<Anime> _searchAnime(String titleQuery);
 
     /**
