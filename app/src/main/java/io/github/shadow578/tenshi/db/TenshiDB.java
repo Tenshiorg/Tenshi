@@ -57,7 +57,6 @@ public abstract class TenshiDB extends RoomDatabase {
     public static TenshiDB create(@NonNull Context ctx) {
         return Room.databaseBuilder(ctx, TenshiDB.class, DB_NAME)
                 .fallbackToDestructiveMigration()
-                .allowMainThreadQueries() //TODO main thread queries
                 .build();
     }
 

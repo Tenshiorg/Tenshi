@@ -285,8 +285,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
                             populateViewData();
 
                             // insert into db
-                            //TODO async
-                            TenshiApp.getDB().animeDB().insertAnime(animeDetails);
+                            async(() -> TenshiApp.getDB().animeDB().insertAnime(animeDetails));
                         } else if (response.code() == 404) {
                             // anime not found, use fallback
                             c.cancel();

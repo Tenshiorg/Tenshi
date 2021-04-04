@@ -210,10 +210,11 @@ public class HomeFragment extends TenshiFragment {
                                 b.currentSeasonLoadingIndicator.hide();
 
                                 // insert into db
-                                //TODO async
-                                final ArrayList<Anime> animeForDb = new ArrayList<>();
-                                foreach(newAnime, a -> animeForDb.add(a.anime));
-                                TenshiApp.getDB().animeDB().insertAnime(animeForDb);
+                                async(() -> {
+                                    final ArrayList<Anime> animeForDb = new ArrayList<>();
+                                    foreach(newAnime, a -> animeForDb.add(a.anime));
+                                    TenshiApp.getDB().animeDB().insertAnime(animeForDb);
+                                });
                             }
                         } else if (response.code() == 401 && isAdded())
                             Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
@@ -262,10 +263,11 @@ public class HomeFragment extends TenshiFragment {
                         b.recommendationsLoadingIndicator.hide();
 
                         // insert into db
-                        //TODO async
-                        final ArrayList<Anime> animeForDb = new ArrayList<>();
-                        foreach(recommendedAnimeResponse.items, a -> animeForDb.add(a.anime));
-                        TenshiApp.getDB().animeDB().insertAnime(animeForDb);
+                        async(() -> {
+                            final ArrayList<Anime> animeForDb = new ArrayList<>();
+                            foreach(recommendedAnimeResponse.items, a -> animeForDb.add(a.anime));
+                            TenshiApp.getDB().animeDB().insertAnime(animeForDb);
+                        });
                     }
                 } else if (response.code() == 401 && isAdded())
                     Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();

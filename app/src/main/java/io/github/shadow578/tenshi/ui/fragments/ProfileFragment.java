@@ -116,8 +116,7 @@ public class ProfileFragment extends TenshiFragment {
                             populateViewData();
 
                             // insert into db
-                            // TODO: async
-                            TenshiApp.getDB().userDB().insertUser(user);
+                            async(() -> TenshiApp.getDB().userDB().insertUser(user));
 
                             // save user ID to prefs
                             TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);
