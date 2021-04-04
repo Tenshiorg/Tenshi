@@ -45,7 +45,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("alternative_titles")
-    @Embedded(prefix = "alternative_titles.")
+    @Embedded(prefix = "alternative_titles_")
     public TitleSynonyms titleSynonyms;
 
     /**
@@ -61,7 +61,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("broadcast")
-    @Embedded(prefix = "broadcast.")
+    @Embedded(prefix = "broadcast_")
     public BroadcastInfo broadcastInfo;
 
     /**
@@ -92,7 +92,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("main_picture")
-    @Embedded(prefix = "main_picture.")
+    @Embedded(prefix = "main_picture_")
     public Image poster;
 
     /**
@@ -177,7 +177,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("start_season")
-    @Embedded(prefix = "start_season.")
+    @Embedded(prefix = "start_season_")
     public Season startSeason;
 
     /**
@@ -230,7 +230,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("my_list_status")
-    @Embedded(prefix = "my_list_status.")
+    @Embedded(prefix = "my_list_status_")
     public LibraryStatus userListStatus;
 
     /**

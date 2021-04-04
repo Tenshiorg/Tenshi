@@ -368,7 +368,7 @@ public abstract class AnimeDao {
      *
      * @return all anime in the user library
      */
-    @Query("SELECT * FROM anime WHERE `my_list_status.status` IS NOT NULL")
+    @Query("SELECT * FROM anime WHERE `my_list_status_status` IS NOT NULL")
     protected abstract List<Anime> _getUserLibrary();
 
     /**
@@ -377,7 +377,7 @@ public abstract class AnimeDao {
      * @param status the status to get
      * @return all anime with that status
      */
-    @Query("SELECT * FROM anime WHERE `my_list_status.status` = :status")
+    @Query("SELECT * FROM anime WHERE `my_list_status_status` = :status")
     protected abstract List<Anime> _getUserLibrary(LibraryEntryStatus status);
 
     /**

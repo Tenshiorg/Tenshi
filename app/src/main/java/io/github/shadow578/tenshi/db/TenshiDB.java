@@ -40,7 +40,7 @@ import io.github.shadow578.tenshi.mal.model.User;
         RecommendedMediaRelation.class,
         User.class,
         LastAccess.class //TODO implementation missing
-}, version = 1)
+}, version = 2)
 public abstract class TenshiDB extends RoomDatabase {
 
     /**
