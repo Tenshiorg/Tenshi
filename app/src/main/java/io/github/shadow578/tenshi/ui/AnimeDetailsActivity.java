@@ -114,6 +114,9 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // check user is logged in, redirect to login and finish() if not
         requireUserAuthenticated();
 
+        // notify user if offline
+        showSnackbarIfOffline(b.getRoot());
+
         //enable decor (globally disabled in TenshiActivity)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(true);

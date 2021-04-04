@@ -55,6 +55,9 @@ public class SearchActivity extends TenshiActivity {
         // check user is logged in, redirect to login and finish() if not
         requireUserAuthenticated();
 
+        // notify user if offline
+        showSnackbarIfOffline(b.getRoot());
+
         // setup status & actionbar
         setSupportActionBar(b.searchToolbar);
         with(getSupportActionBar(), sab -> {
@@ -110,7 +113,7 @@ public class SearchActivity extends TenshiActivity {
             async(() -> TenshiApp.getDB().animeDB().searchAnime(query), results -> {
                 // only use search results from db if we dont already have results from MAL
                 // ... somehow
-                if(searchResults.isEmpty() && notNull(results)){
+                if (searchResults.isEmpty() && notNull(results)) {
                     searchResults.addAll(results);
                     searchAdapter.notifyDataSetChanged();
                     b.noResultText.setVisibility(View.GONE);

@@ -8,6 +8,8 @@
     <string name="shared_num_episodes_fmt">%s Episodes</string>
     <string name="shared_desc_poster">Poster</string>
     <string name="shared_toast_copied_to_clip">Copied to Clipboard</string>
+    <string name="shared_snack_no_internet">You\'re Offline! Information may be incomplete or out of date</string>
+    <string name="shared_snack_no_internet_dismiss">Dismiss</string>
     <!-- endregion -->
 
     <!-- region Main Activity -->

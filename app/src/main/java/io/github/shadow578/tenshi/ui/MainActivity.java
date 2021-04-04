@@ -22,7 +22,8 @@ import io.github.shadow578.tenshi.ui.settings.SettingsActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 
 /**
@@ -62,6 +63,9 @@ public class MainActivity extends TenshiActivity {
 
         // check user is logged in, redirect to login and finish() if not
         requireUserAuthenticated();
+
+        // show info if offline
+        showSnackbarIfOffline(b.snackbarContainer);
 
         //region set theme
         switch (TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem)) {

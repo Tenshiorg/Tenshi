@@ -214,7 +214,7 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
                         animeListAdapter.notifyDataSetChanged();
 
                         // insert loaded anime into the db
-                        TenshiApp.getDB().animeDB().insertLibraryAnime(newAnimeList);
+                        async(() -> TenshiApp.getDB().animeDB().insertLibraryAnime(newAnimeList));
 
                         // hide loading indicator
                         b.animeListLoadingIndicator.hide();
