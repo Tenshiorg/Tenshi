@@ -1,11 +1,9 @@
 package io.github.shadow578.tenshi.db.model;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
-import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.RelationType;
 
 /**
@@ -13,12 +11,12 @@ import io.github.shadow578.tenshi.mal.model.type.RelationType;
  * <p>
  * db representation of {@link io.github.shadow578.tenshi.mal.model.RelatedMedia}
  */
-@Entity(tableName = "relations",
+@Entity(tableName = "media_relations",
         primaryKeys = {
                 "parent_id",
                 "child_id"
         })
-public class MediaRelation {
+public class RelatedMediaRelation {
 
     /**
      * {@link io.github.shadow578.tenshi.mal.model.Anime#animeId} of the parent anime the child is related to
@@ -52,23 +50,11 @@ public class MediaRelation {
     @ColumnInfo(name = "is_manga")
     public boolean isManga;
 
-    public MediaRelation(int parentId, int childId, @Nullable RelationType relationType, @Nullable String relationTypeFormatted, boolean isManga) {
+    public RelatedMediaRelation(int parentId, int childId, @Nullable RelationType relationType, @Nullable String relationTypeFormatted, boolean isManga) {
         this.parentId = parentId;
         this.childId = childId;
         this.relationType = relationType;
         this.relationTypeFormatted = relationTypeFormatted;
         this.isManga = isManga;
-    }
-
-    /**
-     * create a media relation from a related media
-     *
-     * @param parentId the parent id the media is related to
-     * @param related  the related media (anime/manga)
-     * @param isManga  is this relation for a manga (the child)
-     * @return the relation
-     */
-    public static MediaRelation fromRelatedMedia(int parentId, @NonNull RelatedMedia related, boolean isManga) {
-        return new MediaRelation(parentId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, isManga);
     }
 }

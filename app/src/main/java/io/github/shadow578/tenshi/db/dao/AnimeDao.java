@@ -16,9 +16,11 @@ import java.util.List;
 import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXStudioCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXThemeCrossReference;
-import io.github.shadow578.tenshi.db.model.MediaRelation;
+import io.github.shadow578.tenshi.db.model.RecommendedMediaRelation;
+import io.github.shadow578.tenshi.db.model.RelatedMediaRelation;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.Genre;
+import io.github.shadow578.tenshi.mal.model.RecommendedMedia;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.Studio;
 import io.github.shadow578.tenshi.mal.model.Theme;
@@ -98,18 +100,29 @@ public abstract class AnimeDao {
             //endregion
 
             // region related media
-            final ArrayList<MediaRelation> relations = new ArrayList<>();
+            final ArrayList<RelatedMediaRelation> relatedMediaRelations = new ArrayList<>();
             foreach(anime.relatedAnime, related -> {
                 // create relation
-                relations.add(MediaRelation.fromRelatedMedia(anime.animeId, related, false));
+                relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, false));
             });
             foreach(anime.relatedManga, related -> {
                 // create relation
-                relations.add(MediaRelation.fromRelatedMedia(anime.animeId, related, true));
+                relatedMediaRelations.add(new RelatedMediaRelation(anime.animeId, related.relatedAnime.animeId, related.relationType, related.relationTypeFormatted, true));
             });
 
             // insert relations
-            _insertMediaRelations(relations);
+            _insertMediaRelations(relatedMediaRelations);
+            // endregion
+
+            // region recommended media
+            final ArrayList<RecommendedMediaRelation> recommendedMediaRelations = new ArrayList<>();
+            foreach(anime.recommendations, recommended -> {
+                // create relation
+                recommendedMediaRelations.add(new RecommendedMediaRelation(anime.animeId, recommended.animeRecommendation.animeId, recommended.recommendationCount));
+            });
+
+            // insert relations
+            _insertMediaRecommendations(recommendedMediaRelations);
             // endregion
         });
     }
@@ -227,6 +240,25 @@ public abstract class AnimeDao {
             }
         });
         //endregion
+
+        // region recommendations
+        anime.recommendations = new ArrayList<>();
+        foreach(_getMediaRecommendations(anime.animeId), recommendation -> {
+            final Anime child = _getAnimeById(recommendation.childId);
+            if (notNull(child)) {
+                // create recommended media instance
+                final RecommendedMedia recommend = new RecommendedMedia();
+                recommend.animeRecommendation = child;
+                recommend.recommendationCount = recommendation.recommendationCount;
+
+                // do NOT resolve cross references of the child
+                // it is not needed for anything and would also cause problems because of recursion
+
+                // add it to the list
+                anime.recommendations.add(recommend);
+            }
+        });
+        // endregion
     }
 
     //region mergeUpdate wrappers
@@ -561,7 +593,7 @@ public abstract class AnimeDao {
     protected abstract void _deleteThemeReference(@NonNull List<AnimeXThemeCrossReference> ref);
     //endregion
 
-    // region MediaRelation
+    // region RelatedMediaRelation
 
     /**
      * get all media relation with a given parent id
@@ -569,8 +601,8 @@ public abstract class AnimeDao {
      * @param parentId the parent id to get
      * @return the related medias
      */
-    @Query("SELECT * FROM relations WHERE parent_id = :parentId")
-    protected abstract List<MediaRelation> _getMediaRelations(int parentId);
+    @Query("SELECT * FROM media_relations WHERE parent_id = :parentId")
+    protected abstract List<RelatedMediaRelation> _getMediaRelations(int parentId);
 
     /**
      * insert media relations into the db.
@@ -579,7 +611,7 @@ public abstract class AnimeDao {
      * @param relations the relations to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract void _insertMediaRelations(@NonNull List<MediaRelation> relations);
+    protected abstract void _insertMediaRelations(@NonNull List<RelatedMediaRelation> relations);
 
     /**
      * delete media relations from the db.
@@ -587,7 +619,36 @@ public abstract class AnimeDao {
      * @param relations the relations to delete
      */
     @Delete
-    protected abstract void _deleteMediaRelations(@NonNull List<MediaRelation> relations);
+    protected abstract void _deleteMediaRelations(@NonNull List<RelatedMediaRelation> relations);
+    // endregion
+
+    // region RecommendedMediaRelation
+
+    /**
+     * get all media recommendations with a given parent id
+     *
+     * @param parentId the parent id to get
+     * @return the recommended medias
+     */
+    @Query("SELECT * FROM media_recommendations WHERE parent_id = :parentId")
+    protected abstract List<RecommendedMediaRelation> _getMediaRecommendations(int parentId);
+
+    /**
+     * insert media recommendations into the db.
+     * if the relation already exists, it is replaced
+     *
+     * @param recommendations the recommendations to insert
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract void _insertMediaRecommendations(@NonNull List<RecommendedMediaRelation> recommendations);
+
+    /**
+     * delete media recommendations from the db.
+     *
+     * @param recommendations the recommendations to delete
+     */
+    @Delete
+    protected abstract void _deleteMediaRecommendations(@NonNull List<RecommendedMediaRelation> recommendations);
     // endregion
     // endregion
 }
