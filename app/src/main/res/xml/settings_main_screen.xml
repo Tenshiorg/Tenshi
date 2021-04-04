@@ -39,6 +39,11 @@
             android:title="App Version" />
     </PreferenceCategory>
 
+    <!-- export database -->
+    <Preference
+        android:key="export_database"
+        android:title="Export Database" />
+
     <!-- Preference debug, dynamically populated -->
     <PreferenceCategory android:title="PREFS" android:key="dbg_prefs_category"/>
 

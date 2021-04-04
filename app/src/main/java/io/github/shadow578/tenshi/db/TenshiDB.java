@@ -8,6 +8,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import java.io.File;
+
 import io.github.shadow578.tenshi.db.dao.AnimeDao;
 import io.github.shadow578.tenshi.db.dao.UserDao;
 import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
@@ -66,8 +68,8 @@ public abstract class TenshiDB extends RoomDatabase {
      * @param ctx the context to work in
      * @return the path to the database file
      */
-    public static String getDatabasePath(@NonNull Context ctx) {
-        return ctx.getDatabasePath(DB_NAME).getAbsolutePath();
+    public static File getDatabasePath(@NonNull Context ctx) {
+        return ctx.getDatabasePath(DB_NAME);
     }
 
     /**
