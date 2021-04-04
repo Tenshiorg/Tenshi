@@ -29,6 +29,7 @@ import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.collect;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.join;
@@ -124,6 +125,24 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
             final Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             exportIntent.setType("*/*");
             startActivityForResult(exportIntent, REQUEST_CHOOSE_DB_EXPORT_PATH);
+            return true;
+        });
+
+        // setup cleanup database button
+        final Preference cleanDb = findPreference("cleanup_database");
+        cleanDb.setOnPreferenceClickListener(preference -> {
+            // start cleanup async
+            async(() -> TenshiApp.getDB().cleanupDatabase(), count -> {
+                Toast.makeText(requireContext(), fmt("deleted %d entries", count), Toast.LENGTH_SHORT).show();
+            });
+            return true;
+        });
+
+        // setup delete database button
+        final Preference deleteDb = findPreference("delete_database");
+        deleteDb.setOnPreferenceClickListener(preference -> {
+            async(() -> TenshiApp.getDB().clearAllTables());
+            Toast.makeText(requireContext(), "deleted database", Toast.LENGTH_SHORT).show();
             return true;
         });
 

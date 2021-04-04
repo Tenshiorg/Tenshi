@@ -90,10 +90,16 @@ public class ProfileFragment extends TenshiFragment {
                 return null;
         }, u -> {
             // populate views only if not already loaded from MAL
-            if (isNull(user) && notNull(u)) {
-                user = u;
-                userAnimeStatistics = u.statistics;
-                populateViewData();
+            if (notNull(u)) {
+                // update access
+                async(() -> TenshiApp.getDB().accessDB().updateForUser(u.userID));
+
+                // update ui
+                if (isNull(user)) {
+                    user = u;
+                    userAnimeStatistics = u.statistics;
+                    populateViewData();
+                }
             }
         });
 
@@ -116,7 +122,7 @@ public class ProfileFragment extends TenshiFragment {
                             populateViewData();
 
                             // insert into db
-                            async(() -> TenshiApp.getDB().userDB().insertUser(user));
+                            async(() -> TenshiApp.getDB().userDB().insertOrUpdateUser(user));
 
                             // save user ID to prefs
                             TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);

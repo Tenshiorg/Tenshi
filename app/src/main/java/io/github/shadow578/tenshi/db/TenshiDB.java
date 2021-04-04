@@ -9,13 +9,17 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import io.github.shadow578.tenshi.db.dao.AnimeDao;
+import io.github.shadow578.tenshi.db.dao.CleanupDao;
+import io.github.shadow578.tenshi.db.dao.LastAccessInfoDao;
 import io.github.shadow578.tenshi.db.dao.UserDao;
 import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXStudioCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXThemeCrossReference;
-import io.github.shadow578.tenshi.db.model.LastAccess;
+import io.github.shadow578.tenshi.db.model.LastAccessInfo;
 import io.github.shadow578.tenshi.db.model.RecommendedMediaRelation;
 import io.github.shadow578.tenshi.db.model.RelatedMediaRelation;
 import io.github.shadow578.tenshi.mal.model.Anime;
@@ -23,6 +27,10 @@ import io.github.shadow578.tenshi.mal.model.Genre;
 import io.github.shadow578.tenshi.mal.model.Studio;
 import io.github.shadow578.tenshi.mal.model.Theme;
 import io.github.shadow578.tenshi.mal.model.User;
+import io.github.shadow578.tenshi.util.DateHelper;
+
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 
 /**
  * Tenshi's database to store MAL information offline
@@ -41,8 +49,8 @@ import io.github.shadow578.tenshi.mal.model.User;
         RelatedMediaRelation.class,
         RecommendedMediaRelation.class,
         User.class,
-        LastAccess.class //TODO implementation missing
-}, version = 2)
+        LastAccessInfo.class
+}, version = 3)
 public abstract class TenshiDB extends RoomDatabase {
 
     /**
@@ -73,6 +81,34 @@ public abstract class TenshiDB extends RoomDatabase {
     }
 
     /**
+     * remove unused database entries using the last access time.
+     * excludes anime in the user's library
+     *
+     * @return the number of items that were removed
+     */
+    public int cleanupDatabase() {
+        // get target age
+        final LocalDateTime killAge = DateHelper.getLocalTime().minusSeconds(60);//TODO extremely short kill age for testing
+
+        // find all anime and users that were last accessed before the target time
+        final List<LastAccessInfo> allToKill = accessDB().getBefore(killAge);
+        if (!nullOrEmpty(allToKill))
+            for (LastAccessInfo toKill : allToKill)
+                if (toKill.isAnime) {
+                    // anime to kill, remove using DAO function
+                    cleanupDB().deleteAnimeById(toKill.id);
+                    accessDB().deleteAccessFor(toKill.id);
+                } else {
+                    // user to kill, just remove from both dbs
+                    cleanupDB().deleteUserById(toKill.id);
+                    accessDB().deleteAccessFor(toKill.id);
+                }
+
+        // figure out how many entities were removed
+        return isNull(allToKill) ? 0 : allToKill.size();
+    }
+
+    /**
      * @return the anime and library database DAO
      */
     public abstract AnimeDao animeDB();
@@ -81,4 +117,14 @@ public abstract class TenshiDB extends RoomDatabase {
      * @return the user database DAO
      */
     public abstract UserDao userDB();
+
+    /**
+     * @return the entity access DAO
+     */
+    public abstract LastAccessInfoDao accessDB();
+
+    /**
+     * @return the cleanup functions DAO
+     */
+    protected abstract CleanupDao cleanupDB();
 }

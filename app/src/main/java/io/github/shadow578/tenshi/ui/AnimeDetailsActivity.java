@@ -267,9 +267,15 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // load from db
         async(() -> TenshiApp.getDB().animeDB().getAnime(animeID, true), a -> {
             // ONLY set the anime IF we did not already load it from MAL
-            if (isNull(animeDetails) && notNull(a)) {
-                animeDetails = a;
-                populateViewData();
+            if (notNull(a)) {
+                // update last access
+                async(() -> TenshiApp.getDB().accessDB().updateForAnime(a.animeId));
+
+                // update ui
+                if (isNull(animeDetails)) {
+                    animeDetails = a;
+                    populateViewData();
+                }
             }
         });
 

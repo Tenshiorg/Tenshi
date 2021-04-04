@@ -31,7 +31,7 @@ public abstract class UserDao {
      * @param user the user to insert
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void insertUser(User... user);
+    public abstract void insertOrUpdateUser(User... user);
 
     /**
      * delete one or more users from the database
