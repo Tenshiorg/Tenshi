@@ -12,10 +12,12 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.github.shadow578.tenshi.db.dao.AnimeContentAdapterDao;
 import io.github.shadow578.tenshi.db.dao.AnimeDao;
 import io.github.shadow578.tenshi.db.dao.CleanupDao;
 import io.github.shadow578.tenshi.db.dao.LastAccessInfoDao;
 import io.github.shadow578.tenshi.db.dao.UserDao;
+import io.github.shadow578.tenshi.db.model.AnimeContentAdapterInfo;
 import io.github.shadow578.tenshi.db.model.AnimeXGenreCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXStudioCrossReference;
 import io.github.shadow578.tenshi.db.model.AnimeXThemeCrossReference;
@@ -49,8 +51,9 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrE
         RelatedMediaRelation.class,
         RecommendedMediaRelation.class,
         User.class,
-        LastAccessInfo.class
-}, version = 3)
+        LastAccessInfo.class,
+        AnimeContentAdapterInfo.class
+}, version = 4)
 public abstract class TenshiDB extends RoomDatabase {
 
     /**
@@ -128,4 +131,9 @@ public abstract class TenshiDB extends RoomDatabase {
      * @return the cleanup functions DAO
      */
     protected abstract CleanupDao cleanupDB();
+
+    /**
+     * @return the content adapter database DAO
+     */
+    public abstract AnimeContentAdapterDao contentAdapterDB();
 }

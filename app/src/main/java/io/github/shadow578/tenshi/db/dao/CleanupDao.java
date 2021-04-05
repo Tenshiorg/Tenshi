@@ -43,6 +43,9 @@ public abstract class CleanupDao {
         _deleteGenreById(genresToKill);
         _deleteStudioById(studiosToKill);
         _deleteThemeById(themesToKill);
+
+        // remove content adapter info for this anime
+        _deleteContentAdapterInfoById(id);
     }
 
     /**
@@ -84,6 +87,14 @@ public abstract class CleanupDao {
      */
     @Query("DELETE FROM themes WHERE theme_id IN (:ids)")
     protected abstract void _deleteThemeById(List<Integer> ids);
+
+    /**
+     * delete all content adapter info for a anime with id
+     *
+     * @param animeId the anime id to remove info of
+     */
+    @Query("DELETE FROM anime_content_adapters WHERE anime_id = :animeId")
+    protected abstract void _deleteContentAdapterInfoById(int animeId);
 
     // region get refs
 

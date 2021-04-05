@@ -116,12 +116,12 @@ public class TenshiApp extends Application {
             @NonNull
             @Override
             public String getPersistentStorage(@NonNull String uniqueName, int animeId) {
-                return TenshiPrefs.getString(TenshiPrefs.Key.ContentAdapterPersistentStorage, uniqueName + "_" + animeId, "");
+                return getDB().contentAdapterDB().getPersistentStorage(animeId, uniqueName);
             }
 
             @Override
             public void setPersistentStorage(@NonNull String uniqueName, int animeId, @NonNull String persistentStorage) {
-                TenshiPrefs.setString(TenshiPrefs.Key.ContentAdapterPersistentStorage, uniqueName + "_" + animeId, persistentStorage);
+                getDB().contentAdapterDB().setPersistentStorage(animeId, uniqueName, persistentStorage);
             }
         });
         contentAdapterManager.discoverAndInit(false);

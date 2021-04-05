@@ -279,7 +279,6 @@ public final class Anime {
      * a list of recommended anime and manga
      */
     @Nullable
-    @ColumnInfo(name = "recommendations")
     @Ignore
     public List<RecommendedMedia> recommendations;
 
@@ -287,7 +286,6 @@ public final class Anime {
      * a list of opening themes this anime has
      */
     @Nullable
-    @SerializedName("opening_themes")
     @Ignore
     public List<Theme> openingThemes;
 
@@ -295,7 +293,6 @@ public final class Anime {
      * a list of ending themes this anime has
      */
     @Nullable
-    @SerializedName("ending_themes")
     @Ignore
     public List<Theme> endingThemes;
 }
