@@ -10,6 +10,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import java.util.ArrayList;
 
@@ -187,7 +188,9 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         final Preference libPref = findPreference("about_libraries");
         with(libPref,
                 about -> about.setOnPreferenceClickListener(preference -> {
-                    Toast.makeText(ctx, "TODO", Toast.LENGTH_SHORT).show();
+                    final LibsBuilder libs = new LibsBuilder();
+                    libs.setAboutAppName(getString(R.string.shared_app_name));
+                    libs.start(ctx);
                     return true;
                 }));
     }

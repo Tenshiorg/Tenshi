@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.mikepenz.aboutlibraries.plugin'
 }
 
 android {
@@ -42,6 +43,9 @@ android {
 }
 
 dependencies {
+    // Tenshi ExtensionsLib
+    implementation project(":extensionsLib")
+
     //JDK desugaring
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
@@ -81,6 +85,9 @@ dependencies {
     //FAB speed dial
     implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1'
 
-    // Tenshi ExtensionsLib
-    implementation project(":extensionsLib")
+    // about libraries
+    implementation "com.mikepenz:aboutlibraries-core:8.8.4"
+    implementation "com.mikepenz:aboutlibraries:8.8.4"
+
+
 }
