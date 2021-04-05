@@ -11,6 +11,7 @@ import io.github.shadow578.tenshi.mal.model.type.RelationType;
  * <p>
  * db representation of {@link io.github.shadow578.tenshi.mal.model.RelatedMedia}
  */
+@SuppressWarnings("CanBeFinal")
 @Entity(tableName = "media_relations",
         primaryKeys = {
                 "parent_id",

@@ -1,7 +1,6 @@
 package io.github.shadow578.tenshi.db.dao;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -32,13 +31,4 @@ public abstract class UserDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertOrUpdateUser(User... user);
-
-    /**
-     * delete one or more users from the database
-     * delete one or more users from the database
-     *
-     * @param users the users to delete
-     */
-    @Delete
-    public abstract void deleteUser(User... users);
 }

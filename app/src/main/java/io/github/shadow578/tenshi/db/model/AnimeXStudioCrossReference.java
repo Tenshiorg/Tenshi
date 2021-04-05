@@ -6,6 +6,7 @@ import androidx.room.Entity;
 /**
  * describes a relation between a anime and a studio
  */
+@SuppressWarnings("CanBeFinal")
 @Entity(tableName = "anime_studio_ref",
         primaryKeys = {
                 "anime_id",

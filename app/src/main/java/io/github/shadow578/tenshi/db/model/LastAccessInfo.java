@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
  * contains info about when a {@link io.github.shadow578.tenshi.mal.model.Anime} or {@link io.github.shadow578.tenshi.mal.model.User} entity was last accessed in the database
  * used to clear out unused entities
  */
+@SuppressWarnings("CanBeFinal")
 @Entity(tableName = "last_access",
         indices = {
                 @Index(value = "id", unique = true)

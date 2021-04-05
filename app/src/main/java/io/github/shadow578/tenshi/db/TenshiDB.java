@@ -33,7 +33,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 
 /**
- * Tenshi's database to store MAL information offline
+ * database to store anime and user information for offline use
  */
 @TypeConverters({
         TenshiTypeConverters.class
@@ -88,7 +88,8 @@ public abstract class TenshiDB extends RoomDatabase {
      */
     public int cleanupDatabase() {
         // get target age
-        final LocalDateTime killAge = DateHelper.getLocalTime().minusSeconds(60);//TODO extremely short kill age for testing
+        // = one month old entries
+        final LocalDateTime killAge = DateHelper.getLocalTime().minusMonths(1);
 
         // find all anime and users that were last accessed before the target time
         final List<LastAccessInfo> allToKill = accessDB().getBefore(killAge);

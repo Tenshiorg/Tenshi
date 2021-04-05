@@ -3,7 +3,6 @@ package io.github.shadow578.tenshi.db.dao;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -50,7 +49,6 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull
  * <p>
  * There has to be a better way to do this, but i couldn't find it :(
  */
-@SuppressWarnings({"UnusedReturnValue", "unused", "RedundantSuppression"})
 @Dao
 public abstract class AnimeDao {
 
@@ -85,7 +83,7 @@ public abstract class AnimeDao {
 
     /**
      * insert OR update one anime in the database.
-     * Also inserts / updates the genres, studios and themes, aswell as adding the required cross reference values.
+     * Also inserts / updates the genres, studios and themes, as well as adding the required cross reference values.
      *
      * @param anime the anime to insert or update
      */
@@ -207,7 +205,7 @@ public abstract class AnimeDao {
      * get the entries in the user library from the database
      *
      * @param status   the status to get. this supports {@link LibraryEntryStatus#All}
-     * @param sortMode sort mode for the libary
+     * @param sortMode sort mode for the library
      * @param showNSFW include nsfw entries?
      * @return the library entries.
      */
@@ -419,7 +417,7 @@ public abstract class AnimeDao {
         }
 
         // merge old and new object, then update in db
-        anime = merge(Anime.class, old, anime);
+        merge(Anime.class, old, anime);
         _updateAnime(anime);
     }
 
@@ -438,7 +436,7 @@ public abstract class AnimeDao {
         }
 
         // merge old and new object, then update in db
-        studio = merge(Studio.class, old, studio);
+        merge(Studio.class, old, studio);
         _updateStudio(studio);
     }
 
@@ -457,7 +455,7 @@ public abstract class AnimeDao {
         }
 
         // merge old and new object, then update in db
-        genre = merge(Genre.class, old, genre);
+        merge(Genre.class, old, genre);
         _updateGenre(genre);
     }
 
@@ -476,7 +474,7 @@ public abstract class AnimeDao {
         }
 
         // merge old and new object, then update in db
-        theme = merge(Theme.class, old, theme);
+        merge(Theme.class, old, theme);
         _updateTheme(theme);
     }
     //endregion
@@ -526,10 +524,9 @@ public abstract class AnimeDao {
      * this does NOT overwrite existing values {@link OnConflictStrategy#IGNORE}
      *
      * @param anime the anime to insert
-     * @return id of the inserted anime, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract long _insertAnime(Anime anime);
+    protected abstract void _insertAnime(Anime anime);
 
     /**
      * update a anime entry
@@ -538,14 +535,6 @@ public abstract class AnimeDao {
      */
     @Update
     protected abstract void _updateAnime(Anime anime);
-
-    /**
-     * delete one or more anime from the database
-     *
-     * @param anime the anime to delete
-     */
-    @Delete
-    protected abstract void _deleteAnime(Anime... anime);
     // endregion
 
     // region genre
@@ -564,10 +553,9 @@ public abstract class AnimeDao {
      * this does NOT overwrite existing values {@link OnConflictStrategy#IGNORE}
      *
      * @param genre the genre to insert
-     * @return id of the inserted genre, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract long _insertGenre(Genre genre);
+    protected abstract void _insertGenre(Genre genre);
 
     /**
      * update a genre entry
@@ -576,14 +564,6 @@ public abstract class AnimeDao {
      */
     @Update
     protected abstract void _updateGenre(Genre genre);
-
-    /**
-     * delete one or more genres from the database
-     *
-     * @param genres the genres to delete
-     */
-    @Delete
-    protected abstract void _deleteGenres(Genre... genres);
     //endregion
 
     // region studio
@@ -602,10 +582,9 @@ public abstract class AnimeDao {
      * this does NOT overwrite existing values {@link OnConflictStrategy#IGNORE}
      *
      * @param studio the studio to insert
-     * @return id of the inserted studio, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract long _insertStudio(Studio studio);
+    protected abstract void _insertStudio(Studio studio);
 
     /**
      * update a studio entry
@@ -614,14 +593,6 @@ public abstract class AnimeDao {
      */
     @Update
     protected abstract void _updateStudio(Studio studio);
-
-    /**
-     * delete one or more studios from the database
-     *
-     * @param studios the studios to delete
-     */
-    @Delete
-    protected abstract void _deleteStudio(Studio... studios);
     // endregion
 
     // region themes
@@ -640,10 +611,9 @@ public abstract class AnimeDao {
      * this does NOT overwrite existing values {@link OnConflictStrategy#IGNORE}
      *
      * @param theme the theme to insert
-     * @return id of the inserted theme, or -1 if not inserted (already exists)
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract long _insertTheme(Theme theme);
+    protected abstract void _insertTheme(Theme theme);
 
     /**
      * update a theme entry
@@ -652,14 +622,6 @@ public abstract class AnimeDao {
      */
     @Update
     protected abstract void _updateTheme(Theme theme);
-
-    /**
-     * delete one or more themes from the database
-     *
-     * @param themes the theme to delete
-     */
-    @Delete
-    protected abstract void _deleteTheme(Theme... themes);
     // endregion
 
     // region Anime X Genre cross reference
@@ -681,14 +643,6 @@ public abstract class AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void _insertGenreReference(List<AnimeXGenreCrossReference> ref);
-
-    /**
-     * delete a genre reference for a anime in the database
-     *
-     * @param ref the reference to delete
-     */
-    @Delete
-    protected abstract void _deleteGenreReference(List<AnimeXGenreCrossReference> ref);
     //endregion
 
     // region Anime X Studio cross reference
@@ -710,14 +664,6 @@ public abstract class AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void _insertStudioReference(List<AnimeXStudioCrossReference> ref);
-
-    /**
-     * delete a studio reference for a anime in the database
-     *
-     * @param ref the reference to delete
-     */
-    @Delete
-    protected abstract void _deleteStudioReference(List<AnimeXStudioCrossReference> ref);
     //endregion
 
     // region Anime X Theme cross reference
@@ -739,14 +685,6 @@ public abstract class AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void _insertThemeReference(List<AnimeXThemeCrossReference> ref);
-
-    /**
-     * delete a theme reference for a anime in the database
-     *
-     * @param ref the reference to delete
-     */
-    @Delete
-    protected abstract void _deleteThemeReference(List<AnimeXThemeCrossReference> ref);
     //endregion
 
     // region RelatedMediaRelation
@@ -768,14 +706,6 @@ public abstract class AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void _insertMediaRelations(List<RelatedMediaRelation> relations);
-
-    /**
-     * delete media relations from the db.
-     *
-     * @param relations the relations to delete
-     */
-    @Delete
-    protected abstract void _deleteMediaRelations(List<RelatedMediaRelation> relations);
     // endregion
 
     // region RecommendedMediaRelation
@@ -797,14 +727,6 @@ public abstract class AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void _insertMediaRecommendations(List<RecommendedMediaRelation> recommendations);
-
-    /**
-     * delete media recommendations from the db.
-     *
-     * @param recommendations the recommendations to delete
-     */
-    @Delete
-    protected abstract void _deleteMediaRecommendations(List<RecommendedMediaRelation> recommendations);
     // endregion
     // endregion
 }

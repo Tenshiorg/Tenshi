@@ -9,6 +9,7 @@ import androidx.room.Entity;
  * <p>
  * db representation of {@link io.github.shadow578.tenshi.mal.model.RecommendedMedia}
  */
+@SuppressWarnings("CanBeFinal")
 @Entity(tableName = "media_recommendations",
         primaryKeys = {
                 "parent_id",

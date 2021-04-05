@@ -6,6 +6,7 @@ import androidx.room.Entity;
 /**
  * describes a relation between a anime and a theme
  */
+@SuppressWarnings("CanBeFinal")
 @Entity(tableName = "anime_theme_ref",
         primaryKeys = {
                 "anime_id",

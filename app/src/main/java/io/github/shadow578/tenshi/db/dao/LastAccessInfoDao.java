@@ -1,6 +1,5 @@
 package io.github.shadow578.tenshi.db.dao;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -22,10 +21,10 @@ public abstract class LastAccessInfoDao {
      * get all access info for anime or users that where accessed before a given time
      *
      * @param time the time that all users should be last accessed before
-     * @return the access infos
+     * @return the access info
      */
     @Transaction
-    public List<LastAccessInfo> getBefore(@NonNull LocalDateTime time) {
+    public List<LastAccessInfo> getBefore(LocalDateTime time) {
         return _getAccess(DateHelper.toEpoch(time));
     }
 
@@ -59,10 +58,10 @@ public abstract class LastAccessInfoDao {
     // region direct DAO
 
     /**
-     * select all access infos before the given epoch
+     * select all access info before the given epoch
      *
      * @param epochBefore the epoch before
-     * @return all access infos
+     * @return all access info
      */
     @Query("SELECT * FROM last_access WHERE last_access_at < :epochBefore")
     protected abstract List<LastAccessInfo> _getAccess(long epochBefore);
