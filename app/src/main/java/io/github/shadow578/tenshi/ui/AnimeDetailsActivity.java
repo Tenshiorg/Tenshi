@@ -188,8 +188,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             if (notNull(animeDetails.userListStatus)) {
                 final int nextEpisode = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
                 updateEntry(null, null, nextEpisode);
-            }
-            else
+            } else
                 updateEntry(LibraryEntryStatus.Watching, null, 1);
 
             // update the controls next
@@ -820,17 +819,21 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.studios.setText(elvisEmpty(join(",\n", animeDetails.studios, p -> p.name), unknown));
 
         // ops
-        if (!nullOrEmpty(animeDetails.openingThemes))
+        if (!nullOrEmpty(animeDetails.openingThemes)) {
             b.openingThemeRecycler.setAdapter(new AnimeThemesAdapter(this, listOf(animeDetails.openingThemes)));
-        else {
+            b.openingThemeTitle.setVisibility(View.VISIBLE);
+            b.openingThemeRecycler.setVisibility(View.VISIBLE);
+        } else {
             b.openingThemeTitle.setVisibility(View.GONE);
             b.openingThemeRecycler.setVisibility(View.GONE);
         }
 
         // eds
-        if (!nullOrEmpty(animeDetails.endingThemes))
+        if (!nullOrEmpty(animeDetails.endingThemes)) {
             b.endingThemesRecycler.setAdapter(new AnimeThemesAdapter(this, listOf(animeDetails.endingThemes)));
-        else {
+            b.endingThemesTitle.setVisibility(View.VISIBLE);
+            b.endingThemesRecycler.setVisibility(View.VISIBLE);
+        } else {
             b.endingThemesTitle.setVisibility(View.GONE);
             b.endingThemesRecycler.setVisibility(View.GONE);
         }
@@ -838,6 +841,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         //related
         if (!nullOrEmpty(animeDetails.relatedAnime) || !nullOrEmpty(animeDetails.relatedManga)) {
             relatedMedia.addAll(listOf(animeDetails.relatedAnime, animeDetails.relatedManga));
+            b.relatedMediaTitle.setVisibility(View.VISIBLE);
+            b.relatedMediaRecycler.setVisibility(View.VISIBLE);
             relatedMediaAdapter.notifyDataSetChanged();
         } else {
             b.relatedMediaTitle.setVisibility(View.GONE);
