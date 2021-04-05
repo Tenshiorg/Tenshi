@@ -35,6 +35,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 
@@ -47,7 +48,7 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
      */
     public static final int REQUEST_ANIME_DETAILS = 17;
 
-    private static final String REQUEST_FIELDS = "main_picture,title,list_status{score},num_episodes,status";//MalApiHelper.getQueryableFields(UserLibraryEntry.class);
+    private static final String REQUEST_FIELDS = "main_picture,title,list_status{score},num_episodes,status,nsfw";//MalApiHelper.getQueryableFields(UserLibraryEntry.class);
 
     private UserLibraryList animeListResponse;
     private UserAnimeListAdapter animeListAdapter;
@@ -75,6 +76,9 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
         if (sortMode != mode) {
             // only if the mode changed
             sortMode = mode;
+
+            // clear currently loaded list and re- fetch anime
+            animeList.clear();
             fetchAnimeList();
         }
     }
@@ -150,6 +154,19 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
         // show loading indicator
         b.animeListLoadingIndicator.show();
 
+        // load from db
+        async(() -> TenshiApp.getDB().animeDB().getUserLibrary(listStatus, sortMode, showNSFW == 1), lib -> {
+            // only load if not already loaded from MAL but found
+            if(animeList.isEmpty() && notNull(lib)){
+                // update data
+                animeList.addAll(lib);
+                animeListAdapter.notifyDataSetChanged();
+
+                // hide loading indicator
+                b.animeListLoadingIndicator.hide();
+            }
+        });
+
         // get call to load anime list
         Call<UserLibraryList> animeListCall;
         if (listStatus.equals(LibraryEntryStatus.All)) {
@@ -192,10 +209,12 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
                         if (shouldClear)
                             animeList.clear();
 
-
                         // add newly loaded anime to list
                         animeList.addAll(newAnimeList);
                         animeListAdapter.notifyDataSetChanged();
+
+                        // insert loaded anime into the db
+                        async(() -> TenshiApp.getDB().animeDB().insertLibraryAnime(newAnimeList));
 
                         // hide loading indicator
                         b.animeListLoadingIndicator.hide();

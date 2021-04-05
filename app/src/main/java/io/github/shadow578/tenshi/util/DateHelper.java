@@ -1,11 +1,13 @@
 package io.github.shadow578.tenshi.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -13,21 +15,46 @@ import java.time.format.FormatStyle;
 import io.github.shadow578.tenshi.mal.model.Season;
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class DateHelper {
 
     // region get date and time
+
     /**
      * the date and time in the device's time zone
      */
-    private static final LocalDateTime local = LocalDateTime.now();
+    private static LocalDateTime local() {
+        return LocalDateTime.now();
+    }
 
     /**
      * the date and time in Tokyo
      */
-    private static final LocalDateTime jp = LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
+    private static LocalDateTime jp() {
+        return LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
+    }
+
+    /**
+     * get the epoch value of a datetime
+     *
+     * @return the epoch value (seconds)
+     */
+    public static long toEpoch(@NonNull LocalDateTime time) {
+        return time.toEpochSecond(ZoneOffset.UTC);
+    }
+
+    /**
+     * convert a epoch value to the device's local date and time
+     *
+     * @param epoch the epoch value (seconds)
+     * @return the local datetime
+     */
+    @NonNull
+    public static LocalDateTime fromEpoc(long epoch) {
+        return LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC);
+    }
 
     /**
      * get the date and time in the device's time zone
@@ -35,7 +62,7 @@ public class DateHelper {
      * @return date and time in the local timezone
      */
     public static LocalDateTime getLocalTime() {
-        return local;
+        return local();
     }
 
     /**
@@ -44,7 +71,7 @@ public class DateHelper {
      * @return date and time in Tokyo
      */
     public static LocalDateTime getJapanTime() {
-        return jp;
+        return jp();
     }
 
     /**
@@ -62,7 +89,7 @@ public class DateHelper {
      * @return the year, eg. 2020
      */
     public static int getYear() {
-        return local.getYear();
+        return local().getYear();
     }
 
     /**
@@ -71,7 +98,7 @@ public class DateHelper {
      * @return the current season
      */
     public static YearSeason getYearSeason() {
-        switch (local.getMonth()) {
+        switch (local().getMonth()) {
             case JANUARY:
             case FEBRUARY:
             case MARCH:

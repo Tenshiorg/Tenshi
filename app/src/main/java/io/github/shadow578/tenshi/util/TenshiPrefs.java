@@ -62,19 +62,7 @@ public class TenshiPrefs {
         /**
          * are debug options enabled in Settings?
          */
-        ShowDebugOptions,
-
-        /**
-         * selected content provider unique name for a anime.
-         * extended key is anime_id
-         */
-        AnimeSelectedContentProvider,
-
-        /**
-         * persistent storage for a content provider, per anime
-         * extended key is anime_id + provider unique name
-         */
-        ContentAdapterPersistentStorage
+        ShowDebugOptions
     }
 
     /**
@@ -273,32 +261,6 @@ public class TenshiPrefs {
     @NonNull
     public static String getString(@NonNull Key key, @NonNull String def) {
         return doesKeyExist(key) ? prefs.getString(getKeyName(key), def) : def;
-    }
-
-
-    /**
-     * set a string value with extended key
-     * @param key the key of the value to set
-     * @param extendedKey extended key of the value to get
-     * @param value the value to set
-     */
-    public static void setString(@NonNull Key key, @NonNull String extendedKey, @NonNull String value) {
-        prefs.edit()
-                .putString(concat(getKeyName(key), "_", extendedKey), value)
-                .apply();
-    }
-
-    /**
-     * get a string value with extended key from prefs
-     * @param key the key of the value to get
-     * @param extendedKey extended key of the value to get
-     * @param def the default value, if the key is not found
-     * @return the value loaded from prefs, or def
-     */
-    @NonNull
-    public static String getString(@NonNull Key key, @NonNull String extendedKey, @NonNull String def) {
-        final String k = concat(getKeyName(key), "_", extendedKey);
-        return prefs.contains(k) ? prefs.getString(k, def) : def;
     }
 
     /**

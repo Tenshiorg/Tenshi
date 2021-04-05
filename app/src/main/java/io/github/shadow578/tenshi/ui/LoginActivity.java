@@ -25,7 +25,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 
 /**
@@ -42,6 +44,10 @@ public class LoginActivity extends TenshiActivity {
         super.onCreate(savedInstanceState);
         b = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(b.getRoot());
+
+        // notify user if offline
+        // TODO: maybe a bit more on the login activity...
+        showSnackbarIfOffline(b.getRoot());
 
         // hide loading indicator
         b.loginLoadingIndicator.setVisibility(View.INVISIBLE);

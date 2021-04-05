@@ -47,13 +47,13 @@ import io.github.shadow578.tenshi.util.CustomTabsHelper;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
-import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.ViewsHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
@@ -112,6 +112,9 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // check user is logged in, redirect to login and finish() if not
         requireUserAuthenticated();
+
+        // notify user if offline
+        showSnackbarIfOffline(b.getRoot());
 
         //enable decor (globally disabled in TenshiActivity)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -182,9 +185,10 @@ public class AnimeDetailsActivity extends TenshiActivity {
         if (requestCode == REQUEST_WATCH_NEXT_EPISODE) {
             // if we already have a library status, just increment episode by 1
             // otherwise, add this anime as a new entry in Watching with 1 episode watched
-            if (notNull(animeDetails.userListStatus))
-                updateEntry(null, null, ++animeDetails.userListStatus.watchedEpisodes);
-            else
+            if (notNull(animeDetails.userListStatus)) {
+                final int nextEpisode = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
+                updateEntry(null, null, nextEpisode);
+            } else
                 updateEntry(LibraryEntryStatus.Watching, null, 1);
 
             // update the controls next
@@ -260,6 +264,22 @@ public class AnimeDetailsActivity extends TenshiActivity {
      * load the anime details from MAL
      */
     private void fetchAnime() {
+        // load from db
+        async(() -> TenshiApp.getDB().animeDB().getAnime(animeID, true), a -> {
+            // ONLY set the anime IF we did not already load it from MAL
+            if (notNull(a)) {
+                // update last access
+                async(() -> TenshiApp.getDB().accessDB().updateForAnime(a.animeId));
+
+                // update ui
+                if (isNull(animeDetails)) {
+                    animeDetails = a;
+                    populateViewData();
+                }
+            }
+        });
+
+        // request from MAL
         TenshiApp.getMal().getAnime(animeID, REQUEST_FIELDS)
                 .enqueue(new Callback<Anime>() {
                     @Override
@@ -269,9 +289,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
                         TenshiApp.malReauthCallback(AnimeDetailsActivity.this, response);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            // call success
+                            // call success, set data to views
                             animeDetails = response.body();
                             populateViewData();
+
+                            // insert into db
+                            async(() -> TenshiApp.getDB().animeDB().insertAnime(animeDetails));
                         } else if (response.code() == 404) {
                             // anime not found, use fallback
                             c.cancel();
@@ -533,9 +556,12 @@ public class AnimeDetailsActivity extends TenshiActivity {
         TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
             // hide controls if no content adapters were discovered
             // or if the anime does not have any episodes yet
+            // or the anime is not in the library
+            // TODO allow watching of anime that are NOT in the library -> add them after the first episode
             if (manager.getAdapterCount() <= 0
                     || isNull(animeDetails.episodesCount)
-                    || animeDetails.episodesCount <= 0) {
+                    || animeDetails.episodesCount <= 0
+                    || isNull(animeDetails.userListStatus)) {
                 b.animeWatchNowGroup.setVisibility(View.GONE);
                 b.divWatchNowSynopsis.setVisibility(View.GONE);
                 return;
@@ -554,7 +580,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             // setup short click listener == watch next episode + auto- update MAL
             b.animeWatchNowButton.setOnClickListener(v -> {
                 // find the next episode
-                final int nextEp = animeDetails.userListStatus.watchedEpisodes + 1;
+                final int nextEp = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
 
                 // show a popup if the next episode is higher than the total episode count
                 if (nextEp > animeDetails.episodesCount) {
@@ -605,10 +631,19 @@ public class AnimeDetailsActivity extends TenshiActivity {
      * update the "watch now" views
      */
     private void updateWatchNowViews() {
-        // update button text
-        final ContentAdapterWrapper contentAdapter = getSelectedContentAdapter();
-        with(contentAdapter, ca ->
-                b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_episode_on_fmt, animeDetails.userListStatus.watchedEpisodes + 1, ca.getDisplayName())));
+        // get selected content adapter
+        async(() -> {
+            final String un = TenshiApp.getDB().contentAdapterDB().getSelectionFor(animeID);
+            return TenshiApp.getContentAdapterManager().getAdapterOrDefault(un);
+        }, contentAdapter -> {
+            // unbox watched episode count safely
+            // normally, this should never be null (checked elsewhere), but better be safe then sorry
+            final int nextEpisode = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
+
+            // update button text
+            with(contentAdapter, ca ->
+                    b.animeWatchNowButton.setText(fmt(this, R.string.details_watch_episode_on_fmt, nextEpisode, ca.getDisplayName())));
+        });
     }
 
     /**
@@ -636,11 +671,14 @@ public class AnimeDetailsActivity extends TenshiActivity {
                 // only add to selection if both are not empty
                 if (!nullOrEmpty(displayName) && !nullOrEmpty(uniqueName))
                     sub.add(displayName).setOnMenuItemClickListener(item -> {
-                        // set content adapter for this anime
-                        TenshiPrefs.setString(TenshiPrefs.Key.AnimeSelectedContentProvider, "" + animeID, uniqueName);
-
-                        // update views
-                        updateWatchNowViews();
+                        async(() -> {
+                            // set content adapter for this anime
+                            TenshiApp.getDB().contentAdapterDB().setSelectionFor(animeID, uniqueName);
+                            return null;
+                        }, x -> {
+                            // update views
+                            updateWatchNowViews();
+                        });
                         return true;
                     });
             }
@@ -781,17 +819,21 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.studios.setText(elvisEmpty(join(",\n", animeDetails.studios, p -> p.name), unknown));
 
         // ops
-        if (!nullOrEmpty(animeDetails.openingThemes))
+        if (!nullOrEmpty(animeDetails.openingThemes)) {
             b.openingThemeRecycler.setAdapter(new AnimeThemesAdapter(this, listOf(animeDetails.openingThemes)));
-        else {
+            b.openingThemeTitle.setVisibility(View.VISIBLE);
+            b.openingThemeRecycler.setVisibility(View.VISIBLE);
+        } else {
             b.openingThemeTitle.setVisibility(View.GONE);
             b.openingThemeRecycler.setVisibility(View.GONE);
         }
 
         // eds
-        if (!nullOrEmpty(animeDetails.endingThemes))
+        if (!nullOrEmpty(animeDetails.endingThemes)) {
             b.endingThemesRecycler.setAdapter(new AnimeThemesAdapter(this, listOf(animeDetails.endingThemes)));
-        else {
+            b.endingThemesTitle.setVisibility(View.VISIBLE);
+            b.endingThemesRecycler.setVisibility(View.VISIBLE);
+        } else {
             b.endingThemesTitle.setVisibility(View.GONE);
             b.endingThemesRecycler.setVisibility(View.GONE);
         }
@@ -799,6 +841,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         //related
         if (!nullOrEmpty(animeDetails.relatedAnime) || !nullOrEmpty(animeDetails.relatedManga)) {
             relatedMedia.addAll(listOf(animeDetails.relatedAnime, animeDetails.relatedManga));
+            b.relatedMediaTitle.setVisibility(View.VISIBLE);
+            b.relatedMediaRecycler.setVisibility(View.VISIBLE);
             relatedMediaAdapter.notifyDataSetChanged();
         } else {
             b.relatedMediaTitle.setVisibility(View.GONE);
@@ -824,62 +868,52 @@ public class AnimeDetailsActivity extends TenshiActivity {
             return;
 
         // get content adapter
-        final ContentAdapterWrapper contentAdapterF = getSelectedContentAdapter();
+        async(() -> {
+            final String un = TenshiApp.getDB().contentAdapterDB().getSelectionFor(animeID);
+            return TenshiApp.getContentAdapterManager().getAdapterOrDefault(un);
+        }, contentAdapter -> {
+            // make sure we have all infos for the call
+            if (isNull(animeDetails)
+                    || isNull(animeDetails.title)
+                    || isNull(animeDetails.titleSynonyms)
+                    || isNull(contentAdapter)) {
+                Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
 
-        // make sure we have all infos for the call
-        if (isNull(animeDetails)
-                || isNull(animeDetails.title)
-                || isNull(animeDetails.titleSynonyms)
-                || isNull(contentAdapterF)) {
-            Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
-            return;
-        }
+            // bind the adapter and request playback url
+            contentAdapter.bind(this);
+            contentAdapter.requestStreamUri(animeID, animeDetails.title, animeDetails.titleSynonyms.jp, episode,
+                    uriStr -> {
+                        Uri uri;
+                        if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
+                            //open in player
+                            final Intent playIntent = new Intent(Intent.ACTION_VIEW);
+                            String guessedType = URLConnection.guessContentTypeFromName(uriStr);
+                            if (nullOrWhitespace(guessedType))
+                                guessedType = "video/*";
 
-        // bind the adapter and request playback url
-        contentAdapterF.bind(this);
-        contentAdapterF.requestStreamUri(animeID, animeDetails.title, animeDetails.titleSynonyms.jp, episode,
-                uriStr -> {
-                    Uri uri;
-                    if (notNull(uriStr) && (uri = Uri.parse(uriStr)) != null) {
-                        //open in player
-                        final Intent playIntent = new Intent(Intent.ACTION_VIEW);
-                        String guessedType = URLConnection.guessContentTypeFromName(uriStr);
-                        if(nullOrWhitespace(guessedType))
-                            guessedType = "video/*";
+                            playIntent.setDataAndTypeAndNormalize(uri, guessedType);
 
-                        playIntent.setDataAndTypeAndNormalize(uri, guessedType);
+                            // set title extras
+                            // bc VLC has to be extra -_-
+                            final String title = fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode);
+                            playIntent.putExtra(Intent.EXTRA_TITLE, title);
+                            playIntent.putExtra("title", title);
 
-                        // set title extras
-                        // bc VLC has to be extra -_-
-                        final String title = fmt(this, R.string.details_watch_intent_title_fmt, animeDetails.title, episode);
-                        playIntent.putExtra(Intent.EXTRA_TITLE, title);
-                        playIntent.putExtra("title", title);
-
-                        // start activity
-                        if (watchNextEpisode)
-                            startActivityForResult(playIntent, REQUEST_WATCH_NEXT_EPISODE);
-                        else
-                            startActivity(playIntent);
-                    } else {
-                        // did not return a url, show error snackbar
-                        Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
-                    }
-                    // unbind adapter
-                    contentAdapterF.unbind(this);
-                });
-    }
-
-    /**
-     * get the selected content adapter for this anime.
-     * if no preference is saved, or it is invalid, uses the first adapter
-     *
-     * @return the content adapter
-     */
-    @Nullable
-    private ContentAdapterWrapper getSelectedContentAdapter() {
-        // get selected content adapter for this anime
-        final String selectedAdapter = TenshiPrefs.getString(TenshiPrefs.Key.AnimeSelectedContentProvider, "" + animeID, "");
-        return TenshiApp.getContentAdapterManager().getAdapterOrDefault(selectedAdapter);
+                            // start activity
+                            if (watchNextEpisode)
+                                startActivityForResult(playIntent, REQUEST_WATCH_NEXT_EPISODE);
+                            else
+                                startActivity(playIntent);
+                        } else {
+                            // did not return a url, show error snackbar
+                            Snackbar.make(b.getRoot(), R.string.details_snack_content_empty_response, Snackbar.LENGTH_SHORT).show();
+                        }
+                        // unbind adapter
+                        contentAdapter.unbind(this);
+                    });
+        });
     }
 
     /**

@@ -1,6 +1,7 @@
 package io.github.shadow578.tenshi.mal.model;
 
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -18,12 +19,14 @@ public class LibraryStatus {
     /**
      * list status (category)
      */
+    @ColumnInfo(name = "status")
     public LibraryEntryStatus status;
 
     /**
      * the users comments on this anime
      */
     @Nullable
+    @ColumnInfo(name = "comments")
     public String comments;
 
     /**
@@ -31,6 +34,7 @@ public class LibraryStatus {
      */
     @Nullable
     @SerializedName("is_rewatching")
+    @ColumnInfo(name = "is_rewatching")
     public Boolean isRewatching;
 
     /**
@@ -38,6 +42,7 @@ public class LibraryStatus {
      */
     @Nullable
     @SerializedName("num_episodes_watched")
+    @ColumnInfo(name = "num_episodes_watched")
     public Integer watchedEpisodes;
 
     /**
@@ -45,12 +50,14 @@ public class LibraryStatus {
      */
     @Nullable
     @SerializedName("num_times_rewatched")
+    @ColumnInfo(name = "num_times_rewatched")
     public Integer rewatchCount;
 
     /**
      * the users rating for this anime
      */
     @Nullable
+    @ColumnInfo(name = "score")
     public Integer score;
 
     /**
@@ -58,5 +65,6 @@ public class LibraryStatus {
      */
     @Nullable
     @SerializedName("updated_at")
+    @ColumnInfo(name = "updated_at")
     public ZonedDateTime lastUpdate;
 }

@@ -1,28 +1,40 @@
 package io.github.shadow578.tenshi.ui.settings;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.extensionslib.content.ContentAdapter;
+import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.collect;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.join;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.str;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Key;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Theme;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.doesKeyExist;
@@ -31,6 +43,35 @@ import static io.github.shadow578.tenshi.util.TenshiPrefs.setBool;
 
 public class MainSettingsFragment extends PreferenceFragmentCompat {
     private int hiddenMenuClicks = 0;
+
+    private static final int REQUEST_CHOOSE_DB_EXPORT_PATH = 21;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // export database to file
+        if (requestCode == REQUEST_CHOOSE_DB_EXPORT_PATH
+                && resultCode == Activity.RESULT_OK
+                && notNull(data.getData())) {
+            // open output and database file and start copy
+            try (final FileInputStream dbIn = new FileInputStream(TenshiDB.getDatabasePath(requireContext()));
+                 final OutputStream out = requireContext().getContentResolver().openOutputStream(data.getData())) {
+                // copy file
+                final byte[] buf = new byte[1024];
+                int r;
+                while ((r = dbIn.read(buf)) > 0)
+                    out.write(buf, 0, r);
+            } catch (IOException e) {
+                Toast.makeText(requireContext(), "Failed to export Database!", Toast.LENGTH_SHORT).show();
+                Log.e("Tenshi", "error exporting db file: " + e.toString());
+                e.printStackTrace();
+            }
+
+            // tell user we are done
+            Toast.makeText(requireContext(), "Exported Database", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -72,6 +113,38 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
             return true;
         });
 
+        // populate and setup export database button
+        final Preference exportDb = findPreference("export_database");
+        final String dbPath = TenshiDB.getDatabasePath(requireContext()).getAbsolutePath();
+        exportDb.setSummary(dbPath);
+        exportDb.setOnPreferenceClickListener(preference -> {
+            // print path to log
+            Log.e("Tenshi", "Database Path: " + dbPath);
+
+            // start document chooser
+            final Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            exportIntent.setType("*/*");
+            startActivityForResult(exportIntent, REQUEST_CHOOSE_DB_EXPORT_PATH);
+            return true;
+        });
+
+        // setup cleanup database button
+        final Preference cleanDb = findPreference("cleanup_database");
+        cleanDb.setOnPreferenceClickListener(preference -> {
+            // start cleanup async
+            async(() -> TenshiApp.getDB().cleanupDatabase(), count -> {
+                Toast.makeText(requireContext(), fmt("deleted %d entries", count), Toast.LENGTH_SHORT).show();
+            });
+            return true;
+        });
+
+        // setup delete database button
+        final Preference deleteDb = findPreference("delete_database");
+        deleteDb.setOnPreferenceClickListener(preference -> {
+            async(() -> TenshiApp.getDB().clearAllTables());
+            Toast.makeText(requireContext(), "deleted database", Toast.LENGTH_SHORT).show();
+            return true;
+        });
 
         // DEBUG: readonly preference for all keys
         setupDebugPrefs("dbg_prefs_category");
@@ -98,10 +171,9 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         // dump any key that is not in Keys enum (with extended key)
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext().getApplicationContext());
         final Map<String, ?> allPrefs = prefs.getAll();
-        for(String key : allPrefs.keySet())
-        {
+        for (String key : allPrefs.keySet()) {
             // skip if already dumped this key
-            if(dumpedKeys.contains(key))
+            if (dumpedKeys.contains(key))
                 continue;
 
             // get value
@@ -117,8 +189,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private void setupContentAdapters(@SuppressWarnings("SameParameterValue") String category)
-    {
+    private void setupContentAdapters(@SuppressWarnings("SameParameterValue") String category) {
         // wait until discovery finsihed
         TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
             final PreferenceCategory cat = findPreference(category);

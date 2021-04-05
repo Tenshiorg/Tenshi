@@ -26,12 +26,20 @@ import io.github.shadow578.tenshi.mal.model.UserStatistics;
 import io.github.shadow578.tenshi.ui.FullscreenImageActivity;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.GlideHelper;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 
 /**
  * fragment for viewing the current user's profile and stats
@@ -72,6 +80,30 @@ public class ProfileFragment extends TenshiFragment {
      * get the user data from MAL
      */
     private void fetchUser() {
+        // load from db
+        async(() -> {
+            // get user ID from prefs
+            int userId = TenshiPrefs.getInt(TenshiPrefs.Key.UserID, -1);
+            if (userId != -1)
+                return TenshiApp.getDB().userDB().getUserById(userId);
+            else
+                return null;
+        }, u -> {
+            // populate views only if not already loaded from MAL
+            if (notNull(u)) {
+                // update access
+                async(() -> TenshiApp.getDB().accessDB().updateForUser(u.userID));
+
+                // update ui
+                if (isNull(user)) {
+                    user = u;
+                    userAnimeStatistics = u.statistics;
+                    populateViewData();
+                }
+            }
+        });
+
+        // request from MAL
         TenshiApp.getMal().getCurrentUser(REQUEST_FIELDS)
                 .enqueue(new Callback<User>() {
                     @Override
@@ -88,6 +120,12 @@ public class ProfileFragment extends TenshiFragment {
 
                             // update views
                             populateViewData();
+
+                            // insert into db
+                            async(() -> TenshiApp.getDB().userDB().insertOrUpdateUser(user));
+
+                            // save user ID to prefs
+                            TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);
                         } else if (response.code() == 401 && isAdded())
                             Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
                     }

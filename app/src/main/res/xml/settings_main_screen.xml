@@ -27,8 +27,8 @@
         <!-- logout -->
         <Preference
             android:key="logout_btn"
-            android:title="Logout"
-            android:summary="Logout from MAL"/>
+            android:summary="Logout from MAL"
+            android:title="Logout" />
     </PreferenceCategory>
 
     <!-- App information-->
@@ -39,9 +39,32 @@
             android:title="App Version" />
     </PreferenceCategory>
 
+    <!-- database functions -->
+    <PreferenceCategory android:title="DATABASE">
+        <!-- export database -->
+        <Preference
+            android:key="export_database"
+            android:title="Export Database" />
+
+        <!-- cleanup database -->
+        <Preference
+            android:key="cleanup_database"
+            android:title="Clean Up Database" />
+
+        <!-- delete database -->
+        <Preference
+            android:key="delete_database"
+            android:title="Delete Database" />
+
+    </PreferenceCategory>
+
     <!-- Preference debug, dynamically populated -->
-    <PreferenceCategory android:title="PREFS" android:key="dbg_prefs_category"/>
+    <PreferenceCategory
+        android:key="dbg_prefs_category"
+        android:title="PREFS" />
 
     <!-- content adapters debug, dynamically populated -->
-    <PreferenceCategory android:title="CONTENT_ADAPTERS" android:key="dbg_ca_category"/>
+    <PreferenceCategory
+        android:key="dbg_ca_category"
+        android:title="CONTENT_ADAPTERS" />
 </PreferenceScreen>
