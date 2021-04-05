@@ -46,6 +46,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
@@ -106,8 +107,9 @@ public class TenshiApp extends Application {
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
 
-        // init database
+        // init database and start cleanup
         database = TenshiDB.create(getApplicationContext());
+        cleanupDatabase();
 
         // init and find content adapters
         contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
@@ -170,6 +172,36 @@ public class TenshiApp extends Application {
             Log.w("Tenshi", "failed to add static app shortcuts!");
     }
 
+    /**
+     * cleanup the database
+     */
+    public void cleanupDatabase() {
+        async(() -> {
+            final int removedEntities = database.cleanupDatabase();
+            Log.i("Tenshi", fmt("Database cleanup finished with %d entities removed", removedEntities));
+        });
+    }
+
+    /**
+     * deletes user auth data, database and all that stuff for logout
+     * <p>
+     * Deletes:
+     * <li>AuthToken (prefs and {@link #token}</li>
+     * <li>UserID (prefs)</li>
+     * <li>Database (all tables)</li>
+     */
+    public void deleteUserData() {
+        // clear auth token
+        TenshiPrefs.clear(TenshiPrefs.Key.AuthToken);
+        token = null;
+
+        // clear saved user id
+        TenshiPrefs.clear(TenshiPrefs.Key.UserID);
+
+        // clear database (my_list_status is invalid after user switch)
+        async(() -> database.clearAllTables());
+    }
+
     // region AUTH
 
     /**
@@ -195,23 +227,14 @@ public class TenshiApp extends Application {
     }
 
     /**
-     * invalidate and remove the saved auth token.
-     * you could also call this "logout"
-     */
-    public void invalidateToken() {
-        TenshiPrefs.clear(TenshiPrefs.Key.AuthToken);
-        token = null;
-    }
-
-    /**
      * invalidate and remove the saved auth token, then redirect to the Login activity
      * you could also call this "logout"
      *
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
     public void invalidateTokenAndLogin(@NonNull Activity ctx) {
-        // invalidate token
-        invalidateToken();
+        // delete the user's data
+        deleteUserData();
 
         // show toast
         Toast.makeText(ctx, R.string.login_toast_session_expired, Toast.LENGTH_SHORT).show();
