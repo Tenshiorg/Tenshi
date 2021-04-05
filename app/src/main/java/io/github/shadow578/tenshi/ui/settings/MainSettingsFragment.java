@@ -1,239 +1,194 @@
 package io.github.shadow578.tenshi.ui.settings;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.ArrayList;
-import java.util.Map;
 
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.db.TenshiDB;
-import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.collect;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.join;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.str;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Key;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.Theme;
-import static io.github.shadow578.tenshi.util.TenshiPrefs.doesKeyExist;
 import static io.github.shadow578.tenshi.util.TenshiPrefs.getKeyName;
-import static io.github.shadow578.tenshi.util.TenshiPrefs.setBool;
 
+/**
+ * main settings activity
+ */
 public class MainSettingsFragment extends PreferenceFragmentCompat {
+    /**
+     * click counter for the hidden developer options menu
+     */
     private int hiddenMenuClicks = 0;
 
-    private static final int REQUEST_CHOOSE_DB_EXPORT_PATH = 21;
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // export database to file
-        if (requestCode == REQUEST_CHOOSE_DB_EXPORT_PATH
-                && resultCode == Activity.RESULT_OK
-                && notNull(data.getData())) {
-            // open output and database file and start copy
-            try (final FileInputStream dbIn = new FileInputStream(TenshiDB.getDatabasePath(requireContext()));
-                 final OutputStream out = requireContext().getContentResolver().openOutputStream(data.getData())) {
-                // copy file
-                final byte[] buf = new byte[1024];
-                int r;
-                while ((r = dbIn.read(buf)) > 0)
-                    out.write(buf, 0, r);
-            } catch (IOException e) {
-                Toast.makeText(requireContext(), "Failed to export Database!", Toast.LENGTH_SHORT).show();
-                Log.e("Tenshi", "error exporting db file: " + e.toString());
-                e.printStackTrace();
-            }
-
-            // tell user we are done
-            Toast.makeText(requireContext(), "Exported Database", Toast.LENGTH_SHORT).show();
-        }
-    }
+    /**
+     * how many clicks are needed to unlock the developer options menu
+     */
+    private final int HIDDEN_MENU_CLICKS = 10;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        // setup layout form preferences xml
         setPreferencesFromResource(R.xml.settings_main_screen, rootKey);
 
-        // populate themes
+        // setup ui stuff
+        final Context ctx = requireContext();
+        setupThemeSelection(ctx);
+        setupStartupSelection();
+        setupLogoutButton(ctx);
+        setupResetPrefsButton(ctx);
+        setupAppVersion(ctx);
+        setupDevOptions();
+        setupAboutLibraries(ctx);
+    }
+
+    /**
+     * setup the theme selection
+     *
+     * @param ctx the context to work in
+     */
+    private void setupThemeSelection(@NonNull Context ctx) {
         final ListPreference themePref = findPreference(getKeyName(Key.Theme));
-        final String[] themeValues = collect(Theme.values(), Enum::name).toArray(new String[0]);
-        themePref.setEntries(themeValues);
-        themePref.setEntryValues(themeValues);
-        themePref.setDefaultValue(Theme.FollowSystem);
+        with(themePref, themes -> {
+            final String[] themeValues = elvis(collect(Theme.values(), EnumHelper::valueOf), new ArrayList<String>()).toArray(new String[0]);
+            themes.setEntries(themeValues);
+            themes.setEntryValues(themeValues);
+            themes.setDefaultValue(EnumHelper.valueOf(Theme.FollowSystem));
 
-        // populate startup sections
-        final ListPreference tabPref = findPreference(getKeyName(Key.StartupSection));
-        final String[] tabValues = collect(MainActivity.Section.values(), Enum::name).toArray(new String[0]);
-        tabPref.setEntries(tabValues);
-        tabPref.setEntryValues(tabValues);
-        tabPref.setDefaultValue(EnumHelper.valueOf(MainActivity.Section.Home));
-
-        // add listener to logout button
-        final Preference logoutBtn = findPreference("logout_btn");
-        logoutBtn.setOnPreferenceClickListener(preference -> {
-            // invalidate the saved token
-            Toast.makeText(requireContext(), "Logged Out", Toast.LENGTH_SHORT).show();
-            TenshiApp.INSTANCE.invalidateTokenAndLogin(requireActivity());
-            return true;
-        });
-
-        // populate app version
-        final Preference appVersion = findPreference("app_version");
-        appVersion.setSummary(join(" - ", BuildConfig.VERSION_NAME, BuildConfig.BUILD_TYPE));
-        appVersion.setOnPreferenceClickListener(preference -> {
-            hiddenMenuClicks++;
-            if (hiddenMenuClicks > 5) {
-                setBool(Key.ShowDebugOptions, true);
-                Toast.makeText(requireContext(), "🐱", Toast.LENGTH_SHORT).show();
-            } else if (hiddenMenuClicks > 4)
-                Toast.makeText(requireContext(), "Almost There", Toast.LENGTH_SHORT).show();
-            return true;
-        });
-
-        // populate and setup export database button
-        final Preference exportDb = findPreference("export_database");
-        final String dbPath = TenshiDB.getDatabasePath(requireContext()).getAbsolutePath();
-        exportDb.setSummary(dbPath);
-        exportDb.setOnPreferenceClickListener(preference -> {
-            // print path to log
-            Log.e("Tenshi", "Database Path: " + dbPath);
-
-            // start document chooser
-            final Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            exportIntent.setType("*/*");
-            startActivityForResult(exportIntent, REQUEST_CHOOSE_DB_EXPORT_PATH);
-            return true;
-        });
-
-        // setup cleanup database button
-        final Preference cleanDb = findPreference("cleanup_database");
-        cleanDb.setOnPreferenceClickListener(preference -> {
-            // start cleanup async
-            async(() -> TenshiApp.getDB().cleanupDatabase(), count -> {
-                Toast.makeText(requireContext(), fmt("deleted %d entries", count), Toast.LENGTH_SHORT).show();
+            // notify user to restart for theme to change
+            themes.setOnPreferenceChangeListener((preference, newValue) -> {
+                Toast.makeText(ctx, R.string.settings_toast_restart_for_theme_change, Toast.LENGTH_SHORT).show();
+                return true;
             });
-            return true;
-        });
-
-        // setup delete database button
-        final Preference deleteDb = findPreference("delete_database");
-        deleteDb.setOnPreferenceClickListener(preference -> {
-            async(() -> TenshiApp.getDB().clearAllTables());
-            Toast.makeText(requireContext(), "deleted database", Toast.LENGTH_SHORT).show();
-            return true;
-        });
-
-        // DEBUG: readonly preference for all keys
-        setupDebugPrefs("dbg_prefs_category");
-
-        // DEBUG: list all found content adapters
-        setupContentAdapters("dbg_ca_category");
-    }
-
-    private void setupDebugPrefs(@SuppressWarnings("SameParameterValue") String category) {
-        // dump all prefs in Key enum
-        final ArrayList<String> dumpedKeys = new ArrayList<>();
-        final PreferenceCategory cat = findPreference(category);
-        for (Key key : Key.values()) {
-            // create preference
-            Preference pref = new Preference(requireContext());
-            pref.setTitle(key.name());
-            pref.setSummary(getAny(key, "-"));
-            dumpedKeys.add(TenshiPrefs.getKeyName(key));
-
-            // add preference to category
-            cat.addPreference(pref);
-        }
-
-        // dump any key that is not in Keys enum (with extended key)
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext().getApplicationContext());
-        final Map<String, ?> allPrefs = prefs.getAll();
-        for (String key : allPrefs.keySet()) {
-            // skip if already dumped this key
-            if (dumpedKeys.contains(key))
-                continue;
-
-            // get value
-            String value = allPrefs.get(key).toString();
-
-            // create preference
-            Preference pref = new Preference(requireContext());
-            pref.setTitle(key);
-            pref.setSummary(value);
-
-            // add preference
-            cat.addPreference(pref);
-        }
-    }
-
-    private void setupContentAdapters(@SuppressWarnings("SameParameterValue") String category) {
-        // wait until discovery finsihed
-        TenshiApp.getContentAdapterManager().addOnDiscoveryEndCallback(manager -> {
-            final PreferenceCategory cat = findPreference(category);
-            for (ContentAdapterWrapper ca : manager.getAdapters()) {
-                // create preference
-                Preference pref = new Preference(requireContext());
-                pref.setTitle(ca.getDisplayName());
-                pref.setSummary(fmt("%s (API %d)", ca.getUniqueName(), ca.getApiVersion()));
-
-                // add preference to category
-                cat.addPreference(pref);
-            }
         });
     }
 
-    private String getAny(Key key, String def) {
-        if (!doesKeyExist(key))
-            return def;
+    /**
+     * setup the startup tab selection
+     */
+    private void setupStartupSelection() {
+        final ListPreference sectionPref = findPreference(getKeyName(Key.StartupSection));
+        with(sectionPref, sections -> {
+            final String[] tabValues = elvis(collect(MainActivity.Section.values(), EnumHelper::valueOf), new ArrayList<String>()).toArray(new String[0]);
+            sections.setEntries(tabValues);
+            sections.setEntryValues(tabValues);
+            sections.setDefaultValue(EnumHelper.valueOf(MainActivity.Section.Home));
+        });
+    }
 
-        try {
-            return TenshiPrefs.getString(key, def);
-        } catch (ClassCastException ignored) {
-        }
+    /**
+     * setup the logout button
+     *
+     * @param ctx the context to work in
+     */
+    private void setupLogoutButton(@NonNull Context ctx) {
+        final Preference logoutPref = findPreference("logout_btn");
+        with(logoutPref,
+                logout -> logout.setOnPreferenceClickListener(preference -> {
+                    new MaterialAlertDialogBuilder(ctx)
+                            .setTitle(R.string.settings_dialog_confirm_logout)
+                            .setPositiveButton(R.string.shared_dialog_confirmation_yes, (dialog, which) -> {
+                                // invalidate token and redirect to login page
+                                TenshiApp.INSTANCE.invalidateTokenAndLogin(requireActivity());
+                            })
+                            .setNegativeButton(R.string.shared_dialog_confirmation_no, null)
+                            .show();
+                    return true;
+                }));
+    }
 
-        try {
-            return str(TenshiPrefs.getBool(key, false));
-        } catch (ClassCastException ignored) {
-        }
+    /**
+     * setup the reset preferences button
+     *
+     * @param ctx the context to work in
+     */
+    private void setupResetPrefsButton(@NonNull Context ctx) {
+        final Preference resetPref = findPreference("reset_prefs_btn");
+        with(resetPref,
+                reset -> reset.setOnPreferenceClickListener(preference -> {
+                    new MaterialAlertDialogBuilder(ctx)
+                            .setTitle(R.string.settings_dialog_confirm_reset_prefs)
+                            .setPositiveButton(R.string.shared_dialog_confirmation_yes, (dialog, which) -> {
+                                // reset all prefs and recreate
+                                TenshiPrefs.clear();
+                                requireActivity().recreate();
+                            })
+                            .setNegativeButton(R.string.shared_dialog_confirmation_no, null)
+                            .show();
+                    return true;
+                }));
+    }
 
-        try {
-            return str(TenshiPrefs.getInt(key, 0));
-        } catch (ClassCastException ignored) {
-        }
+    /**
+     * setup the 'app version' preference to show the app version
+     *
+     * @param ctx the context to work in
+     */
+    private void setupAppVersion(@NonNull Context ctx) {
+        // find app version category
+        final Preference appVersionPref = findPreference("app_version");
+        with(appVersionPref, appVersion -> {
+            appVersion.setSummary(fmt("%s (%s)", BuildConfig.VERSION_NAME, BuildConfig.BUILD_TYPE));
+            appVersion.setOnPreferenceClickListener(preference -> {
+                hiddenMenuClicks++;
+                if (hiddenMenuClicks >= HIDDEN_MENU_CLICKS) {
+                    final boolean wasAlreadyDev = TenshiPrefs.getBool(Key.ShowDeveloperOptions, false);
 
-        try {
-            return str(TenshiPrefs.getLong(key, 0));
-        } catch (ClassCastException ignored) {
-        }
+                    // set dev key
+                    TenshiPrefs.setBool(Key.ShowDeveloperOptions, true);
+                    setupDevOptions();
 
-        try {
-            return str(TenshiPrefs.getFloat(key, 0f));
-        } catch (ClassCastException ignored) {
-        }
+                    // show toast
+                    if (wasAlreadyDev)
+                        Toast.makeText(ctx, "You are already a developer", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(ctx, "🎉 You are now a developer 🎉", Toast.LENGTH_SHORT).show();
+                } else if (hiddenMenuClicks >= (HIDDEN_MENU_CLICKS * 0.6))
+                    Toast.makeText(ctx, "🐱", Toast.LENGTH_SHORT).show();
 
-        return def;
+                return true;
+            });
+        });
+    }
+
+    /**
+     * setup the developer options button
+     */
+    private void setupDevOptions() {
+        final Preference devPref = findPreference("dev_options_btn");
+        with(devPref, devOptions -> {
+            devOptions.setVisible(TenshiPrefs.getBool(Key.ShowDeveloperOptions, false));
+            devOptions.setFragment(DeveloperSettingsFragment.class.getName());
+        });
+    }
+
+    /**
+     * setup the about libraries preference
+     *
+     * @param ctx the context to work in
+     */
+    private void setupAboutLibraries(@NonNull Context ctx) {
+        final Preference libPref = findPreference("about_libraries");
+        with(libPref,
+                about -> about.setOnPreferenceClickListener(preference -> {
+                    Toast.makeText(ctx, "TODO", Toast.LENGTH_SHORT).show();
+                    return true;
+                }));
     }
 }

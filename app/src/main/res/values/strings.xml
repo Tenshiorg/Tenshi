@@ -10,6 +10,8 @@
     <string name="shared_toast_copied_to_clip">Copied to Clipboard</string>
     <string name="shared_snack_no_internet">You\'re Offline! Information may be incomplete or out of date</string>
     <string name="shared_snack_no_internet_dismiss">Dismiss</string>
+    <string name="shared_dialog_confirmation_yes">Yes</string>
+    <string name="shared_dialog_confirmation_no">No</string>
     <!-- endregion -->
 
     <!-- region Main Activity -->
@@ -90,6 +92,7 @@
     <string name="details_menu_view_on_mal">View on MAL</string>
     <string name="details_menu_add_homescreen_pin">Pin to Homescreen</string>
     <string name="details_menu_share">Share</string>
+    <!-- endregion -->
 
     <!-- region Login Activity -->
     <string name="login_title">Login</string>
@@ -107,5 +110,33 @@
 
     <!-- region Fullscreen image Activity -->
     <string name="fullscreen_img_title">Image</string>
+    <!-- endregion -->
+
+    <!-- region Settings -->
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_theme_title">App Theme</string>
+    <string name="settings_theme_summary">Choose the App Theme</string>
+    <string name="settings_start_section_title">Startup Tab</string>
+    <string name="settings_start_section_summary">The Tab that is first opened when you open the app</string>
+    <string name="settings_nsfw_toggle_title">Show NSFW</string>
+    <string name="settings_nsfw_toggle_on">NSFW Content is visible</string>
+    <string name="settings_nsfw_toggle_off">NSFW Content is filtered</string>
+    <string name="settings_logout_title">Logout</string>
+    <string name="settings_logout_summary">Log out of your MAL account</string>
+    <string name="settings_reset_prefs_title">Reset Settings</string>
+    <string name="settings_reset_prefs_summary">Reset Settings to the default values</string>
+    <string name="settings_dev_options_title">Developer Options</string>
+    <string name="settings_dev_options_summary">Open Developer Options</string>
+    <string name="settings_app_version_title">App Version</string>
+    <string name="settings_about_libraries_title">About Libraries</string>
+    <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
+
+    <string name="settings_section_main">Settings</string>
+    <string name="settings_section_info">About</string>
+
+    <string name="settings_toast_restart_for_theme_change">Restart the App for Theme changes to take effect</string>
+    <string name="settings_dialog_confirm_logout">Are you sure you want to logout?</string>
+    <string name="settings_dialog_confirm_reset_prefs">Are you sure you want to reset the App Settings to default?</string>
     <!-- endregion -->
 </resources>

@@ -62,7 +62,7 @@ public class TenshiPrefs {
         /**
          * are debug options enabled in Settings?
          */
-        ShowDebugOptions
+        ShowDeveloperOptions
     }
 
     /**

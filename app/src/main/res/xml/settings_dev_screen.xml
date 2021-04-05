@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- general functions -->
+    <PreferenceCategory android:title="General">
+        <!-- throw expection in UI -->
+        <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
+            android:key="dbg_exception_in_ui"
+            android:summary="Long Press to throw"
+            android:title="Throw Exception in UI Thread" />
+
+        <!-- throw expection in background -->
+        <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
+            android:key="dbg_exception_in_async"
+            android:summary="Long Press to throw"
+            android:title="Throw Exception in Background Thread" />
+
+    </PreferenceCategory>
+
+    <!-- database functions -->
+    <PreferenceCategory android:title="Database">
+        <!-- export database -->
+        <Preference
+            android:key="dbg_export_database"
+            android:title="Export Database" />
+
+        <!-- cleanup database -->
+        <Preference
+            android:key="dgb_cleanup_database"
+            android:title="Clean Up Database" />
+
+        <!-- delete database -->
+        <Preference
+            android:key="dbg_delete_database"
+            android:title="Delete Database" />
+    </PreferenceCategory>
+
+    <!-- content adapter functions -->
+    <PreferenceCategory
+        android:key="dbg_content_adapters_container"
+        android:title="Content Adapters" />
+
+    <!-- all preferences in the key enum, dynamic -->
+    <PreferenceCategory
+        android:key="dbg_prefs_of_enum"
+        android:title="Shared Preferences of TenshiPrefs.Key" />
+
+    <!-- all preferences that are not in Key enum, dynamic -->
+    <PreferenceCategory
+        android:key="dbg_prefs_other"
+        android:title="Other Shared Preferences" />
+</PreferenceScreen>
