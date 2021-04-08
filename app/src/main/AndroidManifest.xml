@@ -44,8 +44,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="tenshiapp"
-                    android:host="tenshi.app.auth.mal"
+                    android:scheme="${redirect_scheme}"
+                    android:host="${redirect_host}"
                     android:pathPattern="/.*"
                     android:pathPrefix="/.*" />
             </intent-filter>

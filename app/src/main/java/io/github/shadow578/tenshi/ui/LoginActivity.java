@@ -11,6 +11,10 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.databinding.ActivityLoginBinding;
@@ -18,7 +22,6 @@ import io.github.shadow578.tenshi.mal.AuthService;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.secret.Secrets;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,7 +31,6 @@ import retrofit2.internal.EverythingIsNonNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
-
 
 /**
  * The activity that handles logging in
@@ -52,24 +54,30 @@ public class LoginActivity extends TenshiActivity {
         // hide loading indicator
         b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
 
-        // generate verifier code
-        verifierCode = MalApiHelper.getRandomCode(128);
-
-        // generate OAUTH state
-        oauthState = concat("TENSHI" + MalApiHelper.getRandomCode(64));
-
-        // build login url
-        final String loginUri = concat(Urls.OAUTH,
-                "authorize?response_type=code&client_id=", Secrets.MAL_CLIENT_ID,
-                "&code_challenge=", verifierCode,
-                "&state=", oauthState);
-
         // set listener on login button
-        b.loginBtn.setOnClickListener(view -> CustomTabsHelper.openInCustomTab(this, loginUri));
+        b.loginBtn.setOnClickListener(view -> {
+            // generate OAUTH state
+            oauthState = concat("TENSHI" + MalApiHelper.getRandomCode(128 - 6));
+
+            // generate verifier code
+            verifierCode = MalApiHelper.getRandomCode(128);
+
+            // build login url
+            final String loginUri = concat(Urls.OAUTH, "authorize?",
+                    "response_type=code",
+                    "&client_id=", BuildConfig.MAL_CLIENT_ID,
+                    "&state=", oauthState,
+                    "&redirect_uri=", urlEncode(BuildConfig.MAL_OAUTH_REDIRECT_URL),
+                    "&code_challenge=", verifierCode,
+                    "&code_challenge_method=plain");
+
+            // open login form
+            CustomTabsHelper.openInCustomTab(this, loginUri);
+        });
 
         // check if this is the login response
         with(getIntent().getData(), redirectUri -> {
-            if (redirectUri.toString().startsWith(Urls.OAUTH_REDIRECT))
+            if (redirectUri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
                 getLoginData(redirectUri);
         });
     }
@@ -79,7 +87,7 @@ public class LoginActivity extends TenshiActivity {
         super.onNewIntent(intent);
         // check if this is the login response
         with(intent.getData(), redirectUri -> {
-            if (redirectUri.toString().startsWith(Urls.OAUTH_REDIRECT))
+            if (redirectUri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
                 getLoginData(redirectUri);
         });
     }
@@ -90,7 +98,7 @@ public class LoginActivity extends TenshiActivity {
      * @param uri the response url from MAL
      */
     private void getLoginData(@NonNull Uri uri) {
-        if (!uri.toString().startsWith(Urls.OAUTH_REDIRECT))
+        if (!uri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
             return;
 
         // make progress bar visible
@@ -100,9 +108,8 @@ public class LoginActivity extends TenshiActivity {
         String code = uri.getQueryParameter("code");
         String recState = uri.getQueryParameter("state");
         if (!nullOrEmpty(code) && recState.equals(oauthState)) {
-            AuthService loginService = MalApiHelper.createService(AuthService.class);
-            Call<Token> loginCall = loginService.getAccessToken(Secrets.MAL_CLIENT_ID, code, verifierCode, "authorization_code");
-            loginCall.enqueue(new Callback<Token>() {
+            final AuthService loginService = MalApiHelper.createService(AuthService.class);
+            loginService.getAccessToken(BuildConfig.MAL_CLIENT_ID, code, verifierCode, "authorization_code", BuildConfig.MAL_OAUTH_REDIRECT_URL).enqueue(new Callback<Token>() {
                 @Override
                 @EverythingIsNonNull
                 public void onResponse(Call<Token> call, Response<Token> response) {
@@ -133,6 +140,21 @@ public class LoginActivity extends TenshiActivity {
         } else if (!nullOrEmpty(uri.getQueryParameter("error"))) {
             b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
             Snackbar.make(b.loginLayout, R.string.login_snack_login_error, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * url- encode a string
+     *
+     * @param input the string to encode
+     * @return the encoded string, or a empty string if encode failed
+     */
+    @NonNull
+    private String urlEncode(@SuppressWarnings("SameParameterValue") @NonNull String input) {
+        try {
+            return URLEncoder.encode(input, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return "";
         }
     }
 }

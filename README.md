@@ -18,7 +18,7 @@ New Features and Improvements are Tracked on [Trello](https://trello.com/b/nD3Wz
 
 
 ## Download
-~~Get the app from the [releases page](https://github.com/Tenshiorg/Tenshi/releases).~~ Downloads coming soon.
+Get the app from the [releases page](https://github.com/Tenshiorg/Tenshi/releases).
 
 ## Issues, Feature Requests and Contributing
 

@@ -1,44 +1,93 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'com.android.application'
     id 'com.mikepenz.aboutlibraries.plugin'
 }
+
+// build config
+Properties buildCfg = loadProperties file('build.properties')
+checkReleaseBuild()
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "io.github.shadow578.tenshi"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 1
-        versionName "0.1"
+        applicationId "io.github.shadow578.tenshi"
 
+        // update the version code and name here
+        // on PREVIEW_BUILDS, this is overwritten to the commit count and SHA
+        versionCode overrideVersion(buildCfg, 1)
+        versionName overrideVersion(buildCfg, "0.1")
+
+        // mal client id in BuildConfig
+        buildConfigField "String", "MAL_CLIENT_ID", "\"${buildCfg["MAL_CLIENT_ID"]}\""
+
+        // mal OAUTH redirect url in BuildConfig and manifest
+        buildConfigField "String", "MAL_OAUTH_REDIRECT_URL", "\"${buildCfg["OAUTH_REDIRECT_URL"]}\""
+        String[] redirectUrlMf = getSchemeForManifest(buildCfg["OAUTH_REDIRECT_URL"])
+        manifestPlaceholders = [
+                redirect_scheme: redirectUrlMf[0],
+                redirect_host  : redirectUrlMf[1]
+        ]
+
+        // additional build info in BuildConfig
+        buildConfigField "String", "COMMIT_SHA", "\"${getCommit()}\""
+        buildConfigField "int", "COMMIT_COUNT", "${getCommitCount()}"
+        buildConfigField "String", "BUILD_TIME_UTC", "\"${getDateTime()}\""
+
+        // export room schema to /app/schemas
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
     }
-    buildFeatures{
+    buildFeatures {
+        // enable view binding
         viewBinding = true
-    }
-    buildTypes {
-        debug {
-            applicationIdSuffix '.debug'
-            versionNameSuffix '-DEBUG'
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
 
-        // desugaring for new language APIs
+        // desugaring for Java 8 APIs
         coreLibraryDesugaringEnabled true
+    }
+    signingConfigs {
+        fromBuildConfig {
+            storeFile file(buildCfg['SIGN_STORE_FILE'])
+            storePassword buildCfg['SIGN_STORE_PASSWORD']
+            keyAlias buildCfg['SIGN_KEY_ALIAS']
+            keyPassword buildCfg['SIGN_KEY_PASSWORD']
+
+            // enable v1 and v2 signing
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+    buildTypes {
+        debug {
+            // add 'debug' suffix on debug builds
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-DEBUG'
+
+            // use signing config from build.properties on preview builds
+            if (buildCfg["PREVIEW_BUILD"] == "true") {
+                signingConfig signingConfigs.fromBuildConfig
+            }
+        }
+        release {
+            // signing config loaded from buildCfg
+            signingConfig signingConfigs.fromBuildConfig
+
+            // default config
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
 }
 
@@ -88,6 +137,144 @@ dependencies {
     // about libraries
     implementation "com.mikepenz:aboutlibraries-core:8.8.4"
     implementation "com.mikepenz:aboutlibraries:8.8.4"
+}
 
+// ~ Utility functions ~
+/**
+ * load a config file
+ * @param configFile the file to load
+ * @return the loaded properties. if the file cannot be read, a empty properties object is returned
+ */
+static Properties loadProperties(File configFile) {
+    Properties p = new Properties()
+    if (configFile.canRead()) {
+        p.load(new FileInputStream(configFile))
+    }
 
+    return p
+}
+
+/**
+ * split the OAUTH_REDIRECT_URL from the properties into scheme and host for the manifest
+ * @param redirectUrl the redirect url, like tenshi://redirect.app
+ * @return the split url, [0] is scheme and [1] is host
+ */
+static String[] getSchemeForManifest(String redirectUrl) {
+    String[] parts = redirectUrl.split("://")
+    if (parts.length == 2) {
+        parts[0] = parts[0].trim()
+        parts[1] = parts[1].trim().replaceAll("/+\$", "").trim()
+    }
+
+    // check split is ok
+    if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty())
+        throw new IllegalArgumentException("OAUTH_REDIRECT_URL could not be split for manifest usage! make sure it has the right format")
+    return parts
+}
+
+/**
+ * apply automatic versioning for preview builds
+ * @param props buildConfig properties
+ * @param manualVersion the version to use for normal builds
+ * @return the version
+ */
+String overrideVersion(Properties props, String manualVersion) {
+    if (props["PREVIEW_BUILD"] == "true") {
+        String vName = getCommit()
+        println("Preview build, override versionName to $vName")
+        return vName
+    } else {
+        return manualVersion
+    }
+}
+
+/**
+ * apply automatic versioning for preview builds
+ * @param props buildConfig properties
+ * @param manualVersion the version to use for normal builds
+ * @return the version
+ */
+int overrideVersion(Properties props, int manualVersion) {
+    if (props["PREVIEW_BUILD"] == "true") {
+        int vCode = getCommitCount()
+        println("Preview build, override versionCode to $vCode")
+        return vCode
+    } else {
+        return manualVersion
+    }
+}
+
+/**
+ * get the current time as string, format yyyy-MM-dd HH:mm:ss
+ * @return the time string
+ */
+static String getDateTime() {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    format.timeZone = TimeZone.getTimeZone("UTC")
+    return format.format(new Date())
+}
+
+/**
+ * get the current commit count
+ * @return the commit count
+ */
+int getCommitCount() {
+    return run("git rev-list --count HEAD").toInteger()
+}
+
+/**
+ * get the current git commit SHA
+ * @return the commit SHA
+ */
+String getCommit() {
+    return run("git rev-parse --short HEAD")
+}
+
+/**
+ * execute a command in the project directory
+ * @param cmd the command to run
+ * @return the stdout result
+ */
+String run(String cmd) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream()
+    project.exec {
+        commandLine cmd.split(" ")
+        standardOutput out
+    }
+
+    return new String(out.toByteArray()).trim()
+}
+
+/**
+ * on release builds:
+ * - checks if the project has uncommited changes and fails the build if it has
+ * - checks PREVIEW_BUILD is not enabled on release build
+ */
+void checkReleaseBuild() {
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all { output ->
+                variant.getAssembleProvider().configure() {
+                    it.doLast {
+                        // do the checks after assembly step in release builds (pretty much last)
+                        // so it triggers AFTER actual problems with the code
+                        int exitVal = project.exec {
+                            commandLine "git diff-index --quiet HEAD".split(" ")
+                            ignoreExitValue true
+                        }.exitValue
+
+                        // check if command failed
+                        if (exitVal != 0) {
+                            throw new IllegalStateException("creating dirty release builds is not allowed: working directory has uncommited changes! (git diff-index HEAD failed)")
+                        }
+
+                        // make sure this is not a preview build is disabled
+                        if (props["PREVIEW_BUILD"] == "true") {
+                            throw new IllegalStateException("PREVIEW builds may not be release builds! (build variant = release AND PREVIEW_BUILD = true)")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -18,11 +18,4 @@ public  final class Urls {
      * OAUTH base url
      */
     public static final String OAUTH = "https://myanimelist.net/v1/oauth2/";
-
-    /**
-     * OAUTH response redirect target used by Tenshi.
-     * If you want to change this, you'll have to change it here,
-     * in AndroidManifest (LoginActivity intent filter), and in your MAL client settings.
-     */
-    public static final String OAUTH_REDIRECT = "tenshiapp://tenshi.app.auth.mal/";
 }

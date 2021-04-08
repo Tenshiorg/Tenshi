@@ -15,7 +15,6 @@ import java.util.Random;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.mal.model.ErrorResponse;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.secret.Secrets;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -24,7 +23,11 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * helper class for everything MAL api
@@ -54,7 +57,7 @@ public class MalApiHelper {
      */
     public static void doRefreshToken(@NonNull String refreshToken, @NonNull Callback<Token> callback) {
         final AuthService authService = MalApiHelper.createService(AuthService.class);
-        final Call<Token> refreshCall = authService.refreshAccessToken(Secrets.MAL_CLIENT_ID, "refresh_token", refreshToken);
+        final Call<Token> refreshCall = authService.refreshAccessToken(BuildConfig.MAL_CLIENT_ID, "refresh_token", refreshToken);
         refreshCall.enqueue(callback);
     }
 
@@ -149,8 +152,8 @@ public class MalApiHelper {
 
             // if the field has @DataInclude annotation, add that too
             final DataInclude di = field.getAnnotation(DataInclude.class);
-            if(notNull(di))
-                for(String include : di.includeFields())
+            if (notNull(di))
+                for (String include : di.includeFields())
                     subFields.append(include);
 
             // add subfields to query
