@@ -260,9 +260,10 @@ void checkReleaseBuild(Properties props) {
                     it.doLast {
                         // do the checks after assembly step in release builds (pretty much last)
                         // so it triggers AFTER actual problems with the code
+                        // only check for differences in the app module (solves some *unpleasant* issues during build)
                         ByteArrayOutputStream out = new ByteArrayOutputStream()
                         int exitVal = project.exec {
-                            commandLine "git diff-index --name-only --exit-code HEAD".split(" ")
+                            commandLine "git diff-index --name-only --exit-code HEAD -- app/".split(" ")
                             standardOutput out
                             ignoreExitValue true
                         }.exitValue
