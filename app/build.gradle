@@ -7,7 +7,7 @@ plugins {
 
 // build config
 Properties buildCfg = loadProperties file('build.properties')
-checkReleaseBuild()
+checkReleaseBuild(buildCfg)
 
 android {
     compileSdkVersion 30
@@ -249,8 +249,10 @@ String run(String cmd) {
  * on release builds:
  * - checks if the project has uncommited changes and fails the build if it has
  * - checks PREVIEW_BUILD is not enabled on release build
+ *
+ * @param props buildConfig properties
  */
-void checkReleaseBuild() {
+void checkReleaseBuild(Properties props) {
     android.applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             variant.outputs.all { output ->
@@ -258,14 +260,16 @@ void checkReleaseBuild() {
                     it.doLast {
                         // do the checks after assembly step in release builds (pretty much last)
                         // so it triggers AFTER actual problems with the code
+                        ByteArrayOutputStream out = new ByteArrayOutputStream()
                         int exitVal = project.exec {
-                            commandLine "git diff-index --quiet HEAD".split(" ")
+                            commandLine "git diff-index --name-only --exit-code HEAD".split(" ")
+                            standardOutput out
                             ignoreExitValue true
                         }.exitValue
 
                         // check if command failed
                         if (exitVal != 0) {
-                            throw new IllegalStateException("creating dirty release builds is not allowed: working directory has uncommited changes! (git diff-index HEAD failed)")
+                            throw new IllegalStateException("creating dirty release builds is not allowed: working directory has uncommited changes! (git diff-index HEAD failed). Affected Files: \n" + new String(out.toByteArray()))
                         }
 
                         // make sure this is not a preview build is disabled
