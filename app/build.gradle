@@ -20,8 +20,8 @@ android {
 
         // update the version code and name here
         // on PREVIEW_BUILDS, this is overwritten to the commit count and SHA
-        versionCode overrideVersion(buildCfg, 1)
-        versionName overrideVersion(buildCfg, "0.1")
+        versionCode overrideVersion(buildCfg, 2)
+        versionName overrideVersion(buildCfg, "0.2")
 
         // mal client id in BuildConfig
         buildConfigField "String", "MAL_CLIENT_ID", "\"${buildCfg["MAL_CLIENT_ID"]}\""
