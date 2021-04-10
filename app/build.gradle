@@ -20,8 +20,8 @@ android {
 
         // update the version code and name here
         // on PREVIEW_BUILDS, this is overwritten to the commit count and SHA
-        versionCode overrideVersion(buildCfg, 1)
-        versionName overrideVersion(buildCfg, "0.1")
+        versionCode overrideVersion(buildCfg, 2)
+        versionName overrideVersion(buildCfg, "0.2")
 
         // mal client id in BuildConfig
         buildConfigField "String", "MAL_CLIENT_ID", "\"${buildCfg["MAL_CLIENT_ID"]}\""
@@ -104,8 +104,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.browser:browser:1.3.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.navigation:navigation-fragment:2.3.3'
-    implementation 'androidx.navigation:navigation-ui:2.3.3'
+    implementation 'androidx.navigation:navigation-fragment:2.3.5'
+    implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation "androidx.preference:preference:1.1.1"
     implementation 'com.google.android.material:material:1.3.0'
 
