@@ -54,6 +54,11 @@
             android:key="app_version"
             android:title="@string/settings_app_version_title" />
 
+        <!-- Build Date -->
+        <Preference
+            android:key="app_build_date"
+            android:title="@string/settings_app_build_date_title" />
+
         <!-- About Libraries -->
         <Preference
             android:key="about_libraries"

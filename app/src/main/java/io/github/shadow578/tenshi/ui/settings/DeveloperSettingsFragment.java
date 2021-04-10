@@ -24,9 +24,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
+import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.db.TenshiDB;
+import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -68,10 +70,39 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
         // init dynamic stuff
         final Context ctx = requireContext();
+        setupVersionInfo();
         setupThrowExceptionFunctions();
         setupDatabaseFunctions(ctx);
         setupSharedPrefsFunctions(ctx);
         setupContentAdapterFunctions(ctx);
+    }
+
+    /**
+     * setup all version info prefs
+     */
+    private void setupVersionInfo(){
+        // Tenshi
+        setPrefSummary("dbg_version_name", BuildConfig.VERSION_NAME);
+        setPrefSummary("dbg_version_code", str(BuildConfig.VERSION_CODE));
+        setPrefSummary("dbg_build_type", BuildConfig.BUILD_TYPE);
+        setPrefSummary("dbg_build_date", BuildConfig.BUILD_TIME_UTC);
+        setPrefSummary("dbg_commit_sha", BuildConfig.COMMIT_SHA);
+        setPrefSummary("dbg_commit_count", str(BuildConfig.COMMIT_COUNT));
+
+        // ExtensionLib
+        setPrefSummary("dbg_extlib_build_type", io.github.shadow578.tenshi.extensionslib.BuildConfig.BUILD_TYPE);
+        setPrefSummary("dbg_content_api_level", str(Constants.TARGET_API_VERSION));
+
+    }
+
+    /**
+     * set the summary of a preference if that preference was found
+     * @param pref the name of the preference
+     * @param summary the summary to set
+     */
+    private void setPrefSummary(@NonNull String pref, @NonNull String summary){
+        final Preference prefPref = findPreference(pref);
+        with(prefPref, p -> p.setSummary(summary));
     }
 
     /**
@@ -257,7 +288,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
                 for (ContentAdapterWrapper ca : manager.getAdapters()) {
                     // get values
                     final String displayName = ca.getDisplayName();
-                    final String uniqueNameAndApi = fmt("%s (API %d)", ca.getUniqueName(), ca.getApiVersion());
+                    final String uniqueNameAndApi = fmt("%s \n(API %d)", ca.getUniqueName(), ca.getApiVersion());
 
                     // create the preference
                     final Preference pref = new Preference(ctx);

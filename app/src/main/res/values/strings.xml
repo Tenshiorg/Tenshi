@@ -129,6 +129,7 @@
     <string name="settings_dev_options_title">Developer Options</string>
     <string name="settings_dev_options_summary">Open Developer Options</string>
     <string name="settings_app_version_title">App Version</string>
+    <string name="settings_app_build_date_title">Build Time</string>
     <string name="settings_about_libraries_title">About Libraries</string>
     <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
 

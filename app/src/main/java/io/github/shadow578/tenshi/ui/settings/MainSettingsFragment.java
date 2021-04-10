@@ -166,6 +166,10 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
                 return true;
             });
         });
+
+        // find app build date category
+        final Preference buildDatePref = findPreference("app_build_date");
+        with(buildDatePref, buildDate -> buildDate.setSummary(BuildConfig.BUILD_TIME_UTC + " (UTC)"));
     }
 
     /**

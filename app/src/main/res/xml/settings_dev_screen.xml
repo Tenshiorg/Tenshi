@@ -1,8 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- advanced build info -->
+    <PreferenceCategory android:title="Build Info (Tenshi)">
+        <!-- versionName -->
+        <Preference
+            android:key="dbg_version_name"
+            android:title="Version Name" />
+
+        <!-- versionCode -->
+        <Preference
+            android:key="dbg_version_code"
+            android:title="Version Code" />
+
+        <!-- build type -->
+        <Preference
+            android:key="dbg_build_type"
+            android:title="Build Type" />
+
+        <!-- Build Date -->
+        <Preference
+            android:key="dbg_build_date"
+            android:title="Bulid Time (UTC)" />
+
+        <!-- commit sha -->
+        <Preference
+            android:key="dbg_commit_sha"
+            android:title="Commit SHA" />
+
+        <!-- commit count -->
+        <Preference
+            android:key="dbg_commit_count"
+            android:title="Commit Count" />
+
+    </PreferenceCategory>
+
+    <!-- advanced build info -->
+    <PreferenceCategory android:title="Build Info (ExtensionLib)">
+        <!-- extensionLib: build type -->
+        <Preference
+            android:key="dbg_extlib_build_type"
+            android:title="ExtensionLib Build Type" />
+
+        <!-- extensionLib: ContentAdapter API level -->
+        <Preference
+            android:key="dbg_content_api_level"
+            android:title="Content Adapter API Level" />
+
+    </PreferenceCategory>
+
     <!-- general functions -->
-    <PreferenceCategory android:title="General">
+    <PreferenceCategory android:title="Crashes">
         <!-- throw expection in UI -->
         <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
             android:key="dbg_exception_in_ui"
