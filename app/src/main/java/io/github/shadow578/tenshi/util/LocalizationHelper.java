@@ -16,7 +16,7 @@ import io.github.shadow578.tenshi.mal.model.type.RelationType;
 import io.github.shadow578.tenshi.mal.model.type.Source;
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 public class LocalizationHelper {
     @NonNull

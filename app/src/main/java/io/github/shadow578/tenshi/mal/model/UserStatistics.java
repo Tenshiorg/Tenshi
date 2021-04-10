@@ -1,6 +1,7 @@
 package io.github.shadow578.tenshi.mal.model;
 
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -17,6 +18,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items_watching")
+    @ColumnInfo(name = "num_items_watching")
     public Integer libraryWatchingCount;
 
     /**
@@ -24,6 +26,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items_completed")
+    @ColumnInfo(name = "num_items_completed")
     public Integer libraryCompletedCount;
 
     /**
@@ -31,6 +34,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items_on_hold")
+    @ColumnInfo(name = "num_items_on_hold")
     public Integer libraryOnHoldCount;
 
     /**
@@ -38,6 +42,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items_dropped")
+    @ColumnInfo(name = "num_items_dropped")
     public Integer libraryDroppedCount;
 
     /**
@@ -45,6 +50,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items_plan_to_watch")
+    @ColumnInfo(name = "num_items_plan_to_watch")
     public Integer libraryPlanToWatchCount;
 
     /**
@@ -52,6 +58,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_items")
+    @ColumnInfo(name = "num_items")
     public Integer libraryTotalCount;
 
     /**
@@ -59,6 +66,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days_watched")
+    @ColumnInfo(name = "num_days_watched")
     public Double totalDaysWatched;
 
     /**
@@ -66,6 +74,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days_watching")
+    @ColumnInfo(name = "num_days_watching")
     public Double totalDaysWatching;
 
     /**
@@ -73,6 +82,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days_completed")
+    @ColumnInfo(name = "num_days_completed")
     public Double totalDaysCompleted;
 
     /**
@@ -80,6 +90,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days_on_hold")
+    @ColumnInfo(name = "num_days_on_hold")
     public Double totalDaysOnHold;
 
     /**
@@ -87,6 +98,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days_dropped")
+    @ColumnInfo(name = "num_days_dropped")
     public Double totalDaysDropped;
 
     /**
@@ -94,6 +106,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_days")
+    @ColumnInfo(name = "num_days")
     public Double totalDaysWasted;
 
     /**
@@ -101,6 +114,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_episodes")
+    @ColumnInfo(name = "num_episodes")
     public Integer totalEpisodesWatched;
 
     /**
@@ -108,6 +122,7 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("num_times_rewatched")
+    @ColumnInfo(name = "num_times_rewatched")
     public Integer totalEpisodedRewatched;
 
     /**
@@ -115,5 +130,6 @@ public final class UserStatistics {
      */
     @Nullable
     @SerializedName("mean_score")
+    @ColumnInfo(name = "mean_score")
     public Double meanScore;
 }

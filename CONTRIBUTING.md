@@ -1,4 +1,4 @@
-Looking to report a Bug or make a feature request? Take a look [here](https://github.com/shadow578/tenshi#issues-feature-requests-and-contributing).
+Looking to report a Bug or make a feature request? Take a look [here](https://github.com/Tenshiorg/Tenshi#issues-feature-requests-and-contributing).
 
 ---
 
@@ -17,7 +17,7 @@ Translations are currently only possible by directly editing the strings.xml fil
 __Pull requests are welcome!__
 Please read follow the Code Style Guidelines below.
 
-If you're interested in taking on [an open issue](https://github.com/shadow578/tenshi/issues), please comment on it so others are aware.
+If you're interested in taking on [an open issue](https://github.com/Tenshiorg/Tenshi/issues), please comment on it so others are aware.
 
 # Forks
 
@@ -25,42 +25,16 @@ Forks are allowed so long they abide by [Tenshi's LICENSE](LICENSE)
 
 When creating a fork, remember to:
 
-- Avoid confusion with the main app by:
+- Avoid confusion with the main app and conflicts by:
     - Changing the app name (strings/shared_app_name)
     - Changing the app icon
     - Changing the OAUTH redirect URL
-- To avoid conflicts while installing:
     - Change the 'applicationId' in build.gradle
-- To allow login:
-    - [Create a new API Client](https://myanimelist.net/apiconfig)
-        - Please use a different redirect URL for your fork
-    - Update the redirect URL
-        - in Urls.java
-        - in AndroidManifest.xml
-    - Create a Secrets.java and paste your client id
-
-## Sample Secrets.java
-
-To Allow Login with your Fork, you'll have to create a file 'Secrets.java' in '/app/src/main/java/io/github/shadow578/tenshi/secret/'
-
-```java
-package io.github.shadow578.tenshi.secret;
-
-/**
- * A class for secrets, excluded from GIT
- */
-public final class Secrets {
-
-    /**
-     * MAL client ID of this application
-     */
-     //TODO: paste your MAL client id here and rename to Secrets.java
-     // You can obtain one here: https://myanimelist.net/apiconfig
-     // Please make sure this file is NOT tracked by git after adding your client ID
-    public static final String MAL_CLIENT_ID = "";
-}
-```
-
+- [Create a new API Client](https://myanimelist.net/apiconfig)
+- Setup your build config (/app/build.properties)
+    - copy the [sample config](https://github.com/Tenshiorg/Tenshi/blob/kohai/app/build.properties.sample) to /app/build.properties and fill the values as per the comments
+    - ⚠ Make sure the build config is __NOT__ tracked by git
+ 
 # Code Style Guidelines
 
 These are the guidelines you should follow when contributing code to Tenshi.<br>
@@ -82,4 +56,4 @@ These Guidelines outline what I think are useful rules to create readable and ma
     - __all__ public fields and methods
     - _optionally_ private fields and methods
 - Usage of Lambda expression for handlers and callbacks is __strongly encouraged__.
-- Try to use [Tenshis language extensions](./LANG.md) instead of writing extra code.
+- Have a look at [Tenshis' Language Extensions](https://github.com/Tenshiorg/Extensions-Lib/blob/kohai/LANG.md).

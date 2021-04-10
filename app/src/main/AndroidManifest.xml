@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <queries>
+        <intent>
+            <action android:name="io.github.shadow578.tenshi.content.ADAPTER" />
+        </intent>
+    </queries>
+
     <application
         android:name=".TenshiApp"
         android:allowBackup="true"
@@ -13,19 +19,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/shared_app_name"
         android:supportsRtl="true"
-        android:theme="@style/TenshiTheme.SplashScreen">
+        android:theme="@style/TenshiTheme">
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboard|orientation|screenSize"
             android:hardwareAccelerated="true"
-            android:label="@string/shared_app_name">
+            android:label="@string/shared_app_name"
+            android:theme="@style/TenshiTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity>
 
         <activity
@@ -40,8 +44,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="tenshiapp"
-                    android:host="tenshi.app.auth.mal"
+                    android:scheme="${redirect_scheme}"
+                    android:host="${redirect_host}"
                     android:pathPattern="/.*"
                     android:pathPrefix="/.*" />
             </intent-filter>
@@ -51,7 +55,8 @@
             android:parentActivityName=".ui.MainActivity"
             android:label="@string/details_title"
             android:hardwareAccelerated="true"
-            android:configChanges="keyboard|orientation|screenSize">
+            android:configChanges="keyboard|orientation|screenSize"
+            android:theme="@style/TenshiTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -74,12 +79,14 @@
             android:parentActivityName=".ui.MainActivity"
             android:label="@string/search_title"
             android:hardwareAccelerated="true"
-            android:configChanges="keyboard|orientation|screenSize"/>
+            android:exported="true"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:theme="@style/TenshiTheme.SplashScreen"/>
+
         <activity android:name=".ui.settings.SettingsActivity"
             android:parentActivityName=".ui.MainActivity"
             android:label="Settings"
             android:hardwareAccelerated="true"
             android:configChanges="keyboard|orientation|screenSize"/>
-
     </application>
 </manifest>

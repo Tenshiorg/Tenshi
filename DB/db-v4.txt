@@ -1,0 +1,183 @@
+// dbdiagram.io
+
+// ~~~~~~~~~~~~~~~~
+//     Tables
+// ~~~~~~~~~~~~~~~~
+
+// mal/model/Anime
+Table anime {
+  anime_id integer
+  alternative_titles_en varchar // alternative_titles.en
+  alternative_titles_jp varchar // alternative_titles.jp
+  alternative_titles_synonyms varchar // alternative_titles.synonyms; GSON
+  average_episode_duration integer
+  broadcast_day_of_week varchar // broadcast.weekday; GSON
+  broadcast_start_time varchar // broadcast.startTime; GSON
+  created_at varchar // GSON
+  end_date varchar // GSON
+  main_picture_medium varchar // poster.medium
+  main_picture_large varchar // poster.large
+  mean float
+  media_type varchar // GSON
+  nsfw varchar // GSON
+  num_episodes integer
+  num_favorites integer
+  num_list_users integer
+  num_scoring_users integer
+  popularity integer
+  rank integer
+  start_date varchar // GSON
+  start_season_season varchar // startSeason.season; GSON
+  start_season_year integer // startSeason.year
+  status varchar // GSON
+  synopsis varchar
+  source varchar // GSON
+  title varchar
+  updated_at varchar // GSON
+  background varchar
+  rating varchar // GSON
+  pictures varchar // List<Image>, GSON
+  my_list_status_status varchar // userListStatus.status; GSON
+  my_list_status_comments varchar // userListStatus.comments
+  my_list_status_is_rewatching boolean // userListStatus.isRewatching
+  my_list_status_num_episodes_watched integer // userListStatus.watchedEpisoded
+  my_list_status_num_times_rewatched integer // userListStatus.rewatchCount
+  my_list_status_score integer // userListStatus.score
+  my_list_status_updated_at varchar // userListStatus.lastUpdate; GSON
+}
+
+// mal/model/User
+Table users {
+  user_id integer
+  name varchar
+  gender varchar
+  birthday varchar // GSON
+  location varchar
+  joined_at varchar // GSON
+  picture varchar
+  anime_statistics_num_items_watching integer // statistics.libraryWatchingCount
+  anime_statistics_num_items_completed integer // statistics.libraryCompletedCount
+  anime_statistics_num_items_on_hold integer // statistics.libraryOnHoldCount
+  anime_statistics_num_items_dropped integer // statistics.libraryDroppedCount
+  anime_statistics_num_items_plan_to_watch integer // statistics.libraryPlanToWatchCount
+  anime_statistics_num_items integer // statistics.libraryTotalCount
+  anime_statistics_num_days_watched double // statistics.totalDaysWatched
+  anime_statistics_num_days_watching double // statistics.totalDaysWatching
+  anime_statistics_num_days_completed double // statistics.totalDaysCompleted
+  anime_statistics_num_days_on_hold double // statistics.totalDaysOnHold
+  anime_statistics_num_days_dropped double // statistics.totalDaysDropped
+  anime_statistics_num_days double // statistics.totalDaysWasted
+  anime_statistics_num_episodes integer // statistics.totalEpisodesWatched
+  anime_statistics_num_times_rewatched integer // statistics.totalEpisodesRewatched
+  anime_statistics_num_mean_score double // statistics.meanScore
+}
+
+// db/model/AnimeXGenreCrossReference
+Table anime_genre_ref {
+  anime_id integer
+  genre_id integer
+}
+
+// db/model/AnimeXStudioCrossReference
+Table anime_studio_ref {
+  anime_id integer
+  studio_id integer
+}
+
+// db/model/AnimeXThemeCrossReference
+Table anime_theme_ref {
+  anime_id integer
+  theme_id integer
+  is_ending boolean
+}
+
+// mal/model/Genre
+Table genres {
+  genre_id integer
+  name varchar
+}
+
+// mal/model/Studio
+Table studios {
+  studio_id integer
+  name varchar
+}
+
+// mal/model/Theme
+Table themes {
+  theme_id integer
+  text varchar
+}
+
+// db/model/RelatedMediaRelation
+Table media_relations {
+  parent_id integer
+  child_id integer
+  relation_type varchar // GSON
+  relation_type_formatted varchar
+  is_manga boolean
+}
+
+// db/model/RecommendedMediaRelation
+Table media_recommendations {
+  parent_id integer
+  child_id integer
+  num_recommendations integer
+}
+
+// db/model/LastAccessInfo
+Table last_access {
+  id integer
+  target_is_anime boolean
+  last_access_at integer // unix timestamp, seconds UTC
+}
+
+
+// ~~~~~~~~~~~~~~~~
+//   Relationships
+// ~~~~~~~~~~~~~~~~
+
+// Anime <> Related Anime
+Ref: anime.anime_id < media_relations.parent_id
+Ref: anime.anime_id < media_relations.child_id
+
+// Anime <> Recommended Anime
+Ref: anime.anime_id < media_recommendations.parent_id
+Ref: anime.anime_id < media_recommendations.child_id
+
+// Anime <> Genre
+Ref: anime.anime_id < anime_genre_ref.anime_id
+Ref: genres.genre_id > anime_genre_ref.genre_id
+
+// Anime <> Studio
+Ref: anime.anime_id < anime_studio_ref.anime_id
+Ref: studios.studio_id > anime_studio_ref.studio_id
+
+// Anime <> Theme
+Ref: anime.anime_id < anime_theme_ref.anime_id
+Ref: themes.theme_id > anime_theme_ref.theme_id
+
+// Anime/User <> LastAccess
+Ref: anime.anime_id - last_access.id
+Ref: users.user_id - last_access.id
+
+
+
+// ~~ v4 upcoming ~~
+
+Table anime_content_adapters {
+  anime_id integer // key
+  unique_name varchar // key
+  persistent_storage varchar
+  is_selected boolean
+}
+
+Ref: anime_content_adapters.anime_id - anime.anime_id
+
+
+
+
+
+
+
+

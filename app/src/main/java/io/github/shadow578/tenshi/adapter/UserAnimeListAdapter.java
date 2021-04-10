@@ -13,18 +13,20 @@ import java.util.List;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.RecyclerAnimeListItemBinding;
-import io.github.shadow578.tenshi.lang.BiConsumer;
-import io.github.shadow578.tenshi.lang.Consumer;
+import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
+import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.concat;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvis;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.withRet;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvis;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withRet;
 
 /**
  * recycler view adapter for a list of {@link UserLibraryEntry}
@@ -84,7 +86,8 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
         b.animeTitle.setText(elvisEmpty(anime.anime.title, unknown));
 
         // score
-        b.animeScore.setText(elvis(withRet(anime.libraryStatus, p -> p.score != 0 ? fmt(p.score) : null), noValue));
+        with(anime.libraryStatus, st
+                -> b.animeScore.setText((notNull(st.score) && st.score > 0) ? fmt(st.score) : noValue));
 
         // watch progress
         int watchedEp = elvis(withRet(anime.libraryStatus, p -> p.watchedEpisodes), 0);
@@ -94,7 +97,13 @@ public class UserAnimeListAdapter extends RecyclerView.Adapter<UserAnimeListAdap
         b.animeEpisodesProgressBar.setMax(totalEp);
 
         // media status
-        b.animeStatus.setText(LocalizationHelper.localizeBroadcastStatus(anime.anime.broadcastStatus, ctx));
+        // mal seems to no longer include this one... hide it instead of showing "unknown"
+        if (isNull(anime.anime.broadcastStatus))
+            b.animeStatus.setVisibility(View.GONE);
+        else {
+            b.animeStatus.setVisibility(View.VISIBLE);
+            b.animeStatus.setText(LocalizationHelper.localizeBroadcastStatus(anime.anime.broadcastStatus, ctx));
+        }
 
         // setup onclick listener
         holder.itemView.setOnClickListener(view -> onClickListener.invoke(view, anime));

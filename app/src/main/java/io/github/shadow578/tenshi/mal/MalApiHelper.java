@@ -15,7 +15,6 @@ import java.util.Random;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.mal.model.ErrorResponse;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.secret.Secrets;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -24,11 +23,11 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.listOf;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * helper class for everything MAL api
@@ -58,7 +57,7 @@ public class MalApiHelper {
      */
     public static void doRefreshToken(@NonNull String refreshToken, @NonNull Callback<Token> callback) {
         final AuthService authService = MalApiHelper.createService(AuthService.class);
-        final Call<Token> refreshCall = authService.refreshAccessToken(Secrets.MAL_CLIENT_ID, "refresh_token", refreshToken);
+        final Call<Token> refreshCall = authService.refreshAccessToken(BuildConfig.MAL_CLIENT_ID, "refresh_token", refreshToken);
         refreshCall.enqueue(callback);
     }
 
@@ -141,12 +140,25 @@ public class MalApiHelper {
             // append to query string
             query.append(fieldName);
 
-            // if this field is a data type, include fields too
+            // setup sub- fields to query for this field
+            final StringBuilder subFields = new StringBuilder();
+
+            // if the fields type has @Data annotation, get fields from that and add them
             if (notNull(field.getType().getAnnotation(Data.class))) {
-                String subFields = getQueryableFields(field.getType());
-                if (!nullOrEmpty(subFields))
-                    query.append("{").append(subFields).append("}");
+                String sf = getQueryableFields(field.getType());
+                if (!nullOrEmpty(sf))
+                    subFields.append(sf);
             }
+
+            // if the field has @DataInclude annotation, add that too
+            final DataInclude di = field.getAnnotation(DataInclude.class);
+            if (notNull(di))
+                for (String include : di.includeFields())
+                    subFields.append(include);
+
+            // add subfields to query
+            if (subFields.length() > 0)
+                query.append("{").append(subFields.toString()).append("}");
 
             // comma for the next one
             query.append(",");

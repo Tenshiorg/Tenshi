@@ -1,0 +1,31 @@
+# Tenshi build settings example file
+# DO NOT check this file into git as it contains sensitive information (keystore password, client IDs, ...)
+
+# enable preview builds
+# on preview builds, the versionCode is set to the commit count
+# and versionName is set to the current commit SHA
+# this is used by the automatic preview build system. leave this false unless you know what you're doing
+PREVIEW_BUILD=false
+
+# MyAnimeList.net client ID
+# If you don't already have one, you can create it here: https://myanimelist.net/apiconfig
+MAL_CLIENT_ID=my_mal_client_id
+
+# OAUTH response redirect url to use (for MAL)
+# This has to match the value you set in your API client config
+OAUTH_REDIRECT_URL=tenshi://redirect.mal
+
+# signing config for assembleRelease
+# keystore file, may be relative (to /app directory, that is) like so: ..\\Your-KeyStore.jks
+# this example would require you to save your keystore in the project directory. use ..\\..\\Your-KeyStore.jks to go up another level
+# or just use a absolute path
+SIGN_STORE_FILE=..\\Your-KeyStore.jks
+
+# password of the keystore
+SIGN_STORE_PASSWORD=SuperS3cr3tPa55w0rd
+
+# key alias to use for signing the release
+SIGN_KEY_ALIAS=YourKeyAlias
+
+# password for the key
+SIGN_KEY_PASSWORD=An0th3rPa55w0rd

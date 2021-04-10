@@ -17,6 +17,7 @@ public interface AuthService {
      * @param code the code received from the PKCE OAUTH flow
      * @param verifier verifier code
      * @param grantType grant type, always "authorization_code"
+     * @param redirectUrl  redirect url
      * @return the token from MAL
      */
     @FormUrlEncoded
@@ -24,7 +25,8 @@ public interface AuthService {
     Call<Token> getAccessToken(@Field("client_id") String clientID,
                                @Field("code") String code,
                                @Field("code_verifier") String verifier,
-                               @Field("grant_type") String grantType);
+                               @Field("grant_type") String grantType,
+                               @Field("redirect_uri") String redirectUrl);
 
     /**
      * Refresh token endpoint

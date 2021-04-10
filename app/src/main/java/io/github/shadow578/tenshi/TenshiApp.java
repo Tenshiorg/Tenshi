@@ -8,6 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
+import io.github.shadow578.tenshi.db.TenshiDB;
+import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterManager;
 import io.github.shadow578.tenshi.mal.AuthInterceptor;
 import io.github.shadow578.tenshi.mal.CacheInterceptor;
 import io.github.shadow578.tenshi.mal.MALErrorInterceptor;
@@ -24,6 +29,8 @@ import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.ui.LoginActivity;
+import io.github.shadow578.tenshi.ui.MainActivity;
+import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.converter.GSONLocalDateAdapter;
 import io.github.shadow578.tenshi.util.converter.GSONLocalTimeAdapter;
@@ -39,12 +46,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.elvisEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.fmt;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.isNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * Tenshi Core logic
@@ -54,6 +63,11 @@ public class TenshiApp extends Application {
      * Singleton instance
      */
     public static TenshiApp INSTANCE;
+
+    /**
+     * global gson instance, with extra adapters
+     */
+    private Gson gson;
 
     /**
      * retrofit MAL api
@@ -71,14 +85,124 @@ public class TenshiApp extends Application {
      */
     private boolean currentlyRefreshingToken = false;
 
+    /**
+     * manager for content adapters
+     */
+    private ContentAdapterManager contentAdapterManager;
+
+    /**
+     * offline database of the app
+     */
+    private TenshiDB database;
+
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
 
+        // create app shortcuts
+        initAppShortcuts();
+
+        // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
+
+        // init database and start cleanup
+        database = TenshiDB.create(getApplicationContext());
+        cleanupDatabase();
+
+        // init and find content adapters
+        contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
+            @NonNull
+            @Override
+            public String getPersistentStorage(@NonNull String uniqueName, int animeId) {
+                return getDB().contentAdapterDB().getPersistentStorage(animeId, uniqueName);
+            }
+
+            @Override
+            public void setPersistentStorage(@NonNull String uniqueName, int animeId, @NonNull String persistentStorage) {
+                getDB().contentAdapterDB().setPersistentStorage(animeId, uniqueName, persistentStorage);
+            }
+        });
+        contentAdapterManager.discoverAndInit(false);
+        contentAdapterManager.addOnDiscoveryEndCallback(p
+                -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
     }
+
+    /**
+     * dynamically initialize the "static" app shortcuts
+     * because debug builds use a different app package, this is way less of a pain than using xml
+     */
+    private void initAppShortcuts() {
+        // create shortcut infos
+        // home
+        final ShortcutInfoCompat scHome = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_HOME")
+                .setShortLabel(getString(R.string.main_nav_title_home))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_home_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Home.name()))
+                .build();
+
+        // library
+        final ShortcutInfoCompat scLibrary = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_LIBRARY")
+                .setShortLabel(getString(R.string.main_nav_title_anime_list))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_anime_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Library.name()))
+                .build();
+
+        // profile
+        final ShortcutInfoCompat scProfile = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_PROFILE")
+                .setShortLabel(getString(R.string.main_nav_title_profile))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_profile_48))
+                .setIntent(new Intent(this, MainActivity.class)
+                        .setAction(MainActivity.Section.Profile.name()))
+                .build();
+
+        // search
+        final ShortcutInfoCompat scSearch = new ShortcutInfoCompat.Builder(this, "TENSHI_STATIC_SEARCH")
+                .setShortLabel(getString(R.string.main_nav_title_search))
+                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_shortcut_search_48))
+                .setIntent(new Intent(this, SearchActivity.class)
+                        .setAction(Intent.ACTION_VIEW))
+                .build();
+
+        // add the shortcuts
+        if (!ShortcutManagerCompat.addDynamicShortcuts(this, listOf(scSearch, scProfile, scLibrary, scHome)))
+            Log.w("Tenshi", "failed to add static app shortcuts!");
+    }
+
+    /**
+     * cleanup the database
+     */
+    public void cleanupDatabase() {
+        async(() -> {
+            final int removedEntities = database.cleanupDatabase();
+            Log.i("Tenshi", fmt("Database cleanup finished with %d entities removed", removedEntities));
+        });
+    }
+
+    /**
+     * deletes user auth data, database and all that stuff for logout
+     * <p>
+     * Deletes:
+     * <li>AuthToken (prefs and {@link #token}</li>
+     * <li>UserID (prefs)</li>
+     * <li>Database (all tables)</li>
+     */
+    public void deleteUserData() {
+        // clear auth token
+        TenshiPrefs.clear(TenshiPrefs.Key.AuthToken);
+        token = null;
+
+        // clear saved user id
+        TenshiPrefs.clear(TenshiPrefs.Key.UserID);
+
+        // clear database (my_list_status is invalid after user switch)
+        async(() -> database.clearAllTables());
+    }
+
+    // region AUTH
 
     /**
      * try to load the auth token from prefs and initialize the MAL service
@@ -103,23 +227,14 @@ public class TenshiApp extends Application {
     }
 
     /**
-     * invalidate and remove the saved auth token.
-     * you could also call this "logout"
-     */
-    public void invalidateToken() {
-        TenshiPrefs.clear(TenshiPrefs.Key.AuthToken);
-        token = null;
-    }
-
-    /**
      * invalidate and remove the saved auth token, then redirect to the Login activity
      * you could also call this "logout"
      *
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
     public void invalidateTokenAndLogin(@NonNull Activity ctx) {
-        // invalidate token
-        invalidateToken();
+        // delete the user's data
+        deleteUserData();
 
         // show toast
         Toast.makeText(ctx, R.string.login_toast_session_expired, Toast.LENGTH_SHORT).show();
@@ -177,6 +292,9 @@ public class TenshiApp extends Application {
             }
         });
     }
+    //endregion
+
+    // region Init API
 
     /**
      * create the MAL service retrofit instance.
@@ -192,25 +310,12 @@ public class TenshiApp extends Application {
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Urls.API)
                 .addConverterFactory(new RetrofitEnumConverterFactory())
-                .addConverterFactory(GsonConverterFactory.create(createGson()))
+                .addConverterFactory(GsonConverterFactory.create(getGson()))
                 .client(client)
                 .build();
 
         // create service
         mal = retrofit.create(MalService.class);
-    }
-
-    /**
-     * create a Gson instance with required adapters for MAL api
-     *
-     * @return the gson instance
-     */
-    private Gson createGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new GSONLocalDateAdapter().nullSafe())
-                .registerTypeAdapter(LocalTime.class, new GSONLocalTimeAdapter().nullSafe())
-                .registerTypeAdapter(ZonedDateTime.class, new GSONZonedDateTimeAdapter().nullSafe())
-                .create();
     }
 
     /**
@@ -255,6 +360,7 @@ public class TenshiApp extends Application {
         long cacheSize = 50 * 1024 * 1024; // 50MiB
         return new Cache(getCacheDir(), cacheSize);
     }
+    //endregion
 
     //region Static Access
 
@@ -273,6 +379,22 @@ public class TenshiApp extends Application {
     }
 
     /**
+     * @return the global GSON instance, with additional adapters
+     */
+    @NonNull
+    public static Gson getGson() {
+        if (isNull(INSTANCE.gson)) {
+            INSTANCE.gson = new GsonBuilder()
+                    .registerTypeAdapter(LocalDate.class, new GSONLocalDateAdapter().nullSafe())
+                    .registerTypeAdapter(LocalTime.class, new GSONLocalTimeAdapter().nullSafe())
+                    .registerTypeAdapter(ZonedDateTime.class, new GSONZonedDateTimeAdapter().nullSafe())
+                    .create();
+        }
+
+        return INSTANCE.gson;
+    }
+
+    /**
      * @return the global MAL api service
      */
     @NonNull
@@ -281,8 +403,25 @@ public class TenshiApp extends Application {
     }
 
     /**
+     * @return the content adapter manager instance
+     */
+    @NonNull
+    public static ContentAdapterManager getContentAdapterManager() {
+        return INSTANCE.contentAdapterManager;
+    }
+
+    /**
+     * @return the offline database instance
+     */
+    @NonNull
+    public static TenshiDB getDB() {
+        return INSTANCE.database;
+    }
+
+    /**
      * @return is a user authenticated and we have a access token?
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isUserAuthenticated() {
         return notNull(INSTANCE.token) && !nullOrWhitespace(INSTANCE.token.token);
     }

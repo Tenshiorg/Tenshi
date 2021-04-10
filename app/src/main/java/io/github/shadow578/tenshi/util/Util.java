@@ -8,7 +8,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * general util class

@@ -18,7 +18,7 @@ import java.util.List;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.RecyclerThemeBinding;
 import io.github.shadow578.tenshi.mal.model.Theme;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.*;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
 /**
  * recycler view adapter for a list of {@link Theme}

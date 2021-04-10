@@ -1,5 +1,7 @@
 package io.github.shadow578.tenshi.mal.model;
 
+import androidx.room.ColumnInfo;
+
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
 /**
@@ -9,11 +11,13 @@ public final class Season {
     /**
      * the season of the year
      */
+    @ColumnInfo(name = "season")
     public YearSeason season;
 
     /**
      * four digit year
      */
+    @ColumnInfo(name = "year")
     public int year;
 
     public Season(int year, YearSeason season) {

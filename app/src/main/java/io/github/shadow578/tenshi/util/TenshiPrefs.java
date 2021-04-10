@@ -9,8 +9,8 @@ import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
+
 
 /**
  * Helper class for loading / saving to shared preferences
@@ -62,7 +62,7 @@ public class TenshiPrefs {
         /**
          * are debug options enabled in Settings?
          */
-        ShowDebugOptions
+        ShowDeveloperOptions
     }
 
     /**

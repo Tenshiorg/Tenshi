@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- advanced build info -->
+    <PreferenceCategory android:title="Build Info (Tenshi)">
+        <!-- versionName -->
+        <Preference
+            android:key="dbg_version_name"
+            android:title="Version Name" />
+
+        <!-- versionCode -->
+        <Preference
+            android:key="dbg_version_code"
+            android:title="Version Code" />
+
+        <!-- build type -->
+        <Preference
+            android:key="dbg_build_type"
+            android:title="Build Type" />
+
+        <!-- Build Date -->
+        <Preference
+            android:key="dbg_build_date"
+            android:title="Bulid Time (UTC)" />
+
+        <!-- commit sha -->
+        <Preference
+            android:key="dbg_commit_sha"
+            android:title="Commit SHA" />
+
+        <!-- commit count -->
+        <Preference
+            android:key="dbg_commit_count"
+            android:title="Commit Count" />
+
+    </PreferenceCategory>
+
+    <!-- advanced build info -->
+    <PreferenceCategory android:title="Build Info (ExtensionLib)">
+        <!-- extensionLib: build type -->
+        <Preference
+            android:key="dbg_extlib_build_type"
+            android:title="ExtensionLib Build Type" />
+
+        <!-- extensionLib: ContentAdapter API level -->
+        <Preference
+            android:key="dbg_content_api_level"
+            android:title="Content Adapter API Level" />
+
+    </PreferenceCategory>
+
+    <!-- general functions -->
+    <PreferenceCategory android:title="Crashes">
+        <!-- throw expection in UI -->
+        <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
+            android:key="dbg_exception_in_ui"
+            android:summary="Long Press to throw"
+            android:title="Throw Exception in UI Thread" />
+
+        <!-- throw expection in background -->
+        <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
+            android:key="dbg_exception_in_async"
+            android:summary="Long Press to throw"
+            android:title="Throw Exception in Background Thread" />
+
+    </PreferenceCategory>
+
+    <!-- database functions -->
+    <PreferenceCategory android:title="Database">
+        <!-- export database -->
+        <Preference
+            android:key="dbg_export_database"
+            android:title="Export Database" />
+
+        <!-- cleanup database -->
+        <Preference
+            android:key="dgb_cleanup_database"
+            android:title="Clean Up Database" />
+
+        <!-- delete database -->
+        <Preference
+            android:key="dbg_delete_database"
+            android:title="Delete Database" />
+    </PreferenceCategory>
+
+    <!-- content adapter functions -->
+    <PreferenceCategory
+        android:key="dbg_content_adapters_container"
+        android:title="Content Adapters" />
+
+    <!-- all preferences in the key enum, dynamic -->
+    <PreferenceCategory
+        android:key="dbg_prefs_of_enum"
+        android:title="Shared Preferences of TenshiPrefs.Key" />
+
+    <!-- all preferences that are not in Key enum, dynamic -->
+    <PreferenceCategory
+        android:key="dbg_prefs_other"
+        android:title="Other Shared Preferences" />
+</PreferenceScreen>

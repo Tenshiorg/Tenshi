@@ -24,14 +24,16 @@ import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.AnimeList;
 import io.github.shadow578.tenshi.mal.model.AnimeListItem;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
+import io.github.shadow578.tenshi.util.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-import static io.github.shadow578.tenshi.lang.LanguageUtils.notNull;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.nullOrEmpty;
-import static io.github.shadow578.tenshi.lang.LanguageUtils.with;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
  * anime search activity
@@ -52,6 +54,9 @@ public class SearchActivity extends TenshiActivity {
 
         // check user is logged in, redirect to login and finish() if not
         requireUserAuthenticated();
+
+        // notify user if offline
+        showSnackbarIfOffline(b.getRoot());
 
         // setup status & actionbar
         setSupportActionBar(b.searchToolbar);
@@ -99,7 +104,24 @@ public class SearchActivity extends TenshiActivity {
      * @param query the search query
      */
     private void searchAnime(@NonNull String query) {
+        // clear previous results & show loading indicator
+        searchResults.clear();
         b.searchLoadingIndicator.show();
+
+        // if we are offline search using the db
+        if (Util.getConnectionType(this).equals(Util.ConnectionType.None))
+            async(() -> TenshiApp.getDB().animeDB().searchAnime(query), results -> {
+                // only use search results from db if we dont already have results from MAL
+                // ... somehow
+                if (searchResults.isEmpty() && notNull(results)) {
+                    searchResults.addAll(results);
+                    searchAdapter.notifyDataSetChanged();
+                    b.noResultText.setVisibility(View.GONE);
+                    b.searchLoadingIndicator.hide();
+                }
+            });
+
+        // search MAL
         final int showNSFW = TenshiPrefs.getBool(TenshiPrefs.Key.NSFW, false) ? 1 : 0;
         TenshiApp.getMal().searchAnime(query, null, showNSFW, REQUEST_FIELDS)
                 .enqueue(new Callback<AnimeList>() {
@@ -110,9 +132,9 @@ public class SearchActivity extends TenshiActivity {
                         TenshiApp.malReauthCallback(SearchActivity.this, response);
 
                         if (response.isSuccessful()) {
-                            // clear previous results & hide loading indicator
-                            b.searchLoadingIndicator.hide();
+                            // clear previous results (from db) & hide loading indicator
                             searchResults.clear();
+                            b.searchLoadingIndicator.hide();
 
                             AnimeList result = response.body();
                             if (notNull(result) && !nullOrEmpty(result.items)) {

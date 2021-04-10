@@ -1,5 +1,5 @@
 .exclude/
-app/src/main/java/io/github/shadow578/tenshi/secret/Secrets.java
+/app/build.properties
 
 # AS default
 *.iml

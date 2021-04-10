@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:background="?attr/colorSurface"
         android:transitionName="transition_app_toolbar"
-        app:title="Settings" />
+        app:title="@string/settings_title" />
 
     <!-- divider -->
     <View

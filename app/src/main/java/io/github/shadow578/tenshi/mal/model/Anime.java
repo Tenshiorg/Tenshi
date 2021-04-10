@@ -1,6 +1,12 @@
 package io.github.shadow578.tenshi.mal.model;
 
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -9,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.github.shadow578.tenshi.mal.Data;
+import io.github.shadow578.tenshi.mal.DataInclude;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.ContentRating;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
@@ -20,11 +27,17 @@ import io.github.shadow578.tenshi.mal.model.type.Source;
  */
 @SuppressWarnings({"unused", "RedundantSuppression"})
 @Data
+@Entity(tableName = "anime",
+        indices = {
+                @Index(value = "anime_id", unique = true)
+        })
 public final class Anime {
     /**
      * the id of this anime
      */
     @SerializedName("id")
+    @ColumnInfo(name = "anime_id")
+    @PrimaryKey
     public int animeId;
 
     /**
@@ -32,6 +45,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("alternative_titles")
+    @Embedded(prefix = "alternative_titles_")
     public TitleSynonyms titleSynonyms;
 
     /**
@@ -39,6 +53,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("average_episode_duration")
+    @ColumnInfo(name = "average_episode_duration")
     public Integer averageEpisodeDuration;
 
     /**
@@ -46,6 +61,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("broadcast")
+    @Embedded(prefix = "broadcast_")
     public BroadcastInfo broadcastInfo;
 
     /**
@@ -53,6 +69,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("created_at")
+    @ColumnInfo(name = "created_at")
     public ZonedDateTime createdAt;
 
     /**
@@ -60,12 +77,14 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("end_date")
+    @ColumnInfo(name = "end_date")
     public LocalDate endDate;
 
     /**
      * genres of the anime
      */
     @Nullable
+    @Ignore
     public List<Genre> genres;
 
     /**
@@ -73,6 +92,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("main_picture")
+    @Embedded(prefix = "main_picture_")
     public Image poster;
 
     /**
@@ -80,6 +100,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("mean")
+    @ColumnInfo(name = "mean")
     public Double meanScore;
 
     /**
@@ -87,12 +108,14 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("media_type")
+    @ColumnInfo(name = "media_type")
     public MediaType mediaType;
 
     /**
      * how NSFW this anime is
      */
     @Nullable
+    @ColumnInfo(name = "nsfw")
     public NSFWRating nsfw;
 
     /**
@@ -100,6 +123,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("num_episodes")
+    @ColumnInfo(name = "num_episodes")
     public Integer episodesCount;
 
     /**
@@ -107,6 +131,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("num_favorites")
+    @ColumnInfo(name = "num_favorites")
     public Integer favoritesCount;
 
     /**
@@ -114,6 +139,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("num_list_users")
+    @ColumnInfo(name = "num_list_users")
     public Integer listUsersCount;
 
     /**
@@ -121,18 +147,21 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("num_scoring_users")
+    @ColumnInfo(name = "num_scoring_users")
     public Integer userVotesCount;
 
     /**
      * popularity rank of this anime
      */
     @Nullable
+    @ColumnInfo(name = "popularity")
     public Integer popularity;
 
     /**
      * the global rank of this anime
      */
     @Nullable
+    @ColumnInfo(name = "rank")
     public Integer rank;
 
     /**
@@ -140,6 +169,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("start_date")
+    @ColumnInfo(name = "start_date")
     public LocalDate startDate;
 
     /**
@@ -147,6 +177,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("start_season")
+    @Embedded(prefix = "start_season_")
     public Season startSeason;
 
     /**
@@ -154,12 +185,14 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("status")
+    @ColumnInfo(name = "status")
     public BroadcastStatus broadcastStatus;
 
     /**
      * synopsis of this anime
      */
     @Nullable
+    @ColumnInfo(name = "synopsis")
     public String synopsis;
 
     /**
@@ -167,18 +200,21 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("source")
+    @ColumnInfo(name = "source")
     public Source originalSource;
 
     /**
      * studios that worked on this anime
      */
     @Nullable
+    @Ignore
     public List<Studio> studios;
 
     /**
      * the canonical title of this anime
      */
     @Nullable
+    @ColumnInfo(name = "title")
     public String title;
 
     /**
@@ -186,6 +222,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("updated_at")
+    @ColumnInfo(name = "updated_at")
     public ZonedDateTime lastUpdate;
 
     /**
@@ -193,6 +230,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("my_list_status")
+    @Embedded(prefix = "my_list_status_")
     public LibraryStatus userListStatus;
 
     /**
@@ -200,20 +238,25 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("background")
+    @ColumnInfo(name = "background")
     public String backgroundStory;
 
     /**
      * a list of anime related to this anime
      */
     @Nullable
+    @DataInclude(includeFields = {"media_type"})
     @SerializedName("related_anime")
+    @Ignore
     public List<RelatedMedia> relatedAnime;
 
     /**
      * a list of manga related to this anime
      */
     @Nullable
+    @DataInclude(includeFields = {"media_type"})
     @SerializedName("related_manga")
+    @Ignore
     public List<RelatedMedia> relatedManga;
 
     /**
@@ -221,6 +264,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("rating")
+    @ColumnInfo(name = "rating")
     public ContentRating pgRating;
 
     /**
@@ -228,12 +272,14 @@ public final class Anime {
      * This includes the poster (main_picture), but also stuff like alternative pictures
      */
     @Nullable
+    @ColumnInfo(name = "pictures")
     public List<Image> pictures;
 
     /**
      * a list of recommended anime and manga
      */
     @Nullable
+    @Ignore
     public List<RecommendedMedia> recommendations;
 
     /**
@@ -241,6 +287,7 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("opening_themes")
+    @Ignore
     public List<Theme> openingThemes;
 
     /**
@@ -248,5 +295,6 @@ public final class Anime {
      */
     @Nullable
     @SerializedName("ending_themes")
+    @Ignore
     public List<Theme> endingThemes;
 }

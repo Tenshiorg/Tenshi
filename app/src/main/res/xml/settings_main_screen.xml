@@ -1,45 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Primary preferences -->
-    <PreferenceCategory android:title="Settings">
+    <PreferenceCategory android:title="@string/settings_section_main">
 
         <!-- App Theme -->
         <ListPreference
             android:key="Theme"
-            android:summary="App Theme"
-            android:title="Theme" />
+            android:summary="@string/settings_theme_summary"
+            android:title="@string/settings_theme_title" />
+
+        <!-- Startup Section-->
+        <ListPreference
+            android:key="StartupSection"
+            android:summary="@string/settings_start_section_summary"
+            android:title="@string/settings_start_section_title" />
 
         <!-- Show NSFW -->
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="NSFW"
-            android:summaryOff="NSFW content is hidden"
-            android:summaryOn="NSFW content is visible"
-            android:title="Show NSFW" />
-
-        <!-- Startup Section-->
-        <ListPreference
-            android:key="StartupSection"
-            android:summary="Tab to open when the app opens"
-            android:title="Startup Section" />
+            android:summaryOff="@string/settings_nsfw_toggle_off"
+            android:summaryOn="@string/settings_nsfw_toggle_on"
+            android:title="@string/settings_nsfw_toggle_title" />
 
         <!-- logout -->
         <Preference
             android:key="logout_btn"
-            android:title="Logout"
-            android:summary="Logout from MAL"/>
+            android:summary="@string/settings_logout_summary"
+            android:title="@string/settings_logout_title" />
+
+        <!-- reset preferences -->
+        <Preference
+            android:key="reset_prefs_btn"
+            android:summary="@string/settings_reset_prefs_summary"
+            android:title="@string/settings_reset_prefs_title" />
+
+        <!-- developer options -->
+        <Preference
+            android:key="dev_options_btn"
+            android:summary="@string/settings_dev_options_summary"
+            android:title="@string/settings_dev_options_title"
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
     </PreferenceCategory>
 
     <!-- App information-->
-    <PreferenceCategory android:title="Info">
+    <PreferenceCategory android:title="@string/settings_section_info">
         <!-- App Version -->
         <Preference
             android:key="app_version"
-            android:title="App Version" />
-    </PreferenceCategory>
+            android:title="@string/settings_app_version_title" />
 
-    <!-- Debug preferences, dynamically populated -->
-    <PreferenceCategory android:title="DEBUG" android:key="dbg_debug_category">
+        <!-- Build Date -->
+        <Preference
+            android:key="app_build_date"
+            android:title="@string/settings_app_build_date_title" />
+
+        <!-- About Libraries -->
+        <Preference
+            android:key="about_libraries"
+            android:summary="@string/settings_about_libraries_summary"
+            android:title="@string/settings_about_libraries_title" />
     </PreferenceCategory>
 </PreferenceScreen>
