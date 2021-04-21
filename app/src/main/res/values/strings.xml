@@ -94,12 +94,16 @@
     <string name="details_menu_share">Share</string>
     <!-- endregion -->
 
-    <!-- region Login Activity -->
-    <string name="login_title">Login</string>
+    <!-- region Onboarding Activity -->
+    <string name="onboarding_title">Onboarding</string>
+    <string name="onboarding_snack_login_error">Login Error</string>
+
+    <!-- region Login Fragment -->
     <string name="login_login">Login</string>
     <string name="login_snack_login_error">Login error</string>
-    <string name="login_toast_browser_warn">Try with another browser if you can\'t login.</string>
     <string name="login_toast_session_expired">Session Expired, please log in again</string>
+    <!-- endregion -->
+
     <!-- endregion -->
 
     <!-- region Search Activity -->

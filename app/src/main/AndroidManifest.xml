@@ -33,9 +33,9 @@
         </activity>
 
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="keyboard|orientation|screenSize"
-            android:label="@string/login_title"
+            android:label="@string/onboarding_title"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -28,9 +28,9 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.ui.LoginActivity;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
+import io.github.shadow578.tenshi.ui.onboarding.OnboardingActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.converter.GSONLocalDateAdapter;
 import io.github.shadow578.tenshi.util.converter.GSONLocalTimeAdapter;
@@ -240,7 +240,7 @@ public class TenshiApp extends Application {
         Toast.makeText(ctx, R.string.login_toast_session_expired, Toast.LENGTH_SHORT).show();
 
         // go to login activity
-        Intent i = new Intent(ctx, LoginActivity.class);
+        Intent i = new Intent(ctx, OnboardingActivity.class);
         ctx.startActivity(i);
         ctx.finish();
     }

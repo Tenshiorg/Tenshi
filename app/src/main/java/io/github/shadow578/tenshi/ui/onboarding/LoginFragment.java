@@ -1,10 +1,12 @@
-package io.github.shadow578.tenshi.ui;
+package io.github.shadow578.tenshi.ui.onboarding;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +19,13 @@ import java.net.URLEncoder;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.databinding.ActivityLoginBinding;
+import io.github.shadow578.tenshi.databinding.FragmentLoginBinding;
+import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.AuthService;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
+import io.github.shadow578.tenshi.ui.fragments.TenshiFragment;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,24 +36,29 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
-/**
- * The activity that handles logging in
- */
-public class LoginActivity extends TenshiActivity {
-    private ActivityLoginBinding b;
+public class LoginFragment extends TenshiFragment {
+    @Nullable
+    private Consumer<Boolean> loginListener;
+
+    private FragmentLoginBinding b;
     private String oauthState;
     private String verifierCode;
     private Token token;
 
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        b = ActivityLoginBinding.inflate(getLayoutInflater());
-        setContentView(b.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        b = FragmentLoginBinding.inflate(inflater, container, false);
+        return b.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
 
         // notify user if offline
         // TODO: maybe a bit more on the login activity...
-        showSnackbarIfOffline(b.getRoot());
+        //showSnackbarIfOffline(b.getRoot());
 
         // hide loading indicator
         b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -72,24 +81,30 @@ public class LoginActivity extends TenshiActivity {
                     "&code_challenge_method=plain");
 
             // open login form
-            CustomTabsHelper.openInCustomTab(this, loginUri);
-        });
-
-        // check if this is the login response
-        with(getIntent().getData(), redirectUri -> {
-            if (redirectUri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
-                getLoginData(redirectUri);
+            CustomTabsHelper.openInCustomTab(requireActivity(), loginUri);
         });
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
+    /**
+     * call this from the host activity's onNewIntent
+     *
+     * @param intent the new intent
+     */
+    public void onNewIntent(Intent intent) {
         // check if this is the login response
         with(intent.getData(), redirectUri -> {
             if (redirectUri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
                 getLoginData(redirectUri);
         });
+    }
+
+    /**
+     * set a listener for when login finished
+     *
+     * @param listener the listener to set
+     */
+    public void setLoginListener(@Nullable Consumer<Boolean> listener) {
+        loginListener = listener;
     }
 
     /**
@@ -120,12 +135,12 @@ public class LoginActivity extends TenshiActivity {
                         // save the token to prefs and re- init with the new token
                         TenshiApp.INSTANCE.setTokenAndTryAuthInit(token);
 
-                        // open the main activity
-                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivityForResult(i, MainActivity.REQUEST_LOGIN);
+                        // call listener
+                        with(loginListener, l -> l.invoke(true));
                     } else {
                         Log.w("Tenshi", "Token is null");
                         Snackbar.make(b.loginLayout, "Error: Token is null", Snackbar.LENGTH_SHORT).show();
+                        with(loginListener, l -> l.invoke(false));
                     }
                 }
 
@@ -134,12 +149,14 @@ public class LoginActivity extends TenshiActivity {
                 public void onFailure(Call<Token> call, Throwable t) {
                     Log.w("Tenshi", t.toString());
                     Snackbar.make(b.loginLayout, R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
+                    with(loginListener, l -> l.invoke(false));
                 }
             });
 
         } else if (!nullOrEmpty(uri.getQueryParameter("error"))) {
             b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
             Snackbar.make(b.loginLayout, R.string.login_snack_login_error, Snackbar.LENGTH_LONG).show();
+            with(loginListener, l -> l.invoke(false));
         }
     }
 

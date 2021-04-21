@@ -130,11 +130,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.animeDetailsToolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         // make sure we're logged in
-        if (!TenshiApp.isUserAuthenticated()) {
-            Intent i = new Intent(this, LoginActivity.class);
-            startActivity(i);
-            finish();
-        }
+        requireUserAuthenticated();
 
         // get anime id from intent extra first
         animeID = getIntent().getIntExtra(EXTRA_ANIME_ID, -1);
