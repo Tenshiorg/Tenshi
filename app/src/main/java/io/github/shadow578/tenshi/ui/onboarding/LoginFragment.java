@@ -78,7 +78,8 @@ public class LoginFragment extends TenshiFragment {
                     "&state=", oauthState,
                     "&redirect_uri=", urlEncode(BuildConfig.MAL_OAUTH_REDIRECT_URL),
                     "&code_challenge=", verifierCode,
-                    "&code_challenge_method=plain");
+                    "&code_challenge_method=plain",
+                    "&force_logout=1");
 
             // open login form
             CustomTabsHelper.openInCustomTab(requireActivity(), loginUri);

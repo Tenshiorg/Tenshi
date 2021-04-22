@@ -45,9 +45,7 @@
 
                 <data
                     android:scheme="${redirect_scheme}"
-                    android:host="${redirect_host}"
-                    android:pathPattern="/.*"
-                    android:pathPrefix="/.*" />
+                    android:host="${redirect_host}" />
             </intent-filter>
         </activity>
 
