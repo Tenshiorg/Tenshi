@@ -10,7 +10,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Random;
 
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.mal.model.ErrorResponse;
@@ -33,21 +32,6 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrW
  * helper class for everything MAL api
  */
 public class MalApiHelper {
-    /**
-     * generate a random alphanumeric code with the given length.
-     *
-     * @param length the length of the code to generate
-     * @return the generated code
-     */
-    public static String getRandomCode(int length) {
-        final char[] CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-".toCharArray();
-        StringBuilder sb = new StringBuilder();
-        Random rnd = new Random();
-        for (int i = 0; i < length; i++)
-            sb.append(CHARS[rnd.nextInt(CHARS.length)]);
-
-        return sb.toString();
-    }
 
     /**
      * refresh the OAUTH token using the given refresh token
