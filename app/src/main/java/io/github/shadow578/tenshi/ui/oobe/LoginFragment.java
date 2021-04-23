@@ -1,4 +1,4 @@
-package io.github.shadow578.tenshi.ui.onboarding;
+package io.github.shadow578.tenshi.ui.oobe;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -20,13 +20,11 @@ import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.databinding.FragmentLoginBinding;
-import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.AuthHelper;
 import io.github.shadow578.tenshi.mal.AuthService;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.ui.fragments.TenshiFragment;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,18 +35,22 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
-public class LoginFragment extends TenshiFragment {
+/**
+ * Onboarding fragment that handles MAL login and token exchange.
+ * Once the token is obtained, {@link TenshiApp#setTokenAndTryAuthInit(Token)} is called to initialize the api components.
+ * Following api init, OnSuccess listener is invoked.
+ *
+ * If any of the login steps fails, a Snackbar is shown to the user to inform of the error, and the OnFail listener is invoked.
+ */
+public class LoginFragment extends OnboardingFragment {
 
     /**
      * use code_challenge_method=plain? or S256?
-     *
+     * <p>
      * MAL currently only supports plain, but for the future, we are safe
      */
     @SuppressWarnings("FieldCanBeLocal")
     private final boolean USE_PLAIN_CODE_CHALLENGE = true;
-
-    @Nullable
-    private Consumer<Boolean> loginListener;
 
     private FragmentLoginBinding b;
     private Token token;
@@ -83,15 +85,6 @@ public class LoginFragment extends TenshiFragment {
             if (redirectUri.toString().startsWith(BuildConfig.MAL_OAUTH_REDIRECT_URL))
                 getLoginData(redirectUri);
         });
-    }
-
-    /**
-     * set a listener for when login finished
-     *
-     * @param listener the listener to set
-     */
-    public void setLoginListener(@Nullable Consumer<Boolean> listener) {
-        loginListener = listener;
     }
 
     /**
@@ -147,11 +140,11 @@ public class LoginFragment extends TenshiFragment {
                                 TenshiApp.INSTANCE.setTokenAndTryAuthInit(token);
 
                                 // call listener
-                                with(loginListener, l -> l.invoke(true));
+                                invokeSuccessListener();
                             } else {
                                 Log.w("Tenshi", "Token is null");
                                 Snackbar.make(b.loginLayout, "Error: Token is null", Snackbar.LENGTH_SHORT).show();
-                                with(loginListener, l -> l.invoke(false));
+                                invokeFailListener();
                             }
                         }
 
@@ -160,14 +153,14 @@ public class LoginFragment extends TenshiFragment {
                         public void onFailure(Call<Token> call, Throwable t) {
                             Log.w("Tenshi", t.toString());
                             Snackbar.make(b.loginLayout, R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
-                            with(loginListener, l -> l.invoke(false));
+                            invokeFailListener();
                         }
                     });
 
         } else if (!nullOrEmpty(uri.getQueryParameter("error"))) {
             b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
             Snackbar.make(b.loginLayout, R.string.login_snack_login_error, Snackbar.LENGTH_LONG).show();
-            with(loginListener, l -> l.invoke(false));
+            invokeFailListener();
         }
     }
 

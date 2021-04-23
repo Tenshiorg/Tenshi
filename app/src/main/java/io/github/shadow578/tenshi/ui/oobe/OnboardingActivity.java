@@ -1,9 +1,11 @@
-package io.github.shadow578.tenshi.ui.onboarding;
+package io.github.shadow578.tenshi.ui.oobe;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -35,16 +37,18 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
  * activity that handles initial onboarding, including:
+ * - MAL api check
  * - login
  * - initial configuration
  * - data preloading (user library and profile)
  */
 public class OnboardingActivity extends TenshiActivity {
     /**
-     * extra to only handle login, skipping the rest of onboarding
-     * boolean
+     * extra to only handle login, skipping the rest of onboarding; boolean
+     * <p>
+     * TODO skip full onboarding when already logged in / just require reauth
      */
-    public static String EXTRA_ONLY_LOGIN = "onlyLogin";
+    public static final String EXTRA_ONLY_LOGIN = "onlyLogin";
 
     /**
      * the current onboarding state
@@ -53,20 +57,20 @@ public class OnboardingActivity extends TenshiActivity {
 
     private enum State {
         /**
+         * connection check (device online, MAL api reachable)
+         */
+        ConnectionCheck,
+
+        /**
          * login to MAL.
          * after login is finished, start fetching data in the background
          */
         Login,
 
         /**
-         * let user select the app theme
+         * initial configuration, material self- select style
          */
-        Theme,
-
-        /**
-         * let user set NSFW preference
-         */
-        NSFW,
+        Configuration,
 
         /**
          * Onboarding finished. maybe wait until background fetch finished, then open main activity
@@ -84,9 +88,9 @@ public class OnboardingActivity extends TenshiActivity {
      */
     private boolean onlyLogin = false;
 
+    private final OnlineCheckFragment onlineCheckFragment = new OnlineCheckFragment();
     private final LoginFragment loginFragment = new LoginFragment();
-    private final ThemeSelectFragment themeSelectFragment = new ThemeSelectFragment();
-    private final NSFWSelectFragment nsfwSelectFragment = new NSFWSelectFragment();
+    private final InitialConfigurationFragment configurationFragment = new InitialConfigurationFragment();
     private ActivityOnboardingBinding b;
 
     @Override
@@ -102,8 +106,11 @@ public class OnboardingActivity extends TenshiActivity {
         setFragmentTransitions();
         setFragmentEvents();
 
-        // go to login activity
-        updateState(State.Login);
+        // hide loading for final state
+        setFinishingStateLoadingVisible(false);
+
+        // go to online check
+        updateState(State.ConnectionCheck);
     }
 
     @Override
@@ -128,23 +135,24 @@ public class OnboardingActivity extends TenshiActivity {
         Fragment target;
         switch (state) {
             default:
+            case ConnectionCheck:
+                target = onlineCheckFragment;
+                break;
             case Login:
                 target = loginFragment;
                 break;
-            case Theme:
-                target = themeSelectFragment;
-                break;
-            case NSFW:
-                target = nsfwSelectFragment;
+            case Configuration:
+                target = configurationFragment;
                 break;
             case Finished:
+                setFinishingStateLoadingVisible(true);
                 maybeContinueToMain();
                 return;
         }
 
         // switch to the fragment
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_fragment_container, target)
+                .replace(R.id.fragment_container, target)
                 .commit();
     }
 
@@ -155,48 +163,64 @@ public class OnboardingActivity extends TenshiActivity {
         // prepare common transition for all fragments
         final MaterialFadeThrough f = new MaterialFadeThrough();
 
+        // connection check
+        onlineCheckFragment.setEnterTransition(f);
+        onlineCheckFragment.setExitTransition(f);
+
         // login
         loginFragment.setEnterTransition(f);
         loginFragment.setExitTransition(f);
 
-        // theme
-        themeSelectFragment.setEnterTransition(f);
-        themeSelectFragment.setExitTransition(f);
-
-        // nsfw
-        nsfwSelectFragment.setEnterTransition(f);
-        nsfwSelectFragment.setExitTransition(f);
+        // config
+        configurationFragment.setEnterTransition(f);
+        configurationFragment.setExitTransition(f);
     }
 
     /**
      * initialize events for all fragments
      */
     private void setFragmentEvents() {
-        // login
-        loginFragment.setLoginListener(success -> {
-            if (success) {
-                // initialize api, if failed redirect to login (should not happen...)
-                TenshiApp.INSTANCE.tryAuthInit();
-                requireUserAuthenticated();
-
-                // TODO: as onboarding fragments are not yet in place, onlyLogin is overwritten for now
-                onlyLogin = true;
-
-                if (onlyLogin) {
-                    // done, finish now
-                    fetchFinished = true;
-                    updateState(State.Finished);
-                } else {
-                    // start fetching data
-                    fetchUserData();
-
-                    // continue to theme selection fragment
-                    updateState(State.Theme);
-                }
-            }
-            // if not success, fragment has already shown error cause in a snackbar, so we don't do anything
+        // online check
+        onlineCheckFragment.setOnSuccessListener(() -> {
+            // continue to login
+            updateState(State.Login);
         });
 
+        // login
+        // on fail, we don't have to do anything more, as the fragment already shows error info
+        loginFragment.setOnSuccessListener(() -> {
+            // initialize api, if failed redirect to login (should not happen...)
+            TenshiApp.INSTANCE.tryAuthInit();
+            requireUserAuthenticated();
+
+            if (onlyLogin) {
+                // done, finish now
+                fetchFinished = true;
+                updateState(State.Finished);
+            } else {
+                // start fetching data
+                // this calls afterUserProfileFetched() after the user profile was fetched,
+                // which then updates and shows the configuration fragment
+                fetchUserData();
+            }
+        });
+
+        // config
+        configurationFragment.setOnSuccessListener(() -> {
+            // config is done, continue to main once library fetch finished
+            updateState(State.Finished);
+        });
+    }
+
+    /**
+     * called after the user profile finished fetching in {@link #fetchUserData()}
+     *
+     * @param user the user data fetched
+     */
+    private void afterUserProfileFetched(@NonNull User user) {
+        // continue to configuration selection fragment
+        configurationFragment.setUserDetails(user);
+        updateState(State.Configuration);
     }
 
     /**
@@ -221,6 +245,9 @@ public class OnboardingActivity extends TenshiActivity {
 
                             // save user ID to prefs
                             TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);
+
+                            // continue ui
+                            afterUserProfileFetched(user);
                         }
                     }
 
@@ -253,7 +280,7 @@ public class OnboardingActivity extends TenshiActivity {
 
         // fetch library, all statuses; swallow errors
         final String LIB_FIELDS = "main_picture,title,list_status{score},num_episodes,status,nsfw";
-        TenshiApp.getMal().getCurrentUserLibrary(null, LibrarySortMode.anime_id, LIB_FIELDS, 1)
+        TenshiApp.getMal().getCurrentUserLibrary(null, LibrarySortMode.anime_title, LIB_FIELDS, 1)
                 .enqueue(new Callback<UserLibraryList>() {
                     @Override
                     @EverythingIsNonNull
@@ -297,5 +324,20 @@ public class OnboardingActivity extends TenshiActivity {
             Intent i = new Intent(this, MainActivity.class);
             startActivityForResult(i, MainActivity.REQUEST_LOGIN);
         }
+    }
+
+    /**
+     * sets the visibility of all views related to the "Finished" state.
+     * This includes a loading indicator with text that is shown when user data is fetched in the background, but the user is already finished with all previous steps
+     *
+     * @param v currently in finished state?
+     */
+    private void setFinishingStateLoadingVisible(boolean v) {
+        // show or hide loading indicator + label
+        b.loadingIndicator.setVisibility(v ? View.VISIBLE : View.GONE);
+        b.loadingIndicatorLabel.setVisibility(v ? View.VISIBLE : View.GONE);
+
+        // hide or show the fragment container
+        b.fragmentContainer.setVisibility(v ? View.INVISIBLE : View.VISIBLE);
     }
 }

@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.ui.onboarding.OnboardingActivity;
+import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.Util;
 
@@ -55,7 +55,6 @@ public class TenshiActivity extends AppCompatActivity {
         if (!TenshiApp.isUserAuthenticated()) {
             // not logged in, redirect to login activity
             Intent i = new Intent(this, OnboardingActivity.class);
-            i.putExtra(OnboardingActivity.EXTRA_ONLY_LOGIN, true);
             startActivity(i);
             finish();
         }
