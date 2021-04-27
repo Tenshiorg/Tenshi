@@ -25,13 +25,17 @@ import io.github.shadow578.tenshi.mal.AuthService;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
+import io.github.shadow578.tenshi.mal.model.User;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
@@ -39,7 +43,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
  * Onboarding fragment that handles MAL login and token exchange.
  * Once the token is obtained, {@link TenshiApp#setTokenAndTryAuthInit(Token)} is called to initialize the api components.
  * Following api init, OnSuccess listener is invoked.
- *
+ * <p>
  * If any of the login steps fails, a Snackbar is shown to the user to inform of the error, and the OnFail listener is invoked.
  */
 public class LoginFragment extends OnboardingFragment {
@@ -67,6 +71,9 @@ public class LoginFragment extends OnboardingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
+        // reset shared user
+        shared.user = null;
+
         // hide loading indicator
         b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
 
@@ -74,6 +81,7 @@ public class LoginFragment extends OnboardingFragment {
         b.loginBtn.setOnClickListener(view -> openLoginPage());
     }
 
+    //region PCKE flow
     /**
      * call this from the host activity's onNewIntent
      *
@@ -109,7 +117,7 @@ public class LoginFragment extends OnboardingFragment {
     }
 
     /**
-     * get the login token from the response url
+     * get the login token from the response url, then load the user profile on success
      *
      * @param uri the response url from MAL
      */
@@ -139,8 +147,8 @@ public class LoginFragment extends OnboardingFragment {
                                 // save the token to prefs and re- init with the new token
                                 TenshiApp.INSTANCE.setTokenAndTryAuthInit(token);
 
-                                // call listener
-                                invokeSuccessListener();
+                                // load profile
+                                loadUserProfile();
                             } else {
                                 Log.w("Tenshi", "Token is null");
                                 Snackbar.make(b.loginLayout, "Error: Token is null", Snackbar.LENGTH_SHORT).show();
@@ -187,5 +195,53 @@ public class LoginFragment extends OnboardingFragment {
             pkce = AuthHelper.generatePlain();
         else
             pkce = AuthHelper.generateS256();
+    }
+    //endregion
+
+    /**
+     * load the user profile, then call {@link #onUserProfileLoaded(User)}
+     */
+    private void loadUserProfile() {
+        final String USER_FIELDS = MalApiHelper.getQueryableFields(User.class);
+        TenshiApp.getMal().getCurrentUser(USER_FIELDS)
+                .enqueue(new Callback<User>() {
+                    @Override
+                    @EverythingIsNonNull
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        if (response.isSuccessful() && notNull(response.body())) {
+                            // insert into db
+                            User user = response.body();
+                            async(() -> TenshiApp.getDB().userDB().insertOrUpdateUser(user));
+
+                            // save user ID to prefs
+                            TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);
+
+                            // update ui
+                            onUserProfileLoaded(user);
+                        } else
+                            Snackbar.make(b.getRoot(), R.string.login_snack_load_profile_error, Snackbar.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    @EverythingIsNonNull
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Log.e("Tenshi", t.toString());
+                        Snackbar.make(b.getRoot(), R.string.login_snack_load_profile_error, Snackbar.LENGTH_SHORT).show();
+                        invokeFailListener();
+                    }
+                });
+    }
+
+    /**
+     * when the user profile is loaded, update the ui and call onSuccess listener (which enabled the "Next" button in the activity)
+     *
+     * @param user the user profile
+     */
+    private void onUserProfileLoaded(@NonNull User user) {
+        // set shared user
+        shared.user = user;
+
+        // call finished listener
+        invokeSuccessListener();
     }
 }

@@ -96,27 +96,27 @@
 
     <!-- region Onboarding Activity -->
     <string name="oobe_title">Onboarding</string>
-    <string name="oobe_snack_login_error">Login Error</string>
-    <string name="oobe_fetch_data">Finishing Things up</string>
+    <string name="oobe_prev_page">Back</string>
+    <string name="oobe_next_page">Next</string>
 
-    <!-- region Online Check Fragment -->
+    <!-- Online Check Fragment -->
     <string name="oobe_con_check_in_progress">Checking your Connection</string>
     <string name="oobe_con_check_failed">Please check your Internet connection.</string>
     <string name="oobe_con_retry">Retry</string>
-    <!-- endregion -->
 
-    <!-- region Login Fragment -->
+    <!-- Login Fragment -->
     <string name="login_login">Login</string>
     <string name="login_snack_login_error">Login error</string>
+    <string name="login_snack_load_profile_error">Could not load profile. Please try again.</string>
     <string name="login_toast_session_expired">Session Expired, please log in again</string>
-    <!-- endregion -->
 
-    <!-- region config fragment -->
+    <!-- config fragment -->
     <string name="oobe_config_title_main">Streamline your Experience</string>
     <string name="oobe_config_title_sub">Customize how Tenshi looks and feels.\nYou can always change this later.</string>
 
-    <string name="oobe_config_done">Done</string>
-    <!-- endregion -->
+    <!-- fetch finish fragment -->
+    <string name="oobe_fetch_data">Finishing Things up</string>#
+
     <!-- endregion -->
 
     <!-- region Search Activity -->

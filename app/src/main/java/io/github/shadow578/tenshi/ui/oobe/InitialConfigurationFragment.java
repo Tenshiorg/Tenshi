@@ -27,6 +27,7 @@ public class InitialConfigurationFragment extends OnboardingFragment {
     @Nullable
     private User user = null;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

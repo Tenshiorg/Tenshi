@@ -5,10 +5,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.transition.platform.MaterialFadeThrough;
 
 import java.util.List;
@@ -18,13 +17,11 @@ import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.databinding.ActivityOnboardingBinding;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
-import io.github.shadow578.tenshi.mal.model.User;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.UserLibraryList;
 import io.github.shadow578.tenshi.mal.model.type.LibrarySortMode;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.TenshiActivity;
-import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -91,6 +88,7 @@ public class OnboardingActivity extends TenshiActivity {
     private final OnlineCheckFragment onlineCheckFragment = new OnlineCheckFragment();
     private final LoginFragment loginFragment = new LoginFragment();
     private final InitialConfigurationFragment configurationFragment = new InitialConfigurationFragment();
+    private final FetchFinishFragment fetchFinishFragment = new FetchFinishFragment();
     private ActivityOnboardingBinding b;
 
     @Override
@@ -103,11 +101,8 @@ public class OnboardingActivity extends TenshiActivity {
         with(getIntent(), i -> onlyLogin = i.getBooleanExtra(EXTRA_ONLY_LOGIN, false));
 
         // setup fragments
-        setFragmentTransitions();
-        setFragmentEvents();
-
-        // hide loading for final state
-        setFinishingStateLoadingVisible(false);
+        setupFragmentVisuals();
+        setupFragmentEvents();
 
         // go to online check
         updateState(State.ConnectionCheck);
@@ -132,34 +127,44 @@ public class OnboardingActivity extends TenshiActivity {
         state = newState;
 
         // get target fragment
-        Fragment target;
+        OnboardingFragment target;
         switch (state) {
             default:
             case ConnectionCheck:
+                updateButtons(null, null);
                 target = onlineCheckFragment;
                 break;
             case Login:
+                updateButtons(null, null);
                 target = loginFragment;
                 break;
             case Configuration:
+                updateButtons(State.Login, State.Finished);
                 target = configurationFragment;
                 break;
             case Finished:
-                setFinishingStateLoadingVisible(true);
-                maybeContinueToMain();
-                return;
+                updateButtons(null, null);
+                target = fetchFinishFragment;
+                if (maybeContinueToMain())
+                    return;
+                break;
         }
 
         // switch to the fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, target)
                 .commit();
+
+        // select dot (tab)
+        final TabLayout.Tab tab = target.getTab();
+        if (notNull(tab))
+            b.fragmentDots.selectTab(tab);
     }
 
     /**
-     * initialize transitions for all framgents
+     * initialize visuals for all fragments
      */
-    private void setFragmentTransitions() {
+    private void setupFragmentVisuals() {
         // prepare common transition for all fragments
         final MaterialFadeThrough f = new MaterialFadeThrough();
 
@@ -174,12 +179,22 @@ public class OnboardingActivity extends TenshiActivity {
         // config
         configurationFragment.setEnterTransition(f);
         configurationFragment.setExitTransition(f);
+
+        // fetch finish
+        fetchFinishFragment.setEnterTransition(f);
+        fetchFinishFragment.setExitTransition(f);
+
+        // create tabs (dots) for all fragments
+        onlineCheckFragment.initTab(b.fragmentDots);
+        loginFragment.initTab(b.fragmentDots);
+        configurationFragment.initTab(b.fragmentDots);
+        //fetchFinishFragment.initTab(b.fragmentDots);
     }
 
     /**
      * initialize events for all fragments
      */
-    private void setFragmentEvents() {
+    private void setupFragmentEvents() {
         // online check
         onlineCheckFragment.setOnSuccessListener(() -> {
             // continue to login
@@ -187,7 +202,6 @@ public class OnboardingActivity extends TenshiActivity {
         });
 
         // login
-        // on fail, we don't have to do anything more, as the fragment already shows error info
         loginFragment.setOnSuccessListener(() -> {
             // initialize api, if failed redirect to login (should not happen...)
             TenshiApp.INSTANCE.tryAuthInit();
@@ -198,65 +212,17 @@ public class OnboardingActivity extends TenshiActivity {
                 fetchFinished = true;
                 updateState(State.Finished);
             } else {
-                // start fetching data
-                // this calls afterUserProfileFetched() after the user profile was fetched,
-                // which then updates and shows the configuration fragment
-                fetchUserData();
+                startFetchUserLibrary();
+                updateButtons(null, State.Configuration);
             }
         });
-
-        // config
-        configurationFragment.setOnSuccessListener(() -> {
-            // config is done, continue to main once library fetch finished
-            updateState(State.Finished);
-        });
     }
 
     /**
-     * called after the user profile finished fetching in {@link #fetchUserData()}
-     *
-     * @param user the user data fetched
+     * fetch the user's library into the local DB
      */
-    private void afterUserProfileFetched(@NonNull User user) {
-        // continue to configuration selection fragment
-        configurationFragment.setUserDetails(user);
-        updateState(State.Configuration);
-    }
-
-    /**
-     * fetch the user's data into the local DB
-     * - profile
-     * - library
-     */
-    private void fetchUserData() {
+    private void startFetchUserLibrary() {
         fetchFinished = false;
-
-        // fetch profile; swallow errors
-        final String USER_FIELDS = MalApiHelper.getQueryableFields(User.class);
-        TenshiApp.getMal().getCurrentUser(USER_FIELDS)
-                .enqueue(new Callback<User>() {
-                    @Override
-                    @EverythingIsNonNull
-                    public void onResponse(Call<User> call, Response<User> response) {
-                        if (response.isSuccessful() && notNull(response.body())) {
-                            // insert into db
-                            User user = response.body();
-                            async(() -> TenshiApp.getDB().userDB().insertOrUpdateUser(user));
-
-                            // save user ID to prefs
-                            TenshiPrefs.setInt(TenshiPrefs.Key.UserID, user.userID);
-
-                            // continue ui
-                            afterUserProfileFetched(user);
-                        }
-                    }
-
-                    @Override
-                    @EverythingIsNonNull
-                    public void onFailure(Call<User> call, Throwable t) {
-                        Log.e("Tenshi", t.toString());
-                    }
-                });
 
         // prepare callback for anime details fetching
         final String ANIME_FIELDS = MalApiHelper.getQueryableFields(Anime.class);
@@ -318,26 +284,37 @@ public class OnboardingActivity extends TenshiActivity {
 
     /**
      * continue to the main activity if state is correct
+     *
+     * @return did we continue to main?
      */
-    private void maybeContinueToMain() {
+    private boolean maybeContinueToMain() {
         if (state == State.Finished && fetchFinished) {
             Intent i = new Intent(this, MainActivity.class);
             startActivityForResult(i, MainActivity.REQUEST_LOGIN);
+            return true;
         }
+
+        return false;
     }
 
     /**
-     * sets the visibility of all views related to the "Finished" state.
-     * This includes a loading indicator with text that is shown when user data is fetched in the background, but the user is already finished with all previous steps
+     * update the back/next buttons to update to the given states.
+     * if a state is null, the button is disabled
      *
-     * @param v currently in finished state?
+     * @param prev the state for the back button
+     * @param next the state for the next button
      */
-    private void setFinishingStateLoadingVisible(boolean v) {
-        // show or hide loading indicator + label
-        b.loadingIndicator.setVisibility(v ? View.VISIBLE : View.GONE);
-        b.loadingIndicatorLabel.setVisibility(v ? View.VISIBLE : View.GONE);
+    private void updateButtons(@Nullable State prev, @Nullable State next) {
+        if (notNull(prev)) {
+            b.backBtn.setVisibility(View.VISIBLE);
+            b.backBtn.setOnClickListener(v -> updateState(prev));
+        } else
+            b.backBtn.setVisibility(View.INVISIBLE);
 
-        // hide or show the fragment container
-        b.fragmentContainer.setVisibility(v ? View.INVISIBLE : View.VISIBLE);
+        if (notNull(next)) {
+            b.nextBtn.setVisibility(View.VISIBLE);
+            b.nextBtn.setOnClickListener(v -> updateState(next));
+        } else
+            b.nextBtn.setVisibility(View.INVISIBLE);
     }
 }
