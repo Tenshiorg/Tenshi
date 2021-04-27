@@ -27,6 +27,7 @@ import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.mal.model.User;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
+import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,6 +36,7 @@ import retrofit2.internal.EverythingIsNonNull;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.concat;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
@@ -82,6 +84,7 @@ public class LoginFragment extends OnboardingFragment {
     }
 
     //region PCKE flow
+
     /**
      * call this from the host activity's onNewIntent
      *
@@ -110,7 +113,7 @@ public class LoginFragment extends OnboardingFragment {
                 "&redirect_uri=", urlEncode(BuildConfig.MAL_OAUTH_REDIRECT_URL),
                 "&code_challenge=", pkce.challenge,
                 "&code_challenge_method=", pkce.challengeMethod,
-                "&force_logout=1");
+                BuildConfig.DEBUG ? "" : "&force_logout=1");
 
         // open login form
         CustomTabsHelper.openInCustomTab(requireActivity(), loginUri);
@@ -151,7 +154,7 @@ public class LoginFragment extends OnboardingFragment {
                                 loadUserProfile();
                             } else {
                                 Log.w("Tenshi", "Token is null");
-                                Snackbar.make(b.loginLayout, "Error: Token is null", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(b.getRoot(), "Error: Token is null", Snackbar.LENGTH_SHORT).show();
                                 invokeFailListener();
                             }
                         }
@@ -160,14 +163,14 @@ public class LoginFragment extends OnboardingFragment {
                         @EverythingIsNonNull
                         public void onFailure(Call<Token> call, Throwable t) {
                             Log.w("Tenshi", t.toString());
-                            Snackbar.make(b.loginLayout, R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
                             invokeFailListener();
                         }
                     });
 
         } else if (!nullOrEmpty(uri.getQueryParameter("error"))) {
             b.loginLoadingIndicator.setVisibility(View.INVISIBLE);
-            Snackbar.make(b.loginLayout, R.string.login_snack_login_error, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(b.getRoot(), R.string.login_snack_login_error, Snackbar.LENGTH_LONG).show();
             invokeFailListener();
         }
     }
@@ -240,6 +243,18 @@ public class LoginFragment extends OnboardingFragment {
     private void onUserProfileLoaded(@NonNull User user) {
         // set shared user
         shared.user = user;
+
+        // show post- login layout
+        b.groupPostLogin.setVisibility(View.VISIBLE);
+        b.groupPreLogin.setVisibility(View.GONE);
+
+        // load profile picture
+        GlideHelper.glide(requireContext(), user.profilePictureUrl, R.drawable.ic_round_account_circle_24)
+                .circleCrop()
+                .into(b.profilePicture);
+
+        // set welcome message
+        b.welcomeText.setText(fmt(requireContext(), R.string.login_welcome_fmt, user.name));
 
         // call finished listener
         invokeSuccessListener();

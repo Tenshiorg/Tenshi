@@ -16,7 +16,8 @@
         android:background="?attr/colorBackground"
         android:elevation="10dp"
         android:padding="180dp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:visibility="invisible"/>
 
     <!-- content -->
     <androidx.core.widget.NestedScrollView

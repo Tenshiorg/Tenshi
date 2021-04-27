@@ -39,9 +39,6 @@ public class InitialConfigurationFragment extends OnboardingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        // setup done button to end fragment
-        b.finishBtn.setOnClickListener(v1 -> invokeSuccessListener());
-
         // update ui
         updateViews();
     }

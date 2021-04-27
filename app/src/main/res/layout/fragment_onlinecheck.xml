@@ -29,7 +29,7 @@
         android:id="@+id/no_connection_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/shared_app_name"
+        android:contentDescription="@string/shared_app_label"
         android:src="@drawable/ic_splash"
         android:visibility="invisible"
         app:tint="?attr/colorPrimary"

@@ -193,7 +193,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         with(libPref,
                 about -> about.setOnPreferenceClickListener(preference -> {
                     final LibsBuilder libs = new LibsBuilder();
-                    libs.setAboutAppName(getString(R.string.shared_app_name));
+                    libs.setAboutAppName(getString(R.string.shared_app_label));
                     libs.start(ctx);
                     return true;
                 }));

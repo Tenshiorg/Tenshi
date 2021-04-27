@@ -1,6 +1,7 @@
 <resources>
     <!-- region Shared strings -->
-    <string name="shared_app_name" translatable="false">Tenshi</string>
+    <string name="app_name">Tenshi</string>
+    <string name="shared_app_label" translatable="false">Tenshi</string>
     <string name="shared_placeholder">Ingredients:\n360g flour\n350g chocolate chips\n230g butter\n200g white sugar\n220g brown sugar\n2 large eggs\n2 teaspoons vanilla extract\n1 teaspoon baking powder\n1 teaspoon salt\n\nPreheat the oven to 190 degrees Celsius. Line a baking pan with baking paper and set aside.\nIn a bowl, mix flour, salt and baking powder and set aside.\nCream butter and sugar until combined.\nBeat in eggs and vanilla until mixture is fluffy.\nMix in dry ingredients until combined.\nAdd chocolate chips and mix well.\nForm dough into balls and spread evenly on cookie sheet.\nBake in preheated oven for about 8–10 minutes. Take the cookies out when they just start to brown.\nLet the cookies rest on the cookie sheet for 2 minutes.</string>
     <string name="shared_snack_server_connect_error">Error connecting to server</string>
     <string name="shared_unknown">Unknown</string>
@@ -106,6 +107,8 @@
 
     <!-- Login Fragment -->
     <string name="login_login">Login</string>
+    <string name="login_welcome_fmt">Hi %s!</string>
+    <string name="login_welcome_sub">Just a few steps to get you started!</string>
     <string name="login_snack_login_error">Login error</string>
     <string name="login_snack_load_profile_error">Could not load profile. Please try again.</string>
     <string name="login_toast_session_expired">Session Expired, please log in again</string>

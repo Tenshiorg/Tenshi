@@ -1,61 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/login_layout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
 
-    <!-- central tenshi banner-->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/tenshi_banner_group"
+    <!-- not logged in -->
+    <RelativeLayout
+        android:id="@+id/group_pre_login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        tools:visibility="invisible">
 
-        <ImageView
-            android:id="@+id/tenshi_banner"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="40dp"
-            android:contentDescription="@string/shared_app_name"
-            android:src="@drawable/ic_splash"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/tenshi_banner_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorPrimary" />
+        <!-- central tenshi banner-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/tenshi_banner_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tenshi_banner_text"
+            <ImageView
+                android:id="@+id/tenshi_banner"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="40dp"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_splash"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tenshi_banner_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/tenshi_banner_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:text="@string/app_name"
+                android:textColor="?attr/colorOnBackground"
+                android:textSize="50sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tenshi_banner"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- login button -->
+        <Button
+            android:id="@+id/login_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:text="@string/shared_app_name"
-            android:textColor="?attr/colorOnBackground"
-            android:textSize="50sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tenshi_banner"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_below="@id/tenshi_banner_group"
+            android:layout_centerHorizontal="true"
+            android:text="@string/login_login" />
 
-    <!-- login button -->
-    <Button
-        android:id="@+id/login_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tenshi_banner_group"
-        android:layout_centerHorizontal="true"
-        android:text="@string/login_login" />
+        <!-- progress bar while we get a access token -->
+        <ProgressBar
+            android:id="@+id/login_loading_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/login_btn"
+            android:layout_margin="16dp"
+            android:visibility="invisible" />
+    </RelativeLayout>
 
-    <!-- progress bar while we get a access token -->
-    <ProgressBar
-        android:id="@+id/login_loading_indicator"
+    <!-- after logged in -->
+    <RelativeLayout
+        android:id="@+id/group_post_login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_btn"
-        android:layout_margin="16dp"
-        android:visibility="invisible" />
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+        <!-- profile picture -->
+        <ImageView
+            android:id="@+id/profile_picture"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/profile_desc_profile_picture"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_round_account_circle_24" />
+
+        <!-- welcome message -->
+        <TextView
+            android:id="@+id/welcome_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/profile_picture"
+            android:layout_margin="16dp"
+            android:gravity="center"
+            android:textSize="22sp"
+            tools:text="Hi shadow578!" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/welcome_text"
+            android:gravity="center"
+            android:text="@string/login_welcome_sub"/>
+    </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
