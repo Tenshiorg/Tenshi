@@ -67,22 +67,6 @@ public class MainActivity extends TenshiActivity {
         // show info if offline
         showSnackbarIfOffline(b.snackbarContainer);
 
-        //region set theme
-        switch (TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem)) {
-            case Light:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case Dark:
-            case Amoled:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            case FollowSystem:
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-        }
-        //endregion
-
         // setup toolbar
         setSupportActionBar(b.mainToolbar);
         with(getSupportActionBar(), sab -> {
