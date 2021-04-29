@@ -62,7 +62,12 @@ public class TenshiPrefs {
         /**
          * are debug options enabled in Settings?
          */
-        ShowDeveloperOptions
+        ShowDeveloperOptions,
+
+        /**
+         * was oobe finished already?
+         */
+        OOBEFinished
     }
 
     /**

@@ -225,6 +225,19 @@ public class TenshiApp extends Application {
             createRetrofit();
         }
     }
+    /**
+     * invalidate and remove the saved auth token, saved user data and preferences, then redirect to the Login activity
+     *
+     * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
+     */
+    public void logoutAndLogin(@NonNull Activity ctx){
+        // delete user data and config
+        deleteUserData();
+        TenshiPrefs.clear();
+
+        // invalidate token
+        invalidateTokenAndLogin(ctx);
+    }
 
     /**
      * invalidate and remove the saved auth token, then redirect to the Login activity
@@ -233,9 +246,6 @@ public class TenshiApp extends Application {
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
     public void invalidateTokenAndLogin(@NonNull Activity ctx) {
-        // delete the user's data
-        deleteUserData();
-
         // show toast
         Toast.makeText(ctx, R.string.login_toast_session_expired, Toast.LENGTH_SHORT).show();
 

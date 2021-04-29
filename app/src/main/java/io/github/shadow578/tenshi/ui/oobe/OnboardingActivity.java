@@ -22,6 +22,7 @@ import io.github.shadow578.tenshi.mal.model.UserLibraryList;
 import io.github.shadow578.tenshi.mal.model.type.LibrarySortMode;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.TenshiActivity;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,7 +31,6 @@ import retrofit2.internal.EverythingIsNonNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
  * activity that handles initial onboarding, including:
@@ -40,13 +40,6 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
  * - data preloading (user library and profile)
  */
 public class OnboardingActivity extends TenshiActivity {
-    /**
-     * extra to only handle login, skipping the rest of onboarding; boolean
-     * <p>
-     * TODO skip full onboarding when already logged in / just require reauth
-     */
-    public static final String EXTRA_ONLY_LOGIN = "onlyLogin";
-
     /**
      * the current onboarding state
      */
@@ -80,11 +73,6 @@ public class OnboardingActivity extends TenshiActivity {
      */
     private boolean fetchFinished = false;
 
-    /**
-     * should onboarding be skipped?
-     */
-    private boolean onlyLogin = false;
-
     private final OnlineCheckFragment onlineCheckFragment = new OnlineCheckFragment();
     private final LoginFragment loginFragment = new LoginFragment();
     private final InitialConfigurationFragment configurationFragment = new InitialConfigurationFragment();
@@ -96,9 +84,6 @@ public class OnboardingActivity extends TenshiActivity {
         super.onCreate(savedInstanceState);
         b = ActivityOnboardingBinding.inflate(getLayoutInflater());
         setContentView(b.getRoot());
-
-        // get intent extras
-        with(getIntent(), i -> onlyLogin = i.getBooleanExtra(EXTRA_ONLY_LOGIN, false));
 
         // setup fragments
         setupFragmentVisuals();
@@ -207,8 +192,8 @@ public class OnboardingActivity extends TenshiActivity {
             TenshiApp.INSTANCE.tryAuthInit();
             requireUserAuthenticated();
 
-            if (onlyLogin) {
-                // done, finish now
+            // don't show initial setup and fetch again if OOBE was already finished before
+            if (TenshiPrefs.getBool(TenshiPrefs.Key.OOBEFinished, false)) {
                 fetchFinished = true;
                 updateState(State.Finished);
             } else {
@@ -289,6 +274,7 @@ public class OnboardingActivity extends TenshiActivity {
      */
     private boolean maybeContinueToMain() {
         if (state == State.Finished && fetchFinished) {
+            TenshiPrefs.setBool(TenshiPrefs.Key.OOBEFinished, true);
             Intent i = new Intent(this, MainActivity.class);
             startActivityForResult(i, MainActivity.REQUEST_LOGIN);
             return true;

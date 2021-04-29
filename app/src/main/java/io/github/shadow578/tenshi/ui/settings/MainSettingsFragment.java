@@ -106,7 +106,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
                             .setTitle(R.string.settings_dialog_confirm_logout)
                             .setPositiveButton(R.string.shared_dialog_confirmation_yes, (dialog, which) -> {
                                 // invalidate token and redirect to login page
-                                TenshiApp.INSTANCE.invalidateTokenAndLogin(requireActivity());
+                                TenshiApp.INSTANCE.logoutAndLogin(requireActivity());
                             })
                             .setNegativeButton(R.string.shared_dialog_confirmation_no, null)
                             .show();
