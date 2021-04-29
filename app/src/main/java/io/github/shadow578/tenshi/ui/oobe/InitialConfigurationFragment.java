@@ -46,9 +46,36 @@ public class InitialConfigurationFragment extends OnboardingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        // setup theme selector
-        updateThemePreview(TenshiPrefs.Theme.FollowSystem);
-        b.themeSelectRadioGroup.check(R.id.theme_select_follow_system);
+        setupThemeSelector();
+        b.nsfwToggle.setOnCheckedChangeListener((buttonView, isChecked) -> updateNSFWAfterCheck(isChecked));
+    }
+
+    //region theme
+
+    /**
+     * sets up the theme selection views and logic
+     */
+    private void setupThemeSelector() {
+        // set state to current pref state
+        final TenshiPrefs.Theme defaultTheme = TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem);
+        updateThemePreview(defaultTheme);
+        switch (defaultTheme) {
+            default:
+            case FollowSystem:
+                b.themeSelectRadioGroup.check(R.id.theme_select_follow_system);
+                break;
+            case Light:
+                b.themeSelectRadioGroup.check(R.id.theme_select_light);
+                break;
+            case Dark:
+                b.themeSelectRadioGroup.check(R.id.theme_select_dark);
+                break;
+            case Amoled:
+                b.themeSelectRadioGroup.check(R.id.theme_select_amoled);
+                break;
+        }
+
+        // change listener, update preview and pref
         b.themeSelectRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             final TenshiPrefs.Theme theme;
             if (checkedId == R.id.theme_select_light)
@@ -61,13 +88,9 @@ public class InitialConfigurationFragment extends OnboardingFragment {
                 theme = TenshiPrefs.Theme.FollowSystem;
 
             updateThemePreview(theme);
+            TenshiPrefs.setEnum(TenshiPrefs.Key.Theme, theme);
         });
-
-        //setup other settings
-        b.nsfwToggle.setOnCheckedChangeListener((buttonView, isChecked) -> updateNSFWAfterCheck(isChecked));
     }
-
-    //region theme preview
 
     /**
      * update the theme preview
