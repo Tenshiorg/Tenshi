@@ -116,6 +116,21 @@
     <!-- config fragment -->
     <string name="oobe_config_title_main">Streamline your Experience</string>
     <string name="oobe_config_title_sub">Customize how Tenshi looks and feels.\nYou can always change this later.</string>
+    <string name="oobe_config_theme_select_title">Select a Theme</string>
+    <string name="oobe_config_theme_follow_system">Default</string>
+    <string name="oobe_config_theme_light">Light</string>
+    <string name="oobe_config_theme_dark">Dark</string>
+    <string name="oobe_config_theme_amoled">Amoled</string>
+    <string name="oobe_config_other_settings_title">Other Settings</string>
+    <string name="oobe_config_nsfw">Show NSFW Content</string>
+    <string name="oobe_config_nsfw_confirm_title">Confirm Age</string>
+    <string name="oobe_config_nsfw_confirm_message">To enable NSFW content, you have to be of legal age.\n Are you 18 years or older?</string>
+    <string name="oobe_config_nsfw_confirm_no">No</string>
+    <string name="oobe_config_nsfw_confirm_yes">Yes, I\'m 18+</string>
+
+    <string name="oobe_config_dummy_1">Randomly Crash the App</string>
+    <string name="oobe_config_dummy_2">Use way too much data</string>
+    <string name="oobe_config_dummy_note">* JK the last two do nothing</string>
 
     <!-- fetch finish fragment -->
     <string name="oobe_fetch_data">Finishing Things up</string>#
