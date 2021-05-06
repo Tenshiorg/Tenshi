@@ -52,6 +52,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         final Context ctx = requireContext();
         setupThemeSelection(ctx);
         setupStartupSelection();
+        setupResetTutorialButton();
         setupLogoutButton(ctx);
         setupResetPrefsButton(ctx);
         setupAppVersion(ctx);
@@ -91,6 +92,20 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
             sections.setEntryValues(tabValues);
             sections.setDefaultValue(EnumHelper.valueOf(MainActivity.Section.Home));
         });
+    }
+
+    /**
+     * setup the tutorial reset button
+     */
+    private void setupResetTutorialButton() {
+        final Preference tutPref = findPreference("reset_tutorials_btn");
+        with(tutPref,
+                tut -> tut.setOnPreferenceClickListener(preference -> {
+                    TenshiPrefs.clear(Key.MainTutorialFinished);
+                    TenshiPrefs.clear(Key.AnimeDetailsNoLibTutorialFinished);
+                    TenshiPrefs.clear(Key.AnimeDetailsInLibTutorialFinished);
+                    return true;
+                }));
     }
 
     /**

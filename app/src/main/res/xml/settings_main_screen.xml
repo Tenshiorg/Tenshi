@@ -26,6 +26,12 @@
             android:summaryOn="@string/settings_nsfw_toggle_on"
             android:title="@string/settings_nsfw_toggle_title" />
 
+        <!-- reset tutorial -->
+        <Preference
+            android:key="reset_tutorials_btn"
+            android:summary="@string/settings_tut_reset_summary"
+            android:title="@string/settings_tut_reset_title"/>
+
         <!-- logout -->
         <Preference
             android:key="logout_btn"

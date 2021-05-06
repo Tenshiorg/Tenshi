@@ -67,7 +67,22 @@ public class TenshiPrefs {
         /**
          * was oobe finished already?
          */
-        OOBEFinished
+        OOBEFinished,
+
+        /**
+         * did the user finish / skip the main activity tutorial?
+         */
+        MainTutorialFinished,
+
+        /**
+         * did the user finish / skip the anime details activity tutorial not in the user library?
+         */
+        AnimeDetailsNoLibTutorialFinished,
+
+        /**
+         * did the user finish / skip the anime details activity tutorial for anime in the user library?
+         */
+        AnimeDetailsInLibTutorialFinished
     }
 
     /**

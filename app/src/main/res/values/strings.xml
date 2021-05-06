@@ -127,6 +127,7 @@
     <string name="oobe_config_nsfw_confirm_message">To enable NSFW content, you have to be of legal age.\n Are you 18 years or older?</string>
     <string name="oobe_config_nsfw_confirm_no">No</string>
     <string name="oobe_config_nsfw_confirm_yes">Yes, I\'m 18+</string>
+    <string name="oobe_config_skip_tutorial">Skip App Tutorial</string>
 
     <string name="oobe_config_dummy_1">Randomly Crash the App</string>
     <string name="oobe_config_dummy_2">Use way too much data</string>
@@ -157,6 +158,8 @@
     <string name="settings_nsfw_toggle_title">Show NSFW</string>
     <string name="settings_nsfw_toggle_on">NSFW Content is visible</string>
     <string name="settings_nsfw_toggle_off">NSFW Content is filtered</string>
+    <string name="settings_tut_reset_title">Reset Tutorial</string>
+    <string name="settings_tut_reset_summary">Lets you repeat the app tutorial</string>
     <string name="settings_logout_title">Logout</string>
     <string name="settings_logout_summary">Log out of your MAL account</string>
     <string name="settings_reset_prefs_title">Reset Settings</string>
@@ -174,5 +177,34 @@
     <string name="settings_toast_restart_for_theme_change">Restart the App for Theme changes to take effect</string>
     <string name="settings_dialog_confirm_logout">Are you sure you want to logout?</string>
     <string name="settings_dialog_confirm_reset_prefs">Are you sure you want to reset the App Settings to default?</string>
+    <!-- endregion -->
+
+    <!-- region tutorials -->
+    <!-- main -->
+    <string name="tut_main_lib_title">Anime Library</string>
+    <string name="tut_main_lib_text">A Place for all your favorite anime.</string>
+    <string name="tut_main_profile_title">Profile</string>
+    <string name="tut_main_profile_text">How much time did you waste? Find the answer on the Profile page</string>
+    <string name="tut_main_home_title">Home</string>
+    <string name="tut_main_home_text">Looking for something new? Take a look on the home page</string>
+    <string name="tut_main_search_title">Search</string>
+    <string name="tut_main_search_text">Searching something specific? The global Search can help with that!</string>
+
+
+    <!-- anime details -->
+    <string name="tut_details_lib_add_title">Add to Library</string>
+    <string name="tut_details_lib_add_text">Like what you see? Add this Anime to your library</string>
+
+    <string name="tut_details_status_title">Status</string>
+    <string name="tut_details_status_text">Plan to Watch? Or actually watching? \nStay organzed by setting a status</string>
+    <string name="tut_details_eps_title">Episodes</string>
+    <string name="tut_details_eps_text">Just finished a episode? Track them here</string>
+    <string name="tut_details_rating_title">Rating</string>
+    <string name="tut_details_rating_text">Like this anime? or not? \nTell the world here</string>
+    <string name="tut_details_share_title">Share</string>
+    <string name="tut_details_share_text">Know someone? Share this anime with them</string>
+    <string name="tut_details_watch_title">Watch Now</string>
+    <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
+
     <!-- endregion -->
 </resources>

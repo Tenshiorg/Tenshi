@@ -49,6 +49,13 @@ public class InitialConfigurationFragment extends OnboardingFragment {
 
         setupThemeSelector();
         b.nsfwToggle.setOnCheckedChangeListener((buttonView, isChecked) -> updateNSFWAfterCheck(isChecked));
+
+        // tutorial skip btn
+        b.skipTutorial.setOnCheckedChangeListener((buttonView, skipTut) -> {
+            TenshiPrefs.setBool(TenshiPrefs.Key.MainTutorialFinished, skipTut);
+            TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, skipTut);
+            TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, skipTut);
+        });
     }
 
     //region theme

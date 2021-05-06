@@ -130,12 +130,22 @@
         android:layout_marginEnd="16dp"
         android:text="@string/oobe_config_nsfw" />
 
+    <!-- skip tutorials switch -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/skip_tutorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nsfw_toggle"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/oobe_config_skip_tutorial" />
+
     <!-- more first- time settings go here TODO dummy switches -->
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/sw_dummy_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/nsfw_toggle"
+        android:layout_below="@id/skip_tutorial"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:text="@string/oobe_config_dummy_1" />

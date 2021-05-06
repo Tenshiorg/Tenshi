@@ -137,6 +137,9 @@ dependencies {
     // about libraries
     implementation "com.mikepenz:aboutlibraries-core:8.8.4"
     implementation "com.mikepenz:aboutlibraries:8.8.4"
+
+    // Tap Target View for Tutorial
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.2'
 }
 
 // ~ Utility functions ~
