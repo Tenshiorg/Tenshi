@@ -17,12 +17,10 @@ import io.github.shadow578.tenshi.databinding.FragmentFetchFinishBinding;
  */
 public class FetchFinishFragment extends OnboardingFragment {
 
-    private FragmentFetchFinishBinding b;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        b = FragmentFetchFinishBinding.inflate(inflater, container, false);
+        FragmentFetchFinishBinding b = FragmentFetchFinishBinding.inflate(inflater, container, false);
         return b.getRoot();
     }
 

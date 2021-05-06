@@ -8,12 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.FragmentInitialConfigurationBinding;
+import io.github.shadow578.tenshi.databinding.RecyclerAnimeBigBinding;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -100,7 +101,7 @@ public class InitialConfigurationFragment extends OnboardingFragment {
     private void updateThemePreview(@NonNull TenshiPrefs.Theme theme) {
         // inflate preview if needed
         if (!themePreviews.containsKey(theme))
-            themePreviews.put(theme, createThemePreview(R.layout.recycler_anime_big, theme));
+            themePreviews.put(theme, createThemePreview(theme));
 
         // make the right preview visible
         for (TenshiPrefs.Theme t : themePreviews.keySet()) {
@@ -113,29 +114,28 @@ public class InitialConfigurationFragment extends OnboardingFragment {
     /**
      * create a view for the theme preview, with the theme overwritten
      *
-     * @param layoutRes the layout to use
-     * @param theme     the theme to use
+     * @param theme the theme to use
      * @return the inflated view
      */
-    private View createThemePreview(@SuppressWarnings("SameParameterValue") @LayoutRes int layoutRes, @NonNull TenshiPrefs.Theme theme) {
+    private View createThemePreview(@NonNull TenshiPrefs.Theme theme) {
         // create context for preview, with the theme overwritten
         final Context baseCtx = requireContext();
         final Context themeCtx = wrapContextForTheme(baseCtx, theme);
 
         // inflate the preview layout with the overwritten view
-        final View themePreviewView = View.inflate(themeCtx, layoutRes, null);
+        final RecyclerAnimeBigBinding tpb = RecyclerAnimeBigBinding.inflate(LayoutInflater.from(themeCtx));
+        tpb.animeMainPoster.setImageDrawable(ContextCompat.getDrawable(baseCtx, R.drawable.ic_splash));
 
         // update the layout params to include margins and fill the container
         final int marginPxs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, themeCtx.getResources().getDisplayMetrics());
         final CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMargins(marginPxs, marginPxs, marginPxs, marginPxs);
-        themePreviewView.setLayoutParams(params);
+        tpb.getRoot().setLayoutParams(params);
 
         // initially hide the view
-        themePreviewView.setVisibility(View.GONE);
-        b.themePreviewContainer.addView(themePreviewView);
-
-        return themePreviewView;
+        tpb.getRoot().setVisibility(View.GONE);
+        b.themePreviewContainer.addView(tpb.getRoot());
+        return tpb.getRoot();
     }
 
     /**
