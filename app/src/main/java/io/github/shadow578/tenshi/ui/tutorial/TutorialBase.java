@@ -10,7 +10,9 @@ import androidx.viewbinding.ViewBinding;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
+import com.google.android.material.color.MaterialColors;
 
+import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
@@ -123,8 +125,12 @@ public abstract class TutorialBase<ActivityClass extends Activity, ActivityBindi
      */
     @NonNull
     protected TapTarget configure(@NonNull TapTarget t){
-        // this could later be used to modify the way the targets look and behave,
-        // but right now it does nothing
-        return t;
+        // do not tint the target by default
+        // also, would be nice to use the current app theme
+        return t.tintTarget(false)
+                .outerCircleColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorPrimary))
+                .titleTextColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary))
+                .textColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary));
+
     }
 }

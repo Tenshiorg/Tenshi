@@ -52,7 +52,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         final Context ctx = requireContext();
         setupThemeSelection(ctx);
         setupStartupSelection();
-        setupResetTutorialButton();
+        setupResetTutorialButton(ctx);
         setupLogoutButton(ctx);
         setupResetPrefsButton(ctx);
         setupAppVersion(ctx);
@@ -96,14 +96,17 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
 
     /**
      * setup the tutorial reset button
+     *
+     * @param ctx the context to work in
      */
-    private void setupResetTutorialButton() {
+    private void setupResetTutorialButton(@NonNull Context ctx) {
         final Preference tutPref = findPreference("reset_tutorials_btn");
         with(tutPref,
                 tut -> tut.setOnPreferenceClickListener(preference -> {
                     TenshiPrefs.clear(Key.MainTutorialFinished);
                     TenshiPrefs.clear(Key.AnimeDetailsNoLibTutorialFinished);
                     TenshiPrefs.clear(Key.AnimeDetailsInLibTutorialFinished);
+                    Toast.makeText(ctx, R.string.settings_toast_tut_reset, Toast.LENGTH_SHORT).show();
                     return true;
                 }));
     }

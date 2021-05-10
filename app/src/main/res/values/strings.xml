@@ -175,6 +175,7 @@
     <string name="settings_section_info">About</string>
 
     <string name="settings_toast_restart_for_theme_change">Restart the App for Theme changes to take effect</string>
+    <string name="settings_toast_tut_reset">App Tutorial has been reset!</string>
     <string name="settings_dialog_confirm_logout">Are you sure you want to logout?</string>
     <string name="settings_dialog_confirm_reset_prefs">Are you sure you want to reset the App Settings to default?</string>
     <!-- endregion -->
@@ -205,6 +206,7 @@
     <string name="tut_details_share_text">Know someone? Share this anime with them</string>
     <string name="tut_details_watch_title">Watch Now</string>
     <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
-
+    <string name="tut_details_delete_title">Remove from Library</string>
+    <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
     <!-- endregion -->
 </resources>
