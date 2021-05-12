@@ -2,16 +2,14 @@ package io.github.shadow578.tenshi.ui.tutorial;
 
 import androidx.annotation.NonNull;
 
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetSequence;
-
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
-
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
+import io.github.shadow578.tenshi.ui.tutorial.taptarget.TapTargetSequence;
+import uk.co.samuelwall.materialtaptargetprompt.extras.backgrounds.RectanglePromptBackground;
+import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
 
 /**
  * handles the tutorial for the {@link AnimeDetailsActivity} on the first anime that is in the user library
@@ -30,30 +28,93 @@ public class AnimeDetailsInLibTutorial extends TutorialBase<AnimeDetailsActivity
      */
     @Override
     public void start() {
+        // make sure we scrolled to the top (all views should be visible)
+        b.animeMainContentGroup.smoothScrollTo(0, 0);
+
+        // disable all targeted buttons
+        // otherwise, the tap target actually taps them
+        setTargetViewsEnabled(false);
+
         // add basic targets
-        ArrayList<TapTarget> targets = listOf(
-                forView(b.animeEditListStatusBtn, R.string.tut_details_status_title, R.string.tut_details_status_text),
-                forView(b.animeEditEpisodeCountBtn, R.string.tut_details_eps_title, R.string.tut_details_eps_text),
-                forView(b.animeEditRatingBtn, R.string.tut_details_rating_title, R.string.tut_details_rating_text),
-                configure(TapTarget.forToolbarMenuItem(b.animeDetailsToolbar, R.id.share, a.getString(R.string.tut_details_share_title), a.getString(R.string.tut_details_share_text)))
-        );
+        final TapTargetSequence sequence = newSequence()
+                // share
+                .add(newTarget().setTarget(b.animeDetailsToolbar.findViewById(R.id.share))
+                                .setPrimaryText(R.string.tut_details_share_title)
+                                .setSecondaryText(R.string.tut_details_share_text),
+                        0
+                )
+                // status
+                .add(newTarget().setTarget(b.animeEditListStatusBtn)
+                                .setPrimaryText(R.string.tut_details_status_title)
+                                .setSecondaryText(R.string.tut_details_status_text),
+                        1
+                )
+                // ep count
+                .add(newTarget().setTarget(b.animeEditEpisodeCountBtn)
+                                .setPrimaryText(R.string.tut_details_eps_title)
+                                .setSecondaryText(R.string.tut_details_eps_text),
+                        2
+                )
+                // rating
+                .add(newTarget().setTarget(b.animeEditRatingBtn)
+                                .setPrimaryText(R.string.tut_details_rating_title)
+                                .setSecondaryText(R.string.tut_details_rating_text),
+                        3
+                );
 
         // add watch now target
-        if (hasWatchNow) {
-            targets.add(forView(b.animeWatchNowButton, R.string.tut_details_watch_title, R.string.tut_details_watch_text));
-        }
+        if (hasWatchNow)
+            sequence.add(newTarget().setTarget(b.animeWatchNowButton)
+                            .setPrimaryText(R.string.tut_details_watch_title)
+                            .setSecondaryText(R.string.tut_details_watch_text),
+                    4
+            );
 
-        // start sequence
-        new TapTargetSequence(a)
-                .targets(targets)
-                .listener(this)
-                .start();
+        // add delete button
+        sequence.add(newTarget().setTarget(b.detailsDeleteButton)
+                        .setPrimaryText(R.string.tut_details_delete_title)
+                        .setSecondaryText(R.string.tut_details_delete_text)
+                        .setPromptFocal(new RectanglePromptFocal())
+                        .setPromptBackground(new RectanglePromptBackground()),
+                5
+        );
+
+        // start the sequence
+        sequence.start();
+    }
+
+    @Override
+    protected void onStep(@NonNull @NotNull TapTargetSequence.Item current, @NonNull @NotNull TapTargetSequence.Item next) {
+        super.onStep(current, next);
+        if (next.id == 5) {
+            // upcoming is the delete button, scroll there
+            b.animeMainContentGroup.requestChildFocus(b.detailsDeleteGroup, b.detailsDeleteButton);
+        }
+    }
+
+    @Override
+    protected void onEnd(boolean dismissed) {
+        super.onEnd(dismissed);
+
+        //re- enable targets
+        setTargetViewsEnabled(true);
+
+        // scroll back to the top (initial position)
+        b.animeMainContentGroup.smoothScrollTo(0, 0);
     }
 
     /**
-     * {@link TapTargetSequence.Listener#onSequenceStep(TapTarget, boolean)}
+     * set all views this tutorial targets enabled or disabled.
+     * this is required as the tap target view forwards the click event to the views, thus activating them
+     *
+     * @param en enable the views?
      */
-    @Override
-    public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+    private void setTargetViewsEnabled(boolean en) {
+        b.animeDetailsToolbar.findViewById(R.id.share).setEnabled(en);
+        b.animeEditListStatusBtn.setEnabled(en);
+        b.animeEditEpisodeCountBtn.setEnabled(en);
+        b.animeEditRatingBtn.setEnabled(en);
+        b.animeWatchNowButton.setEnabled(en);
+        b.detailsDeleteButton.setEnabled(en);
     }
 }

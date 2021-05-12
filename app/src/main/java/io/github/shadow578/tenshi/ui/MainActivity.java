@@ -191,7 +191,7 @@ public class MainActivity extends TenshiActivity {
     private void maybeStartTutorial(){
         if(!TenshiPrefs.getBool(TenshiPrefs.Key.MainTutorialFinished, false)){
             // show tutorial
-            new MainTutorial(this, b, homeFragment, libraryFragment, profileFragment)
+            new MainTutorial(this, b)
                     .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.MainTutorialFinished, true))
                     .start();
         }

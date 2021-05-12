@@ -1,19 +1,18 @@
 package io.github.shadow578.tenshi.ui.tutorial;
 
 import android.app.Activity;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.viewbinding.ViewBinding;
 
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.material.color.MaterialColors;
 
 import io.github.shadow578.tenshi.R;
+import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
 import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
+import io.github.shadow578.tenshi.ui.tutorial.taptarget.TapTargetSequence;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 
@@ -25,7 +24,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull
  * @param <ActivityBinding> the activities binding type
  */
 @SuppressWarnings({"unused", "RedundantSuppression"})
-public abstract class TutorialBase<ActivityClass extends Activity, ActivityBinding extends ViewBinding> implements TapTargetSequence.Listener {
+public abstract class TutorialBase<ActivityClass extends Activity, ActivityBinding extends ViewBinding> {
 
     /**
      * activity instance
@@ -56,19 +55,22 @@ public abstract class TutorialBase<ActivityClass extends Activity, ActivityBindi
     public abstract void start();
 
     /**
-     * {@link TapTargetSequence.Listener#onSequenceStep(TapTarget, boolean)}
+     * listener set for {@link TapTargetSequence#onStep(BiConsumer)} when using {@link #newSequence()}
+     *
+     * @param current the currently shown item
+     * @param next    the upcoming item
      */
-    @Override
-    public abstract void onSequenceStep(TapTarget lastTarget, boolean targetClicked);
+    protected void onStep(@NonNull TapTargetSequence.Item current, @NonNull TapTargetSequence.Item next) {
 
-    @Override
-    public void onSequenceFinish() {
-        onTutorialEnd(false);
     }
 
-    @Override
-    public void onSequenceCanceled(TapTarget lastTarget) {
-        onTutorialEnd(true);
+    /**
+     * listener set for {@link TapTargetSequence#onEnd(Consumer)} when using {@link #newSequence()}
+     *
+     * @param dismissed was the sequence dismissed?
+     */
+    protected void onEnd(boolean dismissed) {
+        onTutorialEnd(dismissed);
     }
 
     /**
@@ -93,44 +95,26 @@ public abstract class TutorialBase<ActivityClass extends Activity, ActivityBindi
     }
 
     /**
-     * create a tap target for a view
+     * create a new sequence with listeners set
      *
-     * @param v     the view to create the target for
-     * @param title the title of the target
-     * @param text  the message text of the target
-     * @return the tap target
+     * @return the sequence
      */
-    @NonNull
-    protected TapTarget forView(@NonNull View v, @StringRes int title, @StringRes int text) {
-        return forView(v, a.getString(title), a.getString(text));
+    protected TapTargetSequence newSequence() {
+        return new TapTargetSequence()
+                .onStep(this::onStep)
+                .onEnd(this::onEnd);
     }
 
     /**
-     * create a tap target for a view
+     * create a new (default) tap target builder
      *
-     * @param v     the view to create the target for
-     * @param title the title of the target
-     * @param text  the message text of the target
-     * @return the tap target
+     * @return the builder instance
      */
-    @NonNull
-    protected TapTarget forView(@NonNull View v, @NonNull String title, @NonNull String text) {
-        return configure(TapTarget.forView(v, title, text));
-    }
-
-    /**
-     * configure a tap target to the default config
-     * @param t the target
-     * @return the target
-     */
-    @NonNull
-    protected TapTarget configure(@NonNull TapTarget t){
-        // do not tint the target by default
-        // also, would be nice to use the current app theme
-        return t.tintTarget(false)
-                .outerCircleColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorPrimary))
-                .titleTextColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary))
-                .textColorInt(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary));
-
+    protected MaterialTapTargetPrompt.Builder newTarget() {
+        return new MaterialTapTargetPrompt.Builder(a)
+                .setBackgroundColour(MaterialColors.getColor(b.getRoot(), R.attr.colorPrimary))
+                //.setFocalColour()
+                .setPrimaryTextColour(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary))
+                .setSecondaryTextColour(MaterialColors.getColor(b.getRoot(), R.attr.colorOnPrimary));
     }
 }

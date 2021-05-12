@@ -139,7 +139,7 @@ dependencies {
     implementation "com.mikepenz:aboutlibraries:8.8.4"
 
     // Tap Target View for Tutorial
-    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.2'
+    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.1.1'
 }
 
 // ~ Utility functions ~

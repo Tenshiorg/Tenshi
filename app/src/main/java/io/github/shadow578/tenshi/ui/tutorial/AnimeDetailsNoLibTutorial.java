@@ -2,9 +2,6 @@ package io.github.shadow578.tenshi.ui.tutorial;
 
 import androidx.annotation.NonNull;
 
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetSequence;
-
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
@@ -23,19 +20,34 @@ public class AnimeDetailsNoLibTutorial extends TutorialBase<AnimeDetailsActivity
      */
     @Override
     public void start() {
-        new TapTargetSequence(a)
-                .targets(
-                        forView(b.animeAddToListBtn, R.string.tut_details_lib_add_title, R.string.tut_details_lib_add_text)
+        // disable all targeted buttons
+        // otherwise, the tap target actually taps them
+        setTargetViewsEnabled(false);
+
+        // create and start sequence
+        newSequence()
+                // delete
+                .add(newTarget().setTarget(b.animeAddToListBtn)
+                        .setPrimaryText(R.string.tut_details_lib_add_title)
+                        .setSecondaryText(R.string.tut_details_lib_add_text)
                 )
-                .listener(this)
                 .start();
     }
 
-    /**
-     * {@link TapTargetSequence.Listener#onSequenceStep(TapTarget, boolean)}
-     */
     @Override
-    public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+    protected void onEnd(boolean dismissed) {
+        super.onEnd(dismissed);
+        //re- enable targets
+        setTargetViewsEnabled(true);
+    }
 
+    /**
+     * set all views this tutorial targets enabled or disabled.
+     * this is required as the tap target view forwards the click event to the views, thus activating them
+     *
+     * @param en enable the views?
+     */
+    private void setTargetViewsEnabled(boolean en) {
+        b.animeAddToListBtn.setEnabled(en);
     }
 }
