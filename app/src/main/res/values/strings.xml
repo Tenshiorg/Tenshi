@@ -117,16 +117,16 @@
     <string name="oobe_config_title_main">Streamline your Experience</string>
     <string name="oobe_config_title_sub">Customize how Tenshi looks and feels.\nYou can always change this later.</string>
     <string name="oobe_config_theme_select_title">Select a Theme</string>
-    <string name="oobe_config_theme_follow_system">Default</string>
-    <string name="oobe_config_theme_light">Light</string>
-    <string name="oobe_config_theme_dark">Dark</string>
-    <string name="oobe_config_theme_amoled">Amoled</string>
+    <string name="oobe_config_theme_follow_system">@string/settings_theme_follow_system</string>
+    <string name="oobe_config_theme_light">@string/settings_theme_light</string>
+    <string name="oobe_config_theme_dark">@string/settings_theme_dark</string>
+    <string name="oobe_config_theme_amoled">@string/settings_theme_amoled</string>
     <string name="oobe_config_other_settings_title">Other Settings</string>
     <string name="oobe_config_nsfw">Show NSFW Content</string>
-    <string name="oobe_config_nsfw_confirm_title">Confirm Age</string>
-    <string name="oobe_config_nsfw_confirm_message">To enable NSFW content, you have to be of legal age.\n Are you 18 years or older?</string>
-    <string name="oobe_config_nsfw_confirm_no">No</string>
-    <string name="oobe_config_nsfw_confirm_yes">Yes, I\'m 18+</string>
+    <string name="oobe_config_nsfw_confirm_title">@string/settings_dialog_confirm_nsfw_title</string>
+    <string name="oobe_config_nsfw_confirm_message">@string/settings_dialog_confirm_nsfw_text</string>
+    <string name="oobe_config_nsfw_confirm_no">@string/settings_dialog_confirm_nsfw_no</string>
+    <string name="oobe_config_nsfw_confirm_yes">@string/settings_dialog_confirm_nsfw_yes</string>
     <string name="oobe_config_skip_tutorial">Skip App Tutorial</string>
 
     <string name="oobe_config_dummy_1">Randomly Crash the App</string>
@@ -171,13 +171,30 @@
     <string name="settings_about_libraries_title">About Libraries</string>
     <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
 
+    <string name="settings_theme_follow_system">Default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_amoled">Amoled</string>
+
+    <string name="settings_start_tab_home">Home</string>
+    <string name="settings_start_tab_library">Library</string>
+    <string name="settings_start_tab_profile">Profile</string>
+
     <string name="settings_section_main">Settings</string>
+    <string name="settings_section_actions">Actions</string>
     <string name="settings_section_info">About</string>
+
+    <string name="settings_dialog_confirm_nsfw_title">Confirm Age</string>
+    <string name="settings_dialog_confirm_nsfw_text">To enable NSFW content, you have to be of legal age. \nAre you 18 years or older?</string>
+    <string name="settings_dialog_confirm_nsfw_yes">Yes, I\'m 18+</string>
+    <string name="settings_dialog_confirm_nsfw_no">No</string>
 
     <string name="settings_toast_restart_for_theme_change">Restart the App for Theme changes to take effect</string>
     <string name="settings_toast_tut_reset">App Tutorial has been reset!</string>
-    <string name="settings_dialog_confirm_logout">Are you sure you want to logout?</string>
-    <string name="settings_dialog_confirm_reset_prefs">Are you sure you want to reset the App Settings to default?</string>
+    <string name="settings_dialog_confirm_logout_title">Confirm Logout</string>
+    <string name="settings_dialog_confirm_logout_text">Are you sure you want to logout?</string>
+    <string name="settings_dialog_confirm_reset_prefs_title">Confirm Reset</string>
+    <string name="settings_dialog_confirm_reset_prefs_text">Are you sure you want to reset the App Settings to default?</string>
     <!-- endregion -->
 
     <!-- region tutorials -->

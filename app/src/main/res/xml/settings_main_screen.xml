@@ -26,7 +26,12 @@
             android:summaryOn="@string/settings_nsfw_toggle_on"
             android:title="@string/settings_nsfw_toggle_title" />
 
-        <!-- reset tutorial -->
+    </PreferenceCategory>
+
+    <!-- primary actions -->
+    <PreferenceCategory android:title="@string/settings_section_actions">
+
+    <!-- reset tutorial -->
         <Preference
             android:key="reset_tutorials_btn"
             android:summary="@string/settings_tut_reset_summary"
