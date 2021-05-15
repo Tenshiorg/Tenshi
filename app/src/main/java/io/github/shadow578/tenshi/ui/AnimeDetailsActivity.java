@@ -268,25 +268,24 @@ public class AnimeDetailsActivity extends TenshiActivity {
     /**
      * maybe start the tutorial, depending on the current state
      */
-    private void maybeStartTutorial(){
+    private void maybeStartTutorial() {
         // reschedule tutorial to when we finished loading the anime
-        if(isNull(animeDetails)){
+        if (isNull(animeDetails)) {
             b.getRoot().postDelayed(this::maybeStartTutorial, 1000);
             return;
         }
 
         // check if current anime is in library
-        if(notNull(animeDetails.userListStatus)){
+        if (notNull(animeDetails.userListStatus)) {
             // in lib
-            if(!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, false)){
+            if (!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, false)) {
                 new AnimeDetailsInLibTutorial(this, b, b.animeWatchNowGroup.getVisibility() == View.VISIBLE)
                         .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, true))
                         .start();
             }
-        }
-        else{
+        } else {
             // not in lib
-            if(!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, false)){
+            if (!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, false)) {
                 new AnimeDetailsNoLibTutorial(this, b)
                         .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, true))
                         .start();
@@ -359,6 +358,19 @@ public class AnimeDetailsActivity extends TenshiActivity {
      * @param watchedEpisodes the updated number of episodes watched. null if not changed
      */
     private void updateEntry(@Nullable LibraryEntryStatus status, @Nullable Integer score, @Nullable Integer watchedEpisodes) {
+        // if we watched the last episode, automatically set the status to "completed"
+        // this can both happen from watch now
+        // and by manually changing the episode count
+        // however, do not overwrite the status if it was set somewhere else
+        // OR was not set to watching before
+        final int epCount = withRet(animeDetails.episodesCount, -1, ec -> ec);
+        if (isNull(status)
+                && notNull(watchedEpisodes)
+                && watchedEpisodes >= epCount
+                && notNull(animeDetails.userListStatus)
+                && animeDetails.userListStatus.status == LibraryEntryStatus.Watching)
+            status = LibraryEntryStatus.Completed;
+
         // check if anything changed (at least one value not null)
         if (notNull(status) || score != null || watchedEpisodes != null) {
             // do update call
