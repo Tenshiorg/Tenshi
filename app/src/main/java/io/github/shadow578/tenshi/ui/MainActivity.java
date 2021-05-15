@@ -6,7 +6,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
@@ -19,6 +18,7 @@ import io.github.shadow578.tenshi.ui.fragments.HomeFragment;
 import io.github.shadow578.tenshi.ui.fragments.ProfileFragment;
 import io.github.shadow578.tenshi.ui.fragments.UserLibraryFragment;
 import io.github.shadow578.tenshi.ui.settings.SettingsActivity;
+import io.github.shadow578.tenshi.ui.tutorial.MainTutorial;
 import io.github.shadow578.tenshi.util.EnumHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -67,22 +67,6 @@ public class MainActivity extends TenshiActivity {
         // show info if offline
         showSnackbarIfOffline(b.snackbarContainer);
 
-        //region set theme
-        switch (TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem)) {
-            case Light:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case Dark:
-            case Amoled:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            case FollowSystem:
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-        }
-        //endregion
-
         // setup toolbar
         setSupportActionBar(b.mainToolbar);
         with(getSupportActionBar(), sab -> {
@@ -101,6 +85,9 @@ public class MainActivity extends TenshiActivity {
         // is logged in, proceed setting up activity
         setFragmentTransitions();
         setupNavBar(b.bottomNav, TenshiPrefs.getEnum(TenshiPrefs.Key.StartupSection, Section.class, Section.Home));
+
+        // start tutorial
+        maybeStartTutorial();
     }
 
     /**
@@ -183,7 +170,7 @@ public class MainActivity extends TenshiActivity {
     /**
      * open the search activity
      */
-    public void openSearch() {
+    private void openSearch() {
         final Intent i = new Intent(this, SearchActivity.class);
         final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, b.mainToolbar, b.mainToolbar.getTransitionName());
         startActivity(i, opt.toBundle());
@@ -192,10 +179,22 @@ public class MainActivity extends TenshiActivity {
     /**
      * open the settings activity
      */
-    public void openSettings() {
+    private void openSettings() {
         final Intent i = new Intent(this, SettingsActivity.class);
         final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, b.mainToolbar, b.mainToolbar.getTransitionName());
         startActivity(i, opt.toBundle());
+    }
+
+    /**
+     * maybe show the tutorial, if required
+     */
+    private void maybeStartTutorial(){
+        if(!TenshiPrefs.getBool(TenshiPrefs.Key.MainTutorialFinished, false)){
+            // show tutorial
+            new MainTutorial(this, b)
+                    .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.MainTutorialFinished, true))
+                    .start();
+        }
     }
 
     @Override

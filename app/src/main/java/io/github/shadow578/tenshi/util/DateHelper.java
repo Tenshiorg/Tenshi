@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -54,6 +55,15 @@ public class DateHelper {
     @NonNull
     public static LocalDateTime fromEpoc(long epoch) {
         return LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC);
+    }
+
+    /**
+     * get the number of years between the date and now
+     * @param date the date to check
+     * @return the number of years between now and the date
+     */
+    public static int getYearsToNow(LocalDate date){
+        return Period.between(date, getLocalTime().toLocalDate()).getYears();
     }
 
     /**

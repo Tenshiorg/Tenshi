@@ -43,10 +43,13 @@ import io.github.shadow578.tenshi.mal.model.LibraryStatus;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
+import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsInLibTutorial;
+import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsNoLibTutorial;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.ViewsHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -130,11 +133,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.animeDetailsToolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         // make sure we're logged in
-        if (!TenshiApp.isUserAuthenticated()) {
-            Intent i = new Intent(this, LoginActivity.class);
-            startActivity(i);
-            finish();
-        }
+        requireUserAuthenticated();
 
         // get anime id from intent extra first
         animeID = getIntent().getIntExtra(EXTRA_ANIME_ID, -1);
@@ -159,6 +158,9 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // fetch data from mal
         fetchAnime();
+
+        // start tutorial
+        maybeStartTutorial();
     }
 
     @Override
@@ -258,6 +260,35 @@ public class AnimeDetailsActivity extends TenshiActivity {
         // add the pin
         if (!ShortcutManagerCompat.requestPinShortcut(this, pinInfo, null))
             Snackbar.make(b.getRoot(), R.string.details_snack_launcher_does_not_support_pins, Snackbar.LENGTH_SHORT).show();
+    }
+
+    /**
+     * maybe start the tutorial, depending on the current state
+     */
+    private void maybeStartTutorial(){
+        // reschedule tutorial to when we finished loading the anime
+        if(isNull(animeDetails)){
+            b.getRoot().postDelayed(this::maybeStartTutorial, 1000);
+            return;
+        }
+
+        // check if current anime is in library
+        if(notNull(animeDetails.userListStatus)){
+            // in lib
+            if(!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, false)){
+                new AnimeDetailsInLibTutorial(this, b, b.animeWatchNowGroup.getVisibility() == View.VISIBLE)
+                        .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, true))
+                        .start();
+            }
+        }
+        else{
+            // not in lib
+            if(!TenshiPrefs.getBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, false)){
+                new AnimeDetailsNoLibTutorial(this, b)
+                        .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, true))
+                        .start();
+            }
+        }
     }
 
     /**

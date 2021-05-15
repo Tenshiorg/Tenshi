@@ -50,7 +50,7 @@
     </PreferenceCategory>
 
     <!-- general functions -->
-    <PreferenceCategory android:title="Crashes">
+    <PreferenceCategory android:title="Util">
         <!-- throw expection in UI -->
         <io.github.shadow578.tenshi.ui.settings.LongClickablePreference
             android:key="dbg_exception_in_ui"
@@ -63,6 +63,11 @@
             android:summary="Long Press to throw"
             android:title="Throw Exception in Background Thread" />
 
+        <!-- pretend the auth token expired -->
+        <Preference
+            android:key="dbg_auth_token_expired"
+            android:summary="Pretend that the auth token expired and refresh failed"
+            android:title="Pretend Auth token expired" />
     </PreferenceCategory>
 
     <!-- database functions -->

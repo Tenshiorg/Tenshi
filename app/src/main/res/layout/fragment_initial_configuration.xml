@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/login_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <!-- action info -->
+    <TextView
+        android:id="@+id/title_bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:text="@string/oobe_config_title_main"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/title_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_bold"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="@string/oobe_config_title_sub" />
+
+    <!-- divider -->
+    <View
+        android:id="@+id/div_title_theme_select"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/title_sub"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="?android:attr/listDivider" />
+
+    <!-- theme selection title -->
+    <TextView
+        android:id="@+id/theme_select_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/div_title_theme_select"
+        android:layout_marginStart="16dp"
+        android:text="@string/oobe_config_theme_select_title"
+        android:textStyle="bold" />
+
+
+    <!-- theme preview (dynamically inflated with theme overwrite) -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/theme_preview_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/theme_select_title"
+        android:theme="@style/TenshiTheme.SplashScreen" />
+
+    <!-- theme selection-->
+    <HorizontalScrollView
+        android:id="@+id/theme_select_radio_group_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/theme_preview_container"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
+
+        <RadioGroup
+            android:id="@+id/theme_select_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/theme_select_follow_system"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="@string/oobe_config_theme_follow_system" />
+
+            <RadioButton
+                android:id="@+id/theme_select_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="@string/oobe_config_theme_light" />
+
+            <RadioButton
+                android:id="@+id/theme_select_dark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="@string/oobe_config_theme_dark" />
+
+            <RadioButton
+                android:id="@+id/theme_select_amoled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="@string/oobe_config_theme_amoled" />
+        </RadioGroup>
+    </HorizontalScrollView>
+
+    <!-- divider -->
+    <View
+        android:id="@+id/div_theme_misc"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/theme_select_radio_group_scroll"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="?android:attr/listDivider" />
+
+    <!-- misc settings title -->
+    <TextView
+        android:id="@+id/misc_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/div_theme_misc"
+        android:layout_marginStart="16dp"
+        android:text="@string/oobe_config_other_settings_title"
+        android:textStyle="bold" />
+
+    <!-- nsfw switch -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/nsfw_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/misc_title"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/oobe_config_nsfw" />
+
+    <!-- skip tutorials switch -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/skip_tutorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nsfw_toggle"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/oobe_config_skip_tutorial" />
+
+    <!-- more first- time settings go here TODO dummy switches -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/sw_dummy_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/skip_tutorial"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/oobe_config_dummy_1" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/sw_dummy_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sw_dummy_1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/oobe_config_dummy_2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sw_dummy_2"
+        android:layout_alignStart="@id/sw_dummy_2"
+        android:text="@string/oobe_config_dummy_note"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary" />
+
+</RelativeLayout>

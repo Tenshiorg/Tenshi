@@ -10,12 +10,14 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
+import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.Util;
 
@@ -26,7 +28,7 @@ public class TenshiActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         TenshiPrefs.init(getApplicationContext());
-        applyAmoledTheme();
+        applyTheme();
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -37,13 +39,30 @@ public class TenshiActivity extends AppCompatActivity {
     }
 
     /**
-     * load the amoled theme if enabled in prefs
+     * apply the theme set in preferences
      */
-    private void applyAmoledTheme() {
-        if (TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem).equals(TenshiPrefs.Theme.Amoled))
+    private void applyTheme() {
+        // set base theme
+        final TenshiPrefs.Theme theme = TenshiPrefs.getEnum(TenshiPrefs.Key.Theme, TenshiPrefs.Theme.class, TenshiPrefs.Theme.FollowSystem);
+        if (theme.equals(TenshiPrefs.Theme.Amoled))
             setTheme(R.style.TenshiTheme_Amoled);
         else
             setTheme(R.style.TenshiTheme);
+
+        // day/night mode
+        switch (theme) {
+            case Light:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case Dark:
+            case Amoled:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            case FollowSystem:
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
     }
 
     /**
@@ -53,7 +72,7 @@ public class TenshiActivity extends AppCompatActivity {
     protected void requireUserAuthenticated() {
         if (!TenshiApp.isUserAuthenticated()) {
             // not logged in, redirect to login activity
-            Intent i = new Intent(this, LoginActivity.class);
+            Intent i = new Intent(this, OnboardingActivity.class);
             startActivity(i);
             finish();
         }

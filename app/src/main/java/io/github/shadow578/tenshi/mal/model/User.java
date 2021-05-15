@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import io.github.shadow578.tenshi.mal.Data;
@@ -49,7 +50,7 @@ public final class User {
      */
     @Nullable
     @ColumnInfo(name = "birthday")
-    public ZonedDateTime birthday;
+    public LocalDate birthday;
 
     /**
      * where the user is located at

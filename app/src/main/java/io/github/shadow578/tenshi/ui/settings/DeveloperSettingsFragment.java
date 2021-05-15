@@ -72,6 +72,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         final Context ctx = requireContext();
         setupVersionInfo();
         setupThrowExceptionFunctions();
+        setupUtilFunctions();
         setupDatabaseFunctions(ctx);
         setupSharedPrefsFunctions(ctx);
         setupContentAdapterFunctions(ctx);
@@ -80,7 +81,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     /**
      * setup all version info prefs
      */
-    private void setupVersionInfo(){
+    private void setupVersionInfo() {
         // Tenshi
         setPrefSummary("dbg_version_name", BuildConfig.VERSION_NAME);
         setPrefSummary("dbg_version_code", str(BuildConfig.VERSION_CODE));
@@ -97,10 +98,11 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
     /**
      * set the summary of a preference if that preference was found
-     * @param pref the name of the preference
+     *
+     * @param pref    the name of the preference
      * @param summary the summary to set
      */
-    private void setPrefSummary(@NonNull String pref, @NonNull String summary){
+    private void setPrefSummary(@NonNull String pref, @NonNull String summary) {
         final Preference prefPref = findPreference(pref);
         with(prefPref, p -> p.setSummary(summary));
     }
@@ -124,6 +126,18 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
             async(() -> {
                 throw new IllegalStateException("App Crash from Developer Option, Background Thread");
             });
+            return true;
+        }));
+    }
+
+    /**
+     * setup utility functions
+     */
+    private void setupUtilFunctions() {
+        // auth token expired
+        final Preference tokenExpPref = findPreference("dbg_auth_token_expired");
+        with(tokenExpPref, tokenExpBtn -> tokenExpBtn.setOnPreferenceClickListener(preference -> {
+            TenshiApp.INSTANCE.invalidateTokenAndLogin(requireActivity());
             return true;
         }));
     }

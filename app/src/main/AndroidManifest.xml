@@ -17,14 +17,14 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:label="@string/shared_app_name"
+        android:label="@string/shared_app_label"
         android:supportsRtl="true"
         android:theme="@style/TenshiTheme">
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboard|orientation|screenSize"
             android:hardwareAccelerated="true"
-            android:label="@string/shared_app_name"
+            android:label="@string/shared_app_label"
             android:theme="@style/TenshiTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,9 +33,9 @@
         </activity>
 
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".ui.oobe.OnboardingActivity"
             android:configChanges="keyboard|orientation|screenSize"
-            android:label="@string/login_title"
+            android:label="@string/oobe_title"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -45,9 +45,7 @@
 
                 <data
                     android:scheme="${redirect_scheme}"
-                    android:host="${redirect_host}"
-                    android:pathPattern="/.*"
-                    android:pathPrefix="/.*" />
+                    android:host="${redirect_host}" />
             </intent-filter>
         </activity>
 

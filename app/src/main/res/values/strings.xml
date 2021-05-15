@@ -1,6 +1,7 @@
 <resources>
     <!-- region Shared strings -->
-    <string name="shared_app_name" translatable="false">Tenshi</string>
+    <string name="app_name">Tenshi</string>
+    <string name="shared_app_label" translatable="false">Tenshi</string>
     <string name="shared_placeholder">Ingredients:\n360g flour\n350g chocolate chips\n230g butter\n200g white sugar\n220g brown sugar\n2 large eggs\n2 teaspoons vanilla extract\n1 teaspoon baking powder\n1 teaspoon salt\n\nPreheat the oven to 190 degrees Celsius. Line a baking pan with baking paper and set aside.\nIn a bowl, mix flour, salt and baking powder and set aside.\nCream butter and sugar until combined.\nBeat in eggs and vanilla until mixture is fluffy.\nMix in dry ingredients until combined.\nAdd chocolate chips and mix well.\nForm dough into balls and spread evenly on cookie sheet.\nBake in preheated oven for about 8–10 minutes. Take the cookies out when they just start to brown.\nLet the cookies rest on the cookie sheet for 2 minutes.</string>
     <string name="shared_snack_server_connect_error">Error connecting to server</string>
     <string name="shared_unknown">Unknown</string>
@@ -94,12 +95,47 @@
     <string name="details_menu_share">Share</string>
     <!-- endregion -->
 
-    <!-- region Login Activity -->
-    <string name="login_title">Login</string>
+    <!-- region Onboarding Activity -->
+    <string name="oobe_title">Onboarding</string>
+    <string name="oobe_prev_page">Back</string>
+    <string name="oobe_next_page">Next</string>
+
+    <!-- Online Check Fragment -->
+    <string name="oobe_con_check_in_progress">Checking your Connection</string>
+    <string name="oobe_con_check_failed">Please check your Internet connection.</string>
+    <string name="oobe_con_retry">Retry</string>
+
+    <!-- Login Fragment -->
     <string name="login_login">Login</string>
+    <string name="login_welcome_fmt">Hi %s!</string>
+    <string name="login_welcome_sub">Just a few steps to get you started!</string>
     <string name="login_snack_login_error">Login error</string>
-    <string name="login_toast_browser_warn">Try with another browser if you can\'t login.</string>
+    <string name="login_snack_load_profile_error">Could not load profile. Please try again.</string>
     <string name="login_toast_session_expired">Session Expired, please log in again</string>
+
+    <!-- config fragment -->
+    <string name="oobe_config_title_main">Streamline your Experience</string>
+    <string name="oobe_config_title_sub">Customize how Tenshi looks and feels.\nYou can always change this later.</string>
+    <string name="oobe_config_theme_select_title">Select a Theme</string>
+    <string name="oobe_config_theme_follow_system">@string/settings_theme_follow_system</string>
+    <string name="oobe_config_theme_light">@string/settings_theme_light</string>
+    <string name="oobe_config_theme_dark">@string/settings_theme_dark</string>
+    <string name="oobe_config_theme_amoled">@string/settings_theme_amoled</string>
+    <string name="oobe_config_other_settings_title">Other Settings</string>
+    <string name="oobe_config_nsfw">Show NSFW Content</string>
+    <string name="oobe_config_nsfw_confirm_title">@string/settings_dialog_confirm_nsfw_title</string>
+    <string name="oobe_config_nsfw_confirm_message">@string/settings_dialog_confirm_nsfw_text</string>
+    <string name="oobe_config_nsfw_confirm_no">@string/settings_dialog_confirm_nsfw_no</string>
+    <string name="oobe_config_nsfw_confirm_yes">@string/settings_dialog_confirm_nsfw_yes</string>
+    <string name="oobe_config_skip_tutorial">Skip App Tutorial</string>
+
+    <string name="oobe_config_dummy_1">Randomly Crash the App</string>
+    <string name="oobe_config_dummy_2">Use way too much data</string>
+    <string name="oobe_config_dummy_note">* JK the last two do nothing</string>
+
+    <!-- fetch finish fragment -->
+    <string name="oobe_fetch_data">Finishing Things up</string>#
+
     <!-- endregion -->
 
     <!-- region Search Activity -->
@@ -122,6 +158,8 @@
     <string name="settings_nsfw_toggle_title">Show NSFW</string>
     <string name="settings_nsfw_toggle_on">NSFW Content is visible</string>
     <string name="settings_nsfw_toggle_off">NSFW Content is filtered</string>
+    <string name="settings_tut_reset_title">Reset Tutorial</string>
+    <string name="settings_tut_reset_summary">Lets you repeat the app tutorial</string>
     <string name="settings_logout_title">Logout</string>
     <string name="settings_logout_summary">Log out of your MAL account</string>
     <string name="settings_reset_prefs_title">Reset Settings</string>
@@ -133,11 +171,59 @@
     <string name="settings_about_libraries_title">About Libraries</string>
     <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
 
+    <string name="settings_theme_follow_system">Default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_amoled">Amoled</string>
+
+    <string name="settings_start_tab_home">Home</string>
+    <string name="settings_start_tab_library">Library</string>
+    <string name="settings_start_tab_profile">Profile</string>
+
     <string name="settings_section_main">Settings</string>
+    <string name="settings_section_actions">Actions</string>
     <string name="settings_section_info">About</string>
 
+    <string name="settings_dialog_confirm_nsfw_title">Confirm Age</string>
+    <string name="settings_dialog_confirm_nsfw_text">To enable NSFW content, you have to be of legal age. \nAre you 18 years or older?</string>
+    <string name="settings_dialog_confirm_nsfw_yes">Yes, I\'m 18+</string>
+    <string name="settings_dialog_confirm_nsfw_no">No</string>
+
     <string name="settings_toast_restart_for_theme_change">Restart the App for Theme changes to take effect</string>
-    <string name="settings_dialog_confirm_logout">Are you sure you want to logout?</string>
-    <string name="settings_dialog_confirm_reset_prefs">Are you sure you want to reset the App Settings to default?</string>
+    <string name="settings_toast_tut_reset">App Tutorial has been reset!</string>
+    <string name="settings_dialog_confirm_logout_title">Confirm Logout</string>
+    <string name="settings_dialog_confirm_logout_text">Are you sure you want to logout?</string>
+    <string name="settings_dialog_confirm_reset_prefs_title">Confirm Reset</string>
+    <string name="settings_dialog_confirm_reset_prefs_text">Are you sure you want to reset the App Settings to default?</string>
+    <!-- endregion -->
+
+    <!-- region tutorials -->
+    <!-- main -->
+    <string name="tut_main_lib_title">Anime Library</string>
+    <string name="tut_main_lib_text">A Place for all your favorite anime.</string>
+    <string name="tut_main_profile_title">Profile</string>
+    <string name="tut_main_profile_text">How much time did you waste? Find the answer on the Profile page</string>
+    <string name="tut_main_home_title">Home</string>
+    <string name="tut_main_home_text">Looking for something new? Take a look on the home page</string>
+    <string name="tut_main_search_title">Search</string>
+    <string name="tut_main_search_text">Searching something specific? The global Search can help with that!</string>
+
+
+    <!-- anime details -->
+    <string name="tut_details_lib_add_title">Add to Library</string>
+    <string name="tut_details_lib_add_text">Like what you see? Add this Anime to your library</string>
+
+    <string name="tut_details_status_title">Status</string>
+    <string name="tut_details_status_text">Plan to Watch? Or actually watching? \nStay organzed by setting a status</string>
+    <string name="tut_details_eps_title">Episodes</string>
+    <string name="tut_details_eps_text">Just finished a episode? Track them here</string>
+    <string name="tut_details_rating_title">Rating</string>
+    <string name="tut_details_rating_text">Like this anime? or not? \nTell the world here</string>
+    <string name="tut_details_share_title">Share</string>
+    <string name="tut_details_share_text">Know someone? Share this anime with them</string>
+    <string name="tut_details_watch_title">Watch Now</string>
+    <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
+    <string name="tut_details_delete_title">Remove from Library</string>
+    <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
     <!-- endregion -->
 </resources>
