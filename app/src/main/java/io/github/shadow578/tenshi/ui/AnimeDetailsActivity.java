@@ -188,7 +188,10 @@ public class AnimeDetailsActivity extends TenshiActivity {
             // if we already have a library status, just increment episode by 1
             // otherwise, add this anime as a new entry in Watching with 1 episode watched
             if (notNull(animeDetails.userListStatus)) {
-                final int nextEpisode = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
+                // get next episode in correct range 1 - n
+                final int nextEpisode = Math.max(1, Math.min(withRet(animeDetails.episodesCount, 0, ec -> ec),
+                        withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1
+                ));
                 updateEntry(null, null, nextEpisode);
             } else
                 updateEntry(LibraryEntryStatus.Watching, null, 1);
@@ -667,9 +670,11 @@ public class AnimeDetailsActivity extends TenshiActivity {
             final String un = TenshiApp.getDB().contentAdapterDB().getSelectionFor(animeID);
             return TenshiApp.getContentAdapterManager().getAdapterOrDefault(un);
         }, contentAdapter -> {
-            // unbox watched episode count safely
+            // unbox watched episode count safely and clamp to the actual possible range of episodes (1 - n)
             // normally, this should never be null (checked elsewhere), but better be safe then sorry
-            final int nextEpisode = withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1;
+            final int nextEpisode = Math.max(1, Math.min(withRet(animeDetails.episodesCount, 0, ec -> ec),
+                    withRet(animeDetails.userListStatus, 0, ul -> ul.watchedEpisodes) + 1
+            ));
 
             // update button text
             with(contentAdapter, ca ->

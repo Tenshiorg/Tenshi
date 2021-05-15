@@ -431,7 +431,6 @@ public class TenshiApp extends Application {
     /**
      * @return is a user authenticated and we have a access token?
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isUserAuthenticated() {
         return notNull(INSTANCE.token) && !nullOrWhitespace(INSTANCE.token.token);
     }
