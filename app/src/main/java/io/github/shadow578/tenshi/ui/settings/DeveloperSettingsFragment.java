@@ -1,18 +1,24 @@
 package io.github.shadow578.tenshi.ui.settings;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -21,6 +27,7 @@ import androidx.preference.PreferenceManager;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -30,6 +37,9 @@ import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
+import io.github.shadow578.tenshi.notifications.NotificationChannels;
+import io.github.shadow578.tenshi.notifications.NotificationHelper;
+import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
@@ -51,6 +61,11 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
      */
     private static final int REQUEST_CHOOSE_DB_EXPORT_PATH = 21;
 
+    /**
+     * context. setup before any setup*() functions are called.
+     */
+    private Context ctx;
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -69,13 +84,14 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.settings_dev_screen, rootKey);
 
         // init dynamic stuff
-        final Context ctx = requireContext();
+        ctx = requireContext();
         setupVersionInfo();
         setupThrowExceptionFunctions();
         setupUtilFunctions();
-        setupDatabaseFunctions(ctx);
-        setupSharedPrefsFunctions(ctx);
-        setupContentAdapterFunctions(ctx);
+        setupNotificationFunctions();
+        setupDatabaseFunctions();
+        setupSharedPrefsFunctions();
+        setupContentAdapterFunctions();
     }
 
     /**
@@ -143,11 +159,102 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * setup debug functions for database
-     *
-     * @param ctx the context to work in
+     * setup notification test functions
      */
-    private void setupDatabaseFunctions(@NonNull Context ctx) {
+    private void setupNotificationFunctions() {
+        // notification now
+        final Preference notifyNow = findPreference("dbg_notification_now");
+        with(notifyNow, notify -> notify.setOnPreferenceClickListener(preference -> {
+            NotificationHelper.sendNow(ctx,
+                    0,
+                    getTestNotification("dbg_notification_now"));
+            Toast.makeText(ctx, "send notification", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification in 30s
+        final Preference notify30s = findPreference("dbg_notification_thirty_seconds");
+        with(notify30s, notify -> notify.setOnPreferenceClickListener(preference -> {
+            NotificationHelper.sendIn(ctx,
+                    0,
+                    getTestNotification("dbg_notification_thirty_seconds"),
+                    30_000);
+            Toast.makeText(ctx, "scheduled notification in 30s", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification in 5m
+        final Preference notify5m = findPreference("dbg_notification_five_minutes");
+        with(notify5m, notify -> notify.setOnPreferenceClickListener(preference -> {
+            NotificationHelper.sendIn(ctx,
+                    0,
+                    getTestNotification("dbg_notification_five_minutes"),
+                    5 * 60 * 1_000);
+            Toast.makeText(ctx, "scheduled notification in 5min", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification at time
+        // yes, this is callback hell :(
+        final Preference notifyAt = findPreference("dbg_notification_at_time");
+        with(notifyAt, notify -> notify.setOnPreferenceClickListener(preference -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                // select date
+                final DatePickerDialog dateDialog = new DatePickerDialog(ctx);
+                dateDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+                    // select time
+                    final LocalDateTime now = DateHelper.getLocalTime();
+                    final TimePickerDialog timeDialog = new TimePickerDialog(ctx, (view1, hourOfDay, minute) -> {
+                        // both date and time have been selected, build the target datetime
+                        final LocalDateTime target = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute, 0);
+
+                        // schedule the notification
+                        NotificationHelper.sendAt(ctx,
+                                0,
+                                getTestNotification("dbg_notification_at_time at " + target.toString()),
+                                target);
+                        Toast.makeText(ctx, "scheduled notification for " + target.toString(), Toast.LENGTH_SHORT).show();
+                    },
+                            now.getHour(),
+                            now.getMinute(),
+                            true);
+                    timeDialog.show();
+                });
+                dateDialog.show();
+            } else {
+                Toast.makeText(ctx, "only supported on Android N and above!", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }));
+    }
+
+    /**
+     * creates a test notification with the given text int the {@link NotificationChannels#DEVELOPER} channel
+     *
+     * @param text the text of the notification
+     * @return the notification
+     */
+    @NonNull
+    private Notification getTestNotification(@NonNull String text) {
+        // create channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationHelper.createNotificationChannel(ctx,
+                    NotificationChannels.DEVELOPER.toString(),
+                    "Developer Option Notifications",
+                    "Notifications send by Tenshi Developer options for debugging.",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+        }
+        // create notification
+        return new NotificationCompat.Builder(ctx, NotificationChannels.DEVELOPER.toString()).setContentText("Test Notification")
+                .setSmallIcon(R.drawable.ic_splash)
+                .setContentText(text)
+                .build();
+    }
+
+    /**
+     * setup debug functions for database
+     */
+    private void setupDatabaseFunctions() {
         // setup 'export database' button
         final Preference exportDbPref = findPreference("dbg_export_database");
         final String dbPath = TenshiDB.getDatabasePath(ctx).getAbsolutePath();
@@ -187,10 +294,8 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
     /**
      * setup debug functions for shared preferences
-     *
-     * @param ctx the context to work in
      */
-    private void setupSharedPrefsFunctions(@NonNull Context ctx) {
+    private void setupSharedPrefsFunctions() {
         // find preferences container for key enum
         final PreferenceCategory enumPref = findPreference("dbg_prefs_of_enum");
         with(enumPref, container -> {
@@ -285,10 +390,8 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
     /**
      * setup debug functions for content adapters
-     *
-     * @param ctx the context to work in
      */
-    private void setupContentAdapterFunctions(@NonNull Context ctx) {
+    private void setupContentAdapterFunctions() {
         // find preferences container for key enum
         final PreferenceCategory enumPref = findPreference("dbg_content_adapters_container");
         with(enumPref, container -> {
