@@ -16,7 +16,9 @@ import java.time.ZonedDateTime;
 import java.util.Random;
 
 import io.github.shadow578.tenshi.R;
+import io.github.shadow578.tenshi.notifications.db.NotificationsDB;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 
@@ -37,8 +39,15 @@ public class TenshiNotificationManager {
     @NonNull
     private final Random rnd = new Random();
 
+    /**
+     * scheduled notifications db
+     */
+    @NonNull
+    private final NotificationsDB db;
+
     public TenshiNotificationManager(@NonNull Context ctx) {
         this.ctx = ctx;
+        db = NotificationsDB.create(ctx);
     }
 
     /**
@@ -54,10 +63,19 @@ public class TenshiNotificationManager {
 
     /**
      * get a random notification id
+     *
      * @return random notification id
      */
-    public int randomId(){
+    public int randomId() {
         return rnd.nextInt();
+    }
+
+    /**
+     * @return the notifications db
+     */
+    @NonNull
+    public NotificationsDB getNotificationsDB() {
+        return db;
     }
 
     // region immediately
@@ -65,7 +83,7 @@ public class TenshiNotificationManager {
     /**
      * immediately send a notification
      *
-     * @param notification   the notification
+     * @param notification the notification
      */
     public void sendNow(@NonNull Notification notification) {
         sendNow(randomId(), notification);
@@ -89,8 +107,8 @@ public class TenshiNotificationManager {
      * send a notification after a delay
      * {@link #sendAt(int, Notification, long)}
      *
-     * @param notification   the notification
-     * @param delay          the millisecond delay until publishing the notification
+     * @param notification the notification
+     * @param delay        the millisecond delay until publishing the notification
      */
     public void sendIn(@NonNull Notification notification, long delay) {
         sendIn(randomId(), notification, delay);
@@ -112,8 +130,8 @@ public class TenshiNotificationManager {
      * send a notification at a specific time
      * {@link #sendAt(int, Notification, long)}
      *
-     * @param notification   the notification
-     * @param time           the time to send the notification at.
+     * @param notification the notification
+     * @param time         the time to send the notification at.
      */
     public void sendAt(@NonNull Notification notification, @NonNull LocalDateTime time) {
         sendAt(randomId(), notification, time);
@@ -139,8 +157,8 @@ public class TenshiNotificationManager {
     /**
      * send a notification at a specific time, using AlarmManager.
      *
-     * @param notification   the notification
-     * @param timestamp      the time to send the notification at. see {@link System#currentTimeMillis()}
+     * @param notification the notification
+     * @param timestamp    the time to send the notification at. see {@link System#currentTimeMillis()}
      */
     public void sendAt(@NonNull Notification notification, long timestamp) {
         sendAt(randomId(), notification, timestamp);
@@ -154,6 +172,17 @@ public class TenshiNotificationManager {
      * @param timestamp      the time to send the notification at. see {@link System#currentTimeMillis()}
      */
     public void sendAt(int notificationId, @NonNull Notification notification, long timestamp) {
+        sendAtImpl(notificationId, notification, timestamp, true);
+    }
+
+    /**
+     * send a notification at a specific time, using AlarmManager.
+     *
+     * @param notificationId the notification id
+     * @param notification   the notification
+     * @param timestamp      the time to send the notification at. see {@link System#currentTimeMillis()}
+     */
+    void sendAtImpl(int notificationId, @NonNull Notification notification, long timestamp, boolean insertIntoDB) {
         // ensure the time is not in the past
         // if the time is in the past, log a error and adjust the target to send right away.
         if (System.currentTimeMillis() >= timestamp) {
@@ -173,6 +202,12 @@ public class TenshiNotificationManager {
 
         // set the alarm
         AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, timestamp, intent);
+
+        // insert into database of scheduled notification
+        if (insertIntoDB) {
+            final long timestampF = timestamp;
+            async(() -> db.notificationsDB().addNotification(notificationId, notification, timestampF));
+        }
 
         //TODO alarm manager does not persist between reboot, so we have to subscribe to onboot broadcast to re- schedule any pending notifications
         // ... at least in the future. right now, we should be fine :P

@@ -447,7 +447,7 @@ public class TenshiApp extends Application {
      * @return the notification manager
      */
     @NonNull
-    public static TenshiNotificationManager notifyManager() {
+    public static TenshiNotificationManager getNotifyManager() {
         return INSTANCE.notificationManager;
     }
 

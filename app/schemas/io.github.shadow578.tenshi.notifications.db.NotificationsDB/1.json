@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "cd213e38d6dbe00a42c422e7d6acd26d",
+    "entities": [
+      {
+        "tableName": "scheduled_notifications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`notification_id` INTEGER NOT NULL, `notification_date` TEXT, `send_at` INTEGER NOT NULL, PRIMARY KEY(`notification_id`))",
+        "fields": [
+          {
+            "fieldPath": "notificationId",
+            "columnName": "notification_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notification",
+            "columnName": "notification_date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "targetTimestamp",
+            "columnName": "send_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "notification_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_scheduled_notifications_notification_id",
+            "unique": true,
+            "columnNames": [
+              "notification_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_scheduled_notifications_notification_id` ON `${TABLE_NAME}` (`notification_id`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cd213e38d6dbe00a42c422e7d6acd26d')"
+    ]
+  }
+}

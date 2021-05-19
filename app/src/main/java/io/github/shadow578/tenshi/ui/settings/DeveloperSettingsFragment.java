@@ -161,7 +161,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         // notification now
         final Preference notifyNow = findPreference("dbg_notification_now");
         with(notifyNow, notify -> notify.setOnPreferenceClickListener(preference -> {
-            TenshiApp.notifyManager().sendNow(getTestNotification("dbg_notification_now"));
+            TenshiApp.getNotifyManager().sendNow(getTestNotification("dbg_notification_now"));
             Toast.makeText(ctx, "send notification", Toast.LENGTH_SHORT).show();
             return true;
         }));
@@ -169,7 +169,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         // notification in 30s
         final Preference notify30s = findPreference("dbg_notification_thirty_seconds");
         with(notify30s, notify -> notify.setOnPreferenceClickListener(preference -> {
-            TenshiApp.notifyManager().sendIn(getTestNotification("dbg_notification_thirty_seconds"),
+            TenshiApp.getNotifyManager().sendIn(getTestNotification("dbg_notification_thirty_seconds"),
                     30_000);
             Toast.makeText(ctx, "scheduled notification in 30s", Toast.LENGTH_SHORT).show();
             return true;
@@ -178,7 +178,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         // notification in 5m
         final Preference notify5m = findPreference("dbg_notification_five_minutes");
         with(notify5m, notify -> notify.setOnPreferenceClickListener(preference -> {
-            TenshiApp.notifyManager().sendIn(getTestNotification("dbg_notification_five_minutes"),
+            TenshiApp.getNotifyManager().sendIn(getTestNotification("dbg_notification_five_minutes"),
                     5 * 60 * 1_000);
             Toast.makeText(ctx, "scheduled notification in 5min", Toast.LENGTH_SHORT).show();
             return true;
@@ -199,7 +199,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
                         final LocalDateTime target = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute, 0);
 
                         // schedule the notification
-                        TenshiApp.notifyManager().sendAt(getTestNotification("dbg_notification_at_time at " + target.toString()),
+                        TenshiApp.getNotifyManager().sendAt(getTestNotification("dbg_notification_at_time at " + target.toString()),
                                 target);
                         Toast.makeText(ctx, "scheduled notification for " + target.toString(), Toast.LENGTH_SHORT).show();
                     },
@@ -225,7 +225,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     @NonNull
     private Notification getTestNotification(@NonNull String text) {
         // create notification
-        return TenshiApp.notifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+        return TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
                 .setContentTitle("Test Notification")
                 .setContentText(text)
                 .build();
