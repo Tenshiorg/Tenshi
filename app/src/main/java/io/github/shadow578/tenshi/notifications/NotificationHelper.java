@@ -2,26 +2,22 @@ package io.github.shadow578.tenshi.notifications;
 
 import android.app.AlarmManager;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.AlarmManagerCompat;
-import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.NotificationCompat;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+
+import io.github.shadow578.tenshi.R;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * helper class to send and schedule notifications
@@ -29,22 +25,14 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrW
 public class NotificationHelper {
 
     /**
-     * create a notification channel
-     *
-     * @param ctx         the context to work in
-     * @param id          the id of the channel
-     * @param name        the name of the channel
-     * @param description the description of the channel
-     * @param importance  how important this channel is. for example {@link android.app.NotificationManager#IMPORTANCE_DEFAULT}
+     * create a new notification builder in the given channel, with the app icon set as {@link NotificationCompat.Builder#setSmallIcon(int)}
+     * @param ctx the context to work in
+     * @param channel the channel for the notification
+     * @return the notification builder
      */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static void createNotificationChannel(@NonNull Context ctx, @NonNull String id, @NonNull String name, @Nullable String description, int importance) {
-        final NotificationChannel channel = new NotificationChannel(id, name, importance);
-        if (!nullOrWhitespace(description))
-            channel.setDescription(description);
-
-        NotificationManagerCompat.from(ctx)
-                .createNotificationChannel(channel);
+    public static NotificationCompat.Builder builder(@NonNull Context ctx, @NonNull TenshiNotificationChannel channel) {
+        return new NotificationCompat.Builder(ctx, channel.id())
+                .setSmallIcon(R.mipmap.ic_launcher);
     }
 
     /**

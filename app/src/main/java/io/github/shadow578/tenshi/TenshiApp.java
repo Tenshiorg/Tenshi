@@ -28,6 +28,7 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
@@ -106,6 +107,11 @@ public class TenshiApp extends Application {
         // auth with MAL
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
+
+        // init notification channels
+        // right now, no further configuration is required.
+        // because of this, the configure function just accepts all channels
+        TenshiNotificationChannel.registerAll(getApplicationContext(), (value, channel) -> true);
 
         // init database and start cleanup
         database = TenshiDB.create(getApplicationContext());
@@ -225,12 +231,13 @@ public class TenshiApp extends Application {
             createRetrofit();
         }
     }
+
     /**
      * invalidate and remove the saved auth token, saved user data and preferences, then redirect to the Login activity
      *
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
-    public void logoutAndLogin(@NonNull Activity ctx){
+    public void logoutAndLogin(@NonNull Activity ctx) {
         // delete user data and config
         deleteUserData();
         TenshiPrefs.clear();

@@ -226,4 +226,11 @@
     <string name="tut_details_delete_title">Remove from Library</string>
     <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
     <!-- endregion -->
+
+    <!-- region notifications -->
+    <!-- notification channels -->
+    <string name="notify_channel_default_name">Default</string>
+    <string name="notify_channel_default_desc">Fallback Notification channel. Tenshi uses this channel if no other channel is available. So don\'t expect many notifications on this.</string>
+
+    <!-- endregion -->
 </resources>

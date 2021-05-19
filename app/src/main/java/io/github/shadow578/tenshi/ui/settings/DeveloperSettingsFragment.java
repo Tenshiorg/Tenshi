@@ -3,7 +3,6 @@ package io.github.shadow578.tenshi.ui.settings;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -11,14 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -37,8 +34,8 @@ import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
-import io.github.shadow578.tenshi.notifications.NotificationChannels;
 import io.github.shadow578.tenshi.notifications.NotificationHelper;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -229,24 +226,16 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * creates a test notification with the given text int the {@link NotificationChannels#DEVELOPER} channel
+     * creates a test notification with the given text int the {@link TenshiNotificationChannel#Default} channel
      *
      * @param text the text of the notification
      * @return the notification
      */
     @NonNull
     private Notification getTestNotification(@NonNull String text) {
-        // create channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationHelper.createNotificationChannel(ctx,
-                    NotificationChannels.DEVELOPER.toString(),
-                    "Developer Option Notifications",
-                    "Notifications send by Tenshi Developer options for debugging.",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-        }
         // create notification
-        return new NotificationCompat.Builder(ctx, NotificationChannels.DEVELOPER.toString()).setContentText("Test Notification")
-                .setSmallIcon(R.drawable.ic_splash)
+        return NotificationHelper.builder(ctx, TenshiNotificationChannel.Default)
+                .setContentTitle("Test Notification")
                 .setContentText(text)
                 .build();
     }
