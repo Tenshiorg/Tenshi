@@ -42,13 +42,27 @@ public class NotificationPublisher extends BroadcastReceiver {
      * @return the intent for the broadcast
      */
     @NonNull
-    public static PendingIntent getIntent(@NonNull Context ctx, int notificationId, @NonNull Notification notification) {
+    public static Intent getIntent(@NonNull Context ctx, int notificationId, @NonNull Notification notification) {
         final Intent nfIntent = new Intent(ctx, NotificationPublisher.class);
         nfIntent.setAction(ACTION_PUBLISH_NOTIFICATION);
         nfIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
         nfIntent.putExtra(EXTRA_NOTIFICATION_CONTENT, notification);
+        return nfIntent;
+    }
 
-        return PendingIntent.getBroadcast(ctx, 0, nfIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    /**
+     * create a pending intent for publishing a notification.
+     * if a intent for the same notification id was already created, it is updated.
+     *
+     * @param ctx            the context to work in
+     * @param notificationId the notification id to use
+     * @param notification   the notification
+     * @return the intent for the broadcast
+     */
+    @NonNull
+    public static PendingIntent getPendingIntent(@NonNull Context ctx, int notificationId, @NonNull Notification notification) {
+        final Intent nfIntent = getIntent(ctx, notificationId, notification);
+        return PendingIntent.getBroadcast(ctx, notificationId, nfIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override

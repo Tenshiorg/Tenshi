@@ -29,6 +29,7 @@ import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
@@ -96,6 +97,11 @@ public class TenshiApp extends Application {
      */
     private TenshiDB database;
 
+    /**
+     * notification manager
+     */
+    private TenshiNotificationManager notificationManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -108,7 +114,9 @@ public class TenshiApp extends Application {
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
 
-        // init notification channels
+        // init notifications api
+        notificationManager = new TenshiNotificationManager(getApplicationContext());
+
         // right now, no further configuration is required.
         // because of this, the configure function just accepts all channels
         TenshiNotificationChannel.registerAll(getApplicationContext(), (value, channel) -> true);
@@ -433,6 +441,14 @@ public class TenshiApp extends Application {
     @NonNull
     public static TenshiDB getDB() {
         return INSTANCE.database;
+    }
+
+    /**
+     * @return the notification manager
+     */
+    @NonNull
+    public static TenshiNotificationManager notifyManager() {
+        return INSTANCE.notificationManager;
     }
 
     /**
