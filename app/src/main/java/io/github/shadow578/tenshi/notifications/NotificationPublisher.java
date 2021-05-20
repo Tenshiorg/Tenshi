@@ -10,10 +10,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationManagerCompat;
 
-import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.notifications.db.NotificationsDB;
-
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 
@@ -90,20 +86,6 @@ public class NotificationPublisher extends BroadcastReceiver {
             // publish notification
             NotificationManagerCompat.from(ctx)
                     .notify(notificationId, notification);
-
-            // get notifications database instance
-            // create the instance if the app is not running
-            final NotificationsDB db;
-            if (notNull(TenshiApp.INSTANCE)) {
-                // we have a app instance, assume the db is ok too
-                db = TenshiApp.getNotifyManager().getNotificationsDB();
-            } else {
-                // no app instance available, have to init db ourselves
-                db = NotificationsDB.create(ctx);
-            }
-
-            // remove this notification from the database
-            async(() -> db.notificationsDB().removeNotification(notificationId));
         }
     }
 }

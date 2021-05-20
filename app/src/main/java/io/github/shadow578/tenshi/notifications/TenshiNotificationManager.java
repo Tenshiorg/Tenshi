@@ -16,9 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.Random;
 
 import io.github.shadow578.tenshi.R;
-import io.github.shadow578.tenshi.notifications.db.NotificationsDB;
 
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 
@@ -39,15 +37,8 @@ public class TenshiNotificationManager {
     @NonNull
     private final Random rnd = new Random();
 
-    /**
-     * scheduled notifications db
-     */
-    @NonNull
-    private final NotificationsDB db;
-
     public TenshiNotificationManager(@NonNull Context ctx) {
         this.ctx = ctx;
-        db = NotificationsDB.create(ctx);
     }
 
     /**
@@ -68,14 +59,6 @@ public class TenshiNotificationManager {
      */
     public int randomId() {
         return rnd.nextInt();
-    }
-
-    /**
-     * @return the notifications db
-     */
-    @NonNull
-    public NotificationsDB getNotificationsDB() {
-        return db;
     }
 
     // region immediately
@@ -172,17 +155,6 @@ public class TenshiNotificationManager {
      * @param timestamp      the time to send the notification at. see {@link System#currentTimeMillis()}
      */
     public void sendAt(int notificationId, @NonNull Notification notification, long timestamp) {
-        sendAtImpl(notificationId, notification, timestamp, true);
-    }
-
-    /**
-     * send a notification at a specific time, using AlarmManager.
-     *
-     * @param notificationId the notification id
-     * @param notification   the notification
-     * @param timestamp      the time to send the notification at. see {@link System#currentTimeMillis()}
-     */
-    void sendAtImpl(int notificationId, @NonNull Notification notification, long timestamp, boolean insertIntoDB) {
         // ensure the time is not in the past
         // if the time is in the past, log a error and adjust the target to send right away.
         if (System.currentTimeMillis() >= timestamp) {
@@ -203,14 +175,12 @@ public class TenshiNotificationManager {
         // set the alarm
         AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, timestamp, intent);
 
-        // insert into database of scheduled notification
-        if (insertIntoDB) {
-            final long timestampF = timestamp;
-            async(() -> db.notificationsDB().addNotification(notificationId, notification, timestampF));
-        }
-
-        //TODO alarm manager does not persist between reboot, so we have to subscribe to onboot broadcast to re- schedule any pending notifications
-        // ... at least in the future. right now, we should be fine :P
+        //TODO: alarm manager does not persist between reboots.
+        // this means that we'd have to store, and re- schedule, any notifications that are still pending when the device boots.
+        // in theory, this would be really simple, right?
+        // just store the notification in a database with the time it should be sent, and register a BOOT_COMPLETED listener to reschedule them...
+        // well, turns out that storing (or serializing) the notification object isn't really possible easily...
+        // so, maybe this will be added someday, but for now it's fine
     }
 
     // endregion
