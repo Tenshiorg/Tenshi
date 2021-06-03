@@ -82,7 +82,13 @@ public class TenshiPrefs {
         /**
          * did the user finish / skip the anime details activity tutorial for anime in the user library?
          */
-        AnimeDetailsInLibTutorialFinished
+        AnimeDetailsInLibTutorialFinished,
+
+        /**
+         * date and time the {@link io.github.shadow578.tenshi.notifications.workers.MediaUpdateNotificationsWorker} last ran, plus info on exceptions in the worker
+         * TODO this is temporary only, and should not be included in production
+         */
+        DBG_MediaUpdateNotificationsWorkerLastRunInfo
     }
 
     /**

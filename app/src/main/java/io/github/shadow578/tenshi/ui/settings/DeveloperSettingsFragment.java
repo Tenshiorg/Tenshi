@@ -50,6 +50,8 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
  * the developer options preference screen
+ * <p>
+ * TODO: use methods for common functions ("labels", "buttons")
  */
 public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
@@ -86,6 +88,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         setupThrowExceptionFunctions();
         setupUtilFunctions();
         setupNotificationFunctions();
+        setupWorkerFunctions();
         setupDatabaseFunctions();
         setupSharedPrefsFunctions();
         setupContentAdapterFunctions();
@@ -156,10 +159,10 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * setup notification test functions
+     * setup work manager test functions
      */
-    private void setupNotificationFunctions() {
-        // worker test
+    private void setupWorkerFunctions() {
+        // media update worker run now
         final Preference mediaWorkerNow = findPreference("dbg_media_update_worker_now");
         with(mediaWorkerNow, wrk -> wrk.setOnPreferenceClickListener(preference -> {
             MediaUpdateNotificationsWorker.runNow(ctx);
@@ -167,7 +170,16 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
             return true;
         }));
 
+        // media update worker last run
+        final Preference mediaWorkerLastRun = findPreference("dbg_media_update_worker_last_run");
+        with(mediaWorkerLastRun, wrk ->
+                wrk.setSummary(TenshiPrefs.getString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, "unknown")));
+    }
 
+    /**
+     * setup notification test functions
+     */
+    private void setupNotificationFunctions() {
         // notification now
         final Preference notifyNow = findPreference("dbg_notification_now");
         with(notifyNow, notify -> notify.setOnPreferenceClickListener(preference -> {

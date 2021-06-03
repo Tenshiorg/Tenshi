@@ -70,15 +70,23 @@
             android:title="Pretend Auth token expired" />
     </PreferenceCategory>
 
-    <!-- notifications -->
-    <PreferenceCategory android:title="Notifications">
+    <!-- workers -->
+    <PreferenceCategory android:title="Workers">
         <!-- run MediaUpdateNotificationsWorker now -->
         <Preference
             android:key="dbg_media_update_worker_now"
             android:title="Run MediaUpdateNotificationWorker"
             android:summary="call MediaUpdateNotificationsWorker#doWork()"/>
 
+        <!-- extensionLib: build type -->
+        <Preference
+            android:key="dbg_media_update_worker_last_run"
+            android:title="MediaUpdateNotificationWorker last run" />
 
+    </PreferenceCategory>
+
+    <!-- notifications -->
+    <PreferenceCategory android:title="Notifications">
         <!-- notification now -->
         <Preference
             android:key="dbg_notification_now"

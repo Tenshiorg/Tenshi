@@ -18,6 +18,8 @@ import androidx.work.WorkerParameters;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +37,7 @@ import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibrarySortMode;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
@@ -109,6 +112,18 @@ public class MediaUpdateNotificationsWorker extends Worker {
                 .cancelUniqueWork(UNIQUE_WORKER_NAME);
     }
 
+    /**
+     * the database instance.
+     * this should be initialized in {@link #doWork()} before anything depending on it is called.
+     */
+    private TenshiDB db;
+
+    /**
+     * notification manager instance.
+     * this should be initialized in {@link #doWork()} before anything depending on it is called.
+     */
+    private TenshiNotificationManager notifyManager;
+
     @NonNull
     @Override
     public Result doWork() {
@@ -129,7 +144,6 @@ public class MediaUpdateNotificationsWorker extends Worker {
 
             // initialize database
             // if the app is running, use the instance from TenshiApp. otherwise, init it manually
-            final TenshiDB db;
             if (notNull(TenshiApp.INSTANCE)) {
                 // we should have a db instance, use that
                 db = TenshiApp.getDB();
@@ -138,20 +152,49 @@ public class MediaUpdateNotificationsWorker extends Worker {
                 db = TenshiDB.create(getApplicationContext());
             }
 
+            // initialize notification manager
+            // same as for the db
+            if (notNull(TenshiApp.INSTANCE)) {
+                // we should have a notify manager instance, use that
+                notifyManager = TenshiApp.getNotifyManager();
+            } else {
+                // no notify manager instance, fallback to creating one
+                notifyManager = new TenshiNotificationManager(getApplicationContext());
+
+                // also have to register channels
+                TenshiNotificationChannel.registerAll(getApplicationContext(), (value, channel) -> true);
+            }
+
             // get NSFW preference
             TenshiPrefs.init(getApplicationContext());
             final boolean showNSFW = TenshiPrefs.getBool(TenshiPrefs.Key.NSFW, false);
-
             // TODO: update database categories
 
             // check alarms
-            checkAiringAlarms(db, showNSFW);
-            checkRelatedAiringAlarms(db, showNSFW);
+            checkAiringAlarms(showNSFW);
+            checkRelatedAiringAlarms(showNSFW);
+
+            // write run time to prefs
+            TenshiPrefs.setString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, DateHelper.getLocalTime().toString() + " success");
 
             return Result.success();
         } catch (Exception e) {
             // idk, retry on error
             e.printStackTrace();
+
+            // write error info to prefs instead of last run date
+            StringWriter b = new StringWriter();
+            e.printStackTrace(new PrintWriter(b));
+            TenshiPrefs.setString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo,
+                    DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
+
+            // send a notification with the error
+            Notification n = notifyManager.notificationBuilder(TenshiNotificationChannel.Default)
+                    .setContentTitle("MediaUpdateNotificationsWorker exception")
+                    .setContentText(e.toString() + ": " + b.toString())
+                    .build();
+            notifyManager.sendNow(n);
+
             return Result.retry();
         }
     }
@@ -159,10 +202,9 @@ public class MediaUpdateNotificationsWorker extends Worker {
     /**
      * check and schedule notifications for anime that will air soon
      *
-     * @param db       database instance
      * @param showNSFW include NSFW anime?
      */
-    private void checkAiringAlarms(@NonNull TenshiDB db, boolean showNSFW) {
+    private void checkAiringAlarms(boolean showNSFW) {
         // get all anime we want to check if they are airing soon
         final List<UserLibraryEntry> animeForAiringCheck = getEntries(db, getCategoriesForAiringAlarms(), showNSFW);
 
@@ -218,10 +260,9 @@ public class MediaUpdateNotificationsWorker extends Worker {
     /**
      * check and schedule notifications for related anime that will premiere soon
      *
-     * @param db       database instance
      * @param showNSFW include NSFW anime?
      */
-    private void checkRelatedAiringAlarms(@NonNull TenshiDB db, boolean showNSFW) {
+    private void checkRelatedAiringAlarms(boolean showNSFW) {
         // get all anime we want to check if any of their related anime will premiere soon
         final List<UserLibraryEntry> animeForAiringCheck = getEntries(db, getCategoriesForRelatedPremiereAlarms(), showNSFW);
 
@@ -274,13 +315,13 @@ public class MediaUpdateNotificationsWorker extends Worker {
         // create notification
         final Notification notification;
         if (isPremiere) {
-            notification = TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+            notification = notifyManager.notificationBuilder(TenshiNotificationChannel.Default)
                     .setContentTitle(entry.anime.title + " premiers soon")
                     .setContentText(entry.anime.title + " will premiere soon! check it out now.")
                     .setContentIntent(getDetailsOpenIntent(entry.anime.animeId))
                     .build();
         } else {
-            notification = TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+            notification = notifyManager.notificationBuilder(TenshiNotificationChannel.Default)
                     .setContentTitle(entry.anime.title + " airs soon")
                     .setContentText(entry.anime.title + " will air soon! check it out now.")
                     .setContentIntent(getDetailsOpenIntent(entry.anime.animeId))
@@ -288,7 +329,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
         }
 
         // schedule notification
-        TenshiApp.getNotifyManager().sendAt(entry.anime.animeId, notification, nextBroadcastTime);
+        notifyManager.sendAt(entry.anime.animeId, notification, nextBroadcastTime);
     }
 
     /**
@@ -302,14 +343,14 @@ public class MediaUpdateNotificationsWorker extends Worker {
         //TODO notification channel and content + setWhen
 
         // create notification
-        final Notification notification = TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+        final Notification notification = notifyManager.notificationBuilder(TenshiNotificationChannel.Default)
                 .setContentTitle(related.relatedAnime.title + " will air soon")
                 .setContentText(related.relatedAnime.title + "(related to " + parent.anime.title + ") will air on " + broadcast.weekday + "! check it out now.")
                 .setContentIntent(getDetailsOpenIntent(related.relatedAnime.animeId))
                 .build();
 
         // and schedule it
-        TenshiApp.getNotifyManager().sendNow(related.relatedAnime.animeId, notification);
+        notifyManager.sendNow(related.relatedAnime.animeId, notification);
     }
 
     /**
