@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -17,6 +18,7 @@ import androidx.work.WorkerParameters;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -79,6 +81,22 @@ public class MediaUpdateNotificationsWorker extends Worker {
         // enqueue the worker with the unique name
         WorkManager.getInstance(ctx)
                 .enqueueUniquePeriodicWork(UNIQUE_WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, workRequest);
+    }
+
+    /**
+     * run the worker now, ignoring disable state and constrains.
+     * (for testing)
+     *
+     * @param ctx the context to run in
+     */
+    public static void runNow(@NonNull Context ctx) {
+        // create worker
+        final OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(MediaUpdateNotificationsWorker.class)
+                .build();
+
+        // enqueue the worker
+        WorkManager.getInstance(ctx)
+                .enqueue(workRequest);
     }
 
     /**
@@ -150,6 +168,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
 
         // get the current time and weekday in japan
         final LocalDateTime now = DateHelper.getJapanTime();
+        final LocalDate nowDate = now.toLocalDate();
 
         // check each entry
         for (UserLibraryEntry a : animeForAiringCheck) {
@@ -166,13 +185,13 @@ public class MediaUpdateNotificationsWorker extends Worker {
 
             // check if anime start date is set and not within the next 7 days
             if (notNull(anime.startDate)
-                    && now.until(anime.startDate, ChronoUnit.DAYS) > 7)
+                    && nowDate.until(anime.startDate, ChronoUnit.DAYS) > 7)
                 continue;
 
             // check if anime end date is set and in the past
             // (anime already ended)
             if (notNull(anime.endDate)
-                    && now.until(anime.endDate, ChronoUnit.DAYS) < 0)
+                    && nowDate.until(anime.endDate, ChronoUnit.DAYS) < 0)
                 continue;
 
             // get the next broadcast day and time
@@ -183,10 +202,12 @@ public class MediaUpdateNotificationsWorker extends Worker {
             if (untilNextBroadcast >= 0 && untilNextBroadcast <= 180) {
                 // airs soon, schedule notification for then
                 // check how long ago the start date was.
-                // if it's less than  a week, or it's in the future (so negative), assume this is the premiere of the anime
+                // if it's in less than a week (< 7) and not in the past (>= 0), assume this is the premiere of the anime
                 boolean isPremiere = false;
-                if (notNull(anime.startDate))
-                    isPremiere = now.until(anime.startDate, ChronoUnit.DAYS) < 7;
+                if (notNull(anime.startDate)) {
+                    final long timeSinceStart = nowDate.until(anime.startDate, ChronoUnit.DAYS);
+                    isPremiere = timeSinceStart >= 0 && timeSinceStart < 7;
+                }
 
                 // send notification
                 sendNotificationForAnimeBroadcastingSoon(a, nextBroadcast, isPremiere);
@@ -206,12 +227,14 @@ public class MediaUpdateNotificationsWorker extends Worker {
 
         // get the current time and weekday in japan
         final LocalDateTime now = DateHelper.getJapanTime();
+        final LocalDate nowDate = now.toLocalDate();
 
         // check each entry's related anime
         for (UserLibraryEntry parent : animeForAiringCheck)
             if (notNull(parent.anime.relatedAnime))
                 for (RelatedMedia related : parent.anime.relatedAnime) {
                     final Anime anime = related.relatedAnime;
+
                     // check if anime broadcast info is valid
                     // and anime is not yet aired
                     if (isNull(anime.broadcastStatus)
@@ -225,11 +248,11 @@ public class MediaUpdateNotificationsWorker extends Worker {
                     // check if anime end date is set and in the past
                     // (anime already ended)
                     if (notNull(anime.endDate)
-                            && now.until(anime.endDate, ChronoUnit.DAYS) < 0)
+                            && nowDate.until(anime.endDate, ChronoUnit.DAYS) < 0)
                         continue;
 
                     // check if less than 1 week until the start date
-                    if (now.until(anime.startDate, ChronoUnit.DAYS) > 7)
+                    if (nowDate.until(anime.startDate, ChronoUnit.DAYS) > 7)
                         continue;
 
                     // this anime premiers within the next 7 days,
@@ -278,12 +301,14 @@ public class MediaUpdateNotificationsWorker extends Worker {
     private void sendNotificationForRelatedAnimePremiere(@NonNull UserLibraryEntry parent, @NonNull RelatedMedia related, @NonNull BroadcastInfo broadcast) {
         //TODO notification channel and content + setWhen
 
+        // create notification
         final Notification notification = TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
                 .setContentTitle(related.relatedAnime.title + " will air soon")
                 .setContentText(related.relatedAnime.title + "(related to " + parent.anime.title + ") will air on " + broadcast.weekday + "! check it out now.")
                 .setContentIntent(getDetailsOpenIntent(related.relatedAnime.animeId))
                 .build();
 
+        // and schedule it
         TenshiApp.getNotifyManager().sendNow(related.relatedAnime.animeId, notification);
     }
 

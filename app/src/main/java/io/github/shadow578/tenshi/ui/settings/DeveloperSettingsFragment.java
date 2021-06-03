@@ -35,6 +35,7 @@ import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.workers.MediaUpdateNotificationsWorker;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -158,6 +159,15 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
      * setup notification test functions
      */
     private void setupNotificationFunctions() {
+        // worker test
+        final Preference mediaWorkerNow = findPreference("dbg_media_update_worker_now");
+        with(mediaWorkerNow, wrk -> wrk.setOnPreferenceClickListener(preference -> {
+            MediaUpdateNotificationsWorker.runNow(ctx);
+            Toast.makeText(ctx, "worker started...", Toast.LENGTH_LONG).show();
+            return true;
+        }));
+
+
         // notification now
         final Preference notifyNow = findPreference("dbg_notification_now");
         with(notifyNow, notify -> notify.setOnPreferenceClickListener(preference -> {
