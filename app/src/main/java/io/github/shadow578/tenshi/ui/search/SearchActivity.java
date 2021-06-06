@@ -25,6 +25,7 @@ import io.github.shadow578.tenshi.mal.model.AnimeList;
 import io.github.shadow578.tenshi.mal.model.AnimeListItem;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.ui.TenshiActivity;
+import io.github.shadow578.tenshi.ui.tutorial.SearchTutorial;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.Util;
 import retrofit2.Call;
@@ -99,6 +100,9 @@ public class SearchActivity extends TenshiActivity {
 
         // setup image search button
         b.openImageSearch.setOnClickListener((v) -> openImageSearch());
+
+        // show tutorial
+        maybeStartTutorial();
     }
 
     /**
@@ -166,6 +170,16 @@ public class SearchActivity extends TenshiActivity {
                         Snackbar.make(b.getRoot(), R.string.shared_snack_server_connect_error, Snackbar.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    /**
+     * maybe start the tutorial for this activity
+     */
+    private void maybeStartTutorial() {
+        if (!TenshiPrefs.getBool(TenshiPrefs.Key.SearchTutorialFinished, false))
+            new SearchTutorial(this, b)
+                    .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.SearchTutorialFinished, true))
+                    .start();
     }
 
     /**

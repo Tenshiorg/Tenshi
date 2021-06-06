@@ -246,5 +246,10 @@
     <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
     <string name="tut_details_delete_title">Remove from Library</string>
     <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
+
+    <!-- search -->
+    <string name="tut_search_trace_title">Image Search</string>
+    <string name="tut_search_trace_text">Searching for a anime, but only have a screenshot? \nFind it with the Image Search, powered by trace.moe</string>
+
     <!-- endregion -->
 </resources>
