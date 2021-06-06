@@ -92,10 +92,9 @@ public class ImageSearchActivity extends TenshiActivity {
         // hide loading indicator
         b.loadingIndicator.hide();
 
-        // show "no results" text initially
+        // only show "no results" text initially
         b.noResultText.setVisibility(View.VISIBLE);
-        b.resultsRecycler.setVisibility(View.GONE);
-        b.totalFramesSearched.setVisibility(View.GONE);
+        b.resultsGroup.setVisibility(View.GONE);
 
         // set select image button handler
         b.selectImage.setOnClickListener((v) -> openImageSelector());
@@ -137,9 +136,10 @@ public class ImageSearchActivity extends TenshiActivity {
      * @param bmp the image to search for. may be scaled by TraceAPI
      */
     private void doImageSearch(@NonNull Bitmap bmp) {
-        // show loading
+        // show loading and hide other ui elements
         b.loadingIndicator.show();
         b.noResultText.setVisibility(View.GONE);
+        b.resultsGroup.setVisibility(View.GONE);
 
         // check quota first
         trace.getService().getQuota().enqueue(new Callback<QuotaInfo>() {
@@ -190,6 +190,7 @@ public class ImageSearchActivity extends TenshiActivity {
                 if (response.isSuccessful() && notNull(traceResponse) && nullOrWhitespace(traceResponse.errorMessage)) {
                     showResults(traceResponse);
                 } else if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
+                    //TODO on actual errors, retrofit does not populate .body(), but .errorBody() instead. thus, this branch is never reached
                     Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
                 else
                     Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
@@ -223,20 +224,16 @@ public class ImageSearchActivity extends TenshiActivity {
             // normally, trace.moe should return the results in order, but better make sure
             Collections.sort(results, (a, b) -> -Double.compare(a.similarity, b.similarity));
 
-            // hide "no results" text, show recycler
-            b.resultsRecycler.setVisibility(View.VISIBLE);
+            // hide "no results" text, show results group
+            b.resultsGroup.setVisibility(View.VISIBLE);
             b.noResultText.setVisibility(View.GONE);
 
             // update frames searched text
-            if (notNull(response.totalFramesSearched)) {
+            if (notNull(response.totalFramesSearched))
                 b.totalFramesSearched.setText("Searched " + fmt(response.totalFramesSearched) + " Frames"); //TODO hardcoded string
-                b.totalFramesSearched.setVisibility(View.VISIBLE);
-            } else
-                b.totalFramesSearched.setVisibility(View.GONE);
         } else {
-            // no search results, show "no results" text, hide recycler and frame count
-            b.resultsRecycler.setVisibility(View.GONE);
-            b.totalFramesSearched.setVisibility(View.GONE);
+            // no search results, show "no results" text, hide results group
+            b.resultsGroup.setVisibility(View.GONE);
             b.noResultText.setVisibility(View.VISIBLE);
         }
 

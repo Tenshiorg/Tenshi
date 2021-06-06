@@ -51,20 +51,6 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintTop_toBottomOf="@id/main_appbar" />
 
-    <!-- searched frames count -->
-    <TextView
-        android:id="@+id/total_frames_searched"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/search_no_results"
-        android:textColor="?attr/colorOnBackground"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/div_appbar_content"
-        tools:text="Searched 9999 Frames"
-        tools:visibility="visible" />
-
     <!-- no results -->
     <TextView
         android:id="@+id/no_result_text"
@@ -77,7 +63,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/div_appbar_content" />
 
     <!-- search loading -->
     <androidx.core.widget.ContentLoadingProgressBar
@@ -88,18 +74,44 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/div_appbar_content" />
 
-    <!-- recycler for search results -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/results_recycler"
+    <!-- search result content group -->
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/results_group"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="35dp"
-        android:scrollbars="none"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layoutDescription="@xml/scene_activity_image_search"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/total_frames_searched"
-        tools:listitem="@layout/recycler_trace_result" />
+        app:layout_constraintTop_toBottomOf="@id/div_appbar_content">
+
+        <!-- searched frames count -->
+        <TextView
+            android:id="@+id/total_frames_searched"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textColor="?attr/colorOnBackground"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Searched 9999 Frames" />
+
+        <!-- recycler for search results -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/results_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingBottom="35dp"
+            android:scrollbars="none"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/total_frames_searched"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:listitem="@layout/recycler_trace_result" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
