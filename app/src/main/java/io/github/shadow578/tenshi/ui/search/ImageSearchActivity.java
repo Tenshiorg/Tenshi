@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -94,17 +95,45 @@ public class ImageSearchActivity extends TenshiActivity {
         );
         b.resultsRecycler.setAdapter(resultsAdapter);
 
-        // hide loading indicator
-        b.loadingIndicator.hide();
-
-        // only show "no results" text initially
-        b.noResultText.setVisibility(View.VISIBLE);
-        b.resultsGroup.setVisibility(View.GONE);
-
         // set select image button handler
         b.selectImage.setOnClickListener((v) -> openImageSelector());
 
-        // TODO handle share intent
+        // check if the activity was started from the share target
+        final Intent i = getIntent();
+        if (notNull(i) && Intent.ACTION_SEND.equals(i.getAction())
+                && !nullOrWhitespace(i.getType()) && i.getType().startsWith("image/"))
+            handleSharedImage(i);
+        else {
+            // do the following only if not a share intent. IDK why, but just .hide()ing the loading indicator on every
+            // launch breaks it :|
+            // hide loading indicator
+            b.loadingIndicator.hide();
+
+            // only show "no results" text initially
+            b.noResultText.setVisibility(View.VISIBLE);
+            b.resultsGroup.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * handle a shared image
+     *
+     * @param i the share intent
+     */
+    private void handleSharedImage(@NonNull Intent i) {
+        // get image uri
+        final Uri imgUri = i.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (isNull(imgUri)) {
+            Snackbar.make(b.getRoot(), R.string.trace_snack_share_fail, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        // load bitmap and start search
+        final Bitmap bmp = loadBitmap(imgUri);
+        if (notNull(bmp))
+            doImageSearch(bmp);
+        else
+            Snackbar.make(b.getRoot(), R.string.trace_snack_share_fail, Snackbar.LENGTH_SHORT).show();
     }
 
     /**
@@ -155,6 +184,7 @@ public class ImageSearchActivity extends TenshiActivity {
                     // check quota and continue search
                     // show error when no quota left
                     if (quota.quotaUsed >= quota.quotaTotal) {
+                        b.noResultText.setVisibility(View.VISIBLE);
                         Snackbar.make(b.getRoot(), R.string.trace_snack_no_quota, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
@@ -173,6 +203,7 @@ public class ImageSearchActivity extends TenshiActivity {
             public void onFailure(Call<QuotaInfo> call, Throwable t) {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
+                b.noResultText.setVisibility(View.VISIBLE);
                 Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         });
@@ -207,10 +238,13 @@ public class ImageSearchActivity extends TenshiActivity {
                     }
 
                     // show error with message if possible, fallback to generic error
-                    if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
+                    if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage)) {
+                        b.noResultText.setVisibility(View.VISIBLE);
                         Snackbar.make(b.getRoot(), fmt(ImageSearchActivity.this, R.string.trace_snack_api_error_fmt, traceResponse.errorMessage), Snackbar.LENGTH_SHORT).show();
-                    else
+                    } else {
+                        b.noResultText.setVisibility(View.VISIBLE);
                         Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -219,6 +253,7 @@ public class ImageSearchActivity extends TenshiActivity {
             public void onFailure(Call<TraceResponse> call, Throwable t) {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
+                b.noResultText.setVisibility(View.VISIBLE);
                 Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         }, true);
@@ -280,13 +315,28 @@ public class ImageSearchActivity extends TenshiActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SELECT_IMAGE && resultCode == Activity.RESULT_OK && notNull(data)) {
             // request from openImageSelector, load image as bitmap and call onImageSelectorResult
-            try (final InputStream in = getContentResolver().openInputStream(data.getData())) {
-                final Bitmap bmp = BitmapFactory.decodeStream(in);
-                if (notNull(bmp))
-                    onImageSelectorResult(bmp);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            final Bitmap bmp = loadBitmap(data.getData());
+            if (notNull(bmp))
+                onImageSelectorResult(bmp);
         }
+    }
+
+    /**
+     * load a bitmap from a uri
+     *
+     * @param uri the uri to load from
+     * @return the bitmap loaded. null if load failed
+     */
+    @Nullable
+    private Bitmap loadBitmap(@NonNull Uri uri) {
+        try (final InputStream in = getContentResolver().openInputStream(uri)) {
+            final Bitmap bmp = BitmapFactory.decodeStream(in);
+            if (notNull(bmp))
+                return bmp;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

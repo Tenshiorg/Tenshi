@@ -154,6 +154,7 @@
     <string name="trace_snack_low_quota">You used over 80% of your search quota this month</string>
     <string name="trace_snack_cannot_connect">Cannot connect to trace.moe</string>
     <string name="trace_snack_api_error_fmt">Search failed. \n%s</string>
+    <string name="trace_snack_share_fail">Failed to load shared image</string>
 
     <string name="trace_episode_no_fmt">Episode %d</string>
     <string name="trace_unknown_episode">Unknown Episode</string>
