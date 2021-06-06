@@ -32,6 +32,7 @@ import io.github.shadow578.tenshi.trace.model.TraceResponse;
 import io.github.shadow578.tenshi.trace.model.TraceResult;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.ui.TenshiActivity;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,6 +43,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.where;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
@@ -234,14 +236,14 @@ public class ImageSearchActivity extends TenshiActivity {
 
         // check if there are any results
         if (!nullOrEmpty(response.results)) {
-            // have results, add them
-            results.addAll(response.results);
+            // have results, add them according to the NSFW setting
+            final boolean showNSFW = TenshiPrefs.getBool(TenshiPrefs.Key.NSFW, false);
+            results.addAll(where(response.results, (i) ->
+                    isNull(i.anilistInfo) || !i.anilistInfo.isAdult || showNSFW));
 
             // search results by match similarity, descending
             // normally, trace.moe should return the results in order, but better make sure
             Collections.sort(results, (a, b) -> -Double.compare(a.similarity, b.similarity));
-
-            //TODO filter NSFW
 
             // hide "no results" text, show results group
             b.resultsGroup.setVisibility(View.VISIBLE);
