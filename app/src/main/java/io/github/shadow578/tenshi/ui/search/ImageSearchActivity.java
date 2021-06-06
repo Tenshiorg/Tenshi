@@ -154,17 +154,17 @@ public class ImageSearchActivity extends TenshiActivity {
                     // check quota and continue search
                     // show error when no quota left
                     if (quota.quotaUsed >= quota.quotaTotal) {
-                        Snackbar.make(b.getRoot(), "no search quota left this month. try again next month (or with a different IP)", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                        Snackbar.make(b.getRoot(), R.string.trace_snack_no_quota, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
 
                     // show warning when low on quota (80% used)
                     if (quota.quotaUsed > (quota.quotaTotal * 0.8))
-                        Snackbar.make(b.getRoot(), "you used over 80% of your search quota this month", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                        Snackbar.make(b.getRoot(), R.string.trace_snack_low_quota, Snackbar.LENGTH_SHORT).show();
 
                     searchImpl(bmp);
                 } else
-                    Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                    Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
 
             @Override
@@ -172,7 +172,7 @@ public class ImageSearchActivity extends TenshiActivity {
             public void onFailure(Call<QuotaInfo> call, Throwable t) {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
-                Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -200,16 +200,16 @@ public class ImageSearchActivity extends TenshiActivity {
                                 traceResponse = TenshiApp.getGson().fromJson(response.errorBody().string(), TraceResponse.class);
                         } catch (IOException | JsonSyntaxException ignored) {
                             // either errorBody().string() failed or the error body wasn't correct json, show a generic error
-                            Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                            Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
                             return;
                         }
                     }
 
                     // show error with message if possible, fallback to generic error
                     if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
-                        Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                        Snackbar.make(b.getRoot(), fmt(ImageSearchActivity.this, R.string.trace_snack_api_error_fmt, traceResponse.errorMessage), Snackbar.LENGTH_SHORT).show();
                     else
-                        Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                        Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -218,7 +218,7 @@ public class ImageSearchActivity extends TenshiActivity {
             public void onFailure(Call<TraceResponse> call, Throwable t) {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
-                Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         }, true);
     }
@@ -249,7 +249,7 @@ public class ImageSearchActivity extends TenshiActivity {
 
             // update frames searched text
             if (notNull(response.totalFramesSearched))
-                b.totalFramesSearched.setText("Searched " + fmt(response.totalFramesSearched) + " Frames"); //TODO hardcoded string
+                b.totalFramesSearched.setText(fmt(this, R.string.trace_frames_searched_fmt, fmt(response.totalFramesSearched)));
         } else {
             // no search results, show "no results" text, hide results group
             b.resultsGroup.setVisibility(View.GONE);

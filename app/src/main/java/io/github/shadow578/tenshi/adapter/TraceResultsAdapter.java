@@ -20,7 +20,6 @@ import io.github.shadow578.tenshi.util.GlideHelper;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withStr;
 
 /**
  * recycler view adapter for a list of {@link TraceResult}
@@ -74,19 +73,18 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
             b.title.setText(unknown);
 
         // episode number
-        // TODO hardcoded string, use resource
-        withStr(result.episode, unknown, ep
-                -> b.episode.setText("Episode " + ep));
+        if (notNull(result.episode))
+            b.episode.setText(fmt(ctx, R.string.trace_episode_no_fmt, result.episode));
+        else
+            b.episode.setText(R.string.trace_unknown_episode);
 
         // scene span
-        // TODO convert seconds to mm:ss (or hh:mm:ss if that long)
-        // TODO hardcoded string, use resource
         final String sceneStart = secondsToTimestamp(result.sceneStartSeconds);
         final String sceneEnd = secondsToTimestamp(result.sceneEndSeconds);
-        b.sceneSpan.setText(sceneStart + " - " + sceneEnd);
+        b.sceneSpan.setText(fmt(ctx, R.string.trace_span_fmt, sceneStart, sceneEnd));
 
         // match confidence
-        b.matchConfidence.setText(fmt("%.0f%%", result.similarity * 100));
+        b.matchConfidence.setText(fmt(ctx, R.string.trace_match_confidence_fmt, result.similarity * 100));
 
         // setup click listener
         holder.itemView.setOnClickListener(view -> onClickListener.invoke(view, result));
@@ -108,7 +106,7 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
     private String secondsToTimestamp(double seconds) {
         // if less than 60 seconds, just use format ss
         if (seconds < 60)
-            return fmt("%.0f", seconds);
+            return fmt(ctx, R.string.trace_span_ss_fmt, seconds);
 
         // get minutes
         double minutes = seconds / 60;
@@ -116,14 +114,14 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
 
         // if less than 60 minutes, just use format mm:ss
         if (minutes < 60)
-            return fmt("%.0f:%02.0f", minutes, seconds);
+            return fmt(ctx, R.string.trace_span_mm_ss_fmt, minutes, seconds);
 
         // get hours
         double hours = minutes / 60;
         minutes %= 60;
 
         // use hh:mm:ss format
-        return fmt("%.0f:%02.0f:%02.0f", hours, minutes, seconds);
+        return fmt(ctx, R.string.trace_span_hh_mm_ss_fmt, hours, minutes, seconds);
     }
 
     public static class Holder extends RecyclerView.ViewHolder {
