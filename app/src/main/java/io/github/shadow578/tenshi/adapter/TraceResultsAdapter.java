@@ -20,7 +20,6 @@ import io.github.shadow578.tenshi.util.GlideHelper;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.elvisEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
-import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withStr;
 
 /**
@@ -61,10 +60,10 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
         final RecyclerTraceResultBinding b = holder.binding;
         final String unknown = ctx.getString(R.string.shared_unknown);
 
-
         // image preview
-        with(result.previewImageUrl, img
-                -> GlideHelper.glide(ctx, img).into(b.imagePreview));
+        GlideHelper.glide(ctx, result.previewImageUrl)
+                .fitCenter()
+                .into(b.imagePreview);
 
         // title
         // use english, fallback to romanji, then native. only if all titles are not set, use "unknown"
@@ -82,8 +81,8 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
         // scene span
         // TODO convert seconds to mm:ss (or hh:mm:ss if that long)
         // TODO hardcoded string, use resource
-        final String sceneStart = fmt("%.0f",result.sceneStartSeconds);
-        final String sceneEnd = fmt("%.0f",result.sceneEndSeconds);
+        final String sceneStart = fmt("%.0f", result.sceneStartSeconds);
+        final String sceneEnd = fmt("%.0f", result.sceneEndSeconds);
         b.sceneSpan.setText(sceneStart + " - " + sceneEnd);
 
         // match confidence

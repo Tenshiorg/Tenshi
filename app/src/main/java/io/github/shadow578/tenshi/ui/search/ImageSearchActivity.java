@@ -19,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.adapter.TraceResultsAdapter;
@@ -135,26 +136,21 @@ public class ImageSearchActivity extends TenshiActivity {
      * @param bmp the image to search for. may be scaled by TraceAPI
      */
     private void doImageSearch(@NonNull Bitmap bmp) {
+        //TODO check quota first
+
         b.loadingIndicator.show();
         b.noResultText.setVisibility(View.GONE);
         trace.search(bmp, new Callback<TraceResponse>() {
             @Override
             @EverythingIsNonNull
             public void onResponse(Call<TraceResponse> call, Response<TraceResponse> response) {
+                b.loadingIndicator.hide();
                 final TraceResponse traceResponse = response.body();
-                if (response.isSuccessful() && notNull(traceResponse)) {
-                    // hide loading
-                    b.loadingIndicator.hide();
-
-                    // check if error
-                    if (nullOrWhitespace(traceResponse.errorMessage)) {
-                        // response is ok
-                        showResults(traceResponse);
-                    } else {
-                        // response failed
-                        Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
-                    }
-                } else if (response.code() == 401)
+                if (response.isSuccessful() && notNull(traceResponse) && nullOrWhitespace(traceResponse.errorMessage)) {
+                    showResults(traceResponse);
+                } else if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
+                    Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                else
                     Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
             }
 
@@ -181,6 +177,10 @@ public class ImageSearchActivity extends TenshiActivity {
         if (!nullOrEmpty(response.results)) {
             // have results, add them
             results.addAll(response.results);
+
+            // search results by match similarity, descending
+            // normally, trace.moe should return the results in order, but better make sure
+            Collections.sort(results, (a, b) -> -Double.compare(a.similarity, b.similarity));
 
             // hide "no results" text, show recycler
             b.resultsRecycler.setVisibility(View.VISIBLE);

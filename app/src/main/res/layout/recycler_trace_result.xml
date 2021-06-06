@@ -2,41 +2,66 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="15dp"
-    android:layout_marginEnd="15dp"
     android:layout_marginTop="15dp"
-    android:elevation="8dp"
-    android:gravity="center_horizontal"
-    android:clickable="true"
-    android:focusable="true"
+    android:layout_marginEnd="15dp"
     android:background="?attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    android:elevation="8dp"
+    android:focusable="true"
+    android:gravity="center_horizontal"
     android:minHeight="72dp"
+    android:orientation="horizontal"
     app:cardBackgroundColor="?attr/colorSurface"
-    app:cardElevation="5dp"
     app:cardCornerRadius="5dp"
+    app:cardElevation="5dp"
     tools:showIn="@layout/activity_image_search">
 
     <!-- content -->
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:gravity="center_horizontal"
-        android:background="?attr/selectableItemBackgroundBorderless">
+        android:orientation="horizontal">
 
-        <!-- image preview -->
-        <ImageView
-            android:id="@+id/image_preview"
-            android:layout_width="200dp"
-            android:layout_height="130dp"
-            android:layout_gravity="start"
-            android:background="@color/placeholder"
-            android:scaleType="centerCrop"
-            android:transitionName="shared_poster_container"
-            android:contentDescription="@string/shared_desc_poster" />
+
+        <!-- image container -->
+        <FrameLayout
+            android:id="@+id/anime_main_poster_container"
+            android:layout_width="178dp"
+            android:layout_height="100dp"
+            android:transitionName="shared_poster_container">
+
+            <!-- image preview -->
+            <ImageView
+                android:id="@+id/image_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@color/placeholder"
+                android:contentDescription="@string/shared_desc_poster"
+                android:scaleType="fitCenter"
+                android:transitionName="shared_poster_container" />
+
+            <!-- confidence / match % -->
+            <TextView
+                android:id="@+id/match_confidence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|bottom"
+                android:background="@drawable/trace_list_item_confidence_background"
+                android:drawablePadding="2dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="90%"
+                android:textColor="?attr/colorOnSecondary"
+                app:drawableEndCompat="@drawable/ic_round_whatshot_24"
+                app:drawableTint="?attr/colorOnSecondary"
+                tools:ignore="HardcodedText" />
+        </FrameLayout>
 
         <!-- details container -->
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -50,12 +75,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_text"
-                android:layout_marginEnd="@dimen/margin_text"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="@dimen/margin_text"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:text="Senko-San"
                 android:textColor="?attr/colorOnSurface"
-                android:maxLines="1"
-                android:ellipsize="end"
                 android:textSize="16sp"
                 tools:ignore="HardcodedText" />
 
@@ -80,21 +105,6 @@
                 android:text="10:12 - 13:60"
                 android:textColor="?attr/colorOnSurface"
                 tools:ignore="HardcodedText" />
-
-            <!-- confidence / match % -->
-            <TextView
-                android:id="@+id/match_confidence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_text"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="90%"
-                android:textColor="?attr/colorOnSurface"
-                android:drawablePadding="2dp"
-                app:drawableStartCompat="@drawable/ic_round_whatshot_24"
-                tools:ignore="HardcodedText"
-                app:drawableTint="?attr/colorPrimary" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </com.google.android.material.card.MaterialCardView>
