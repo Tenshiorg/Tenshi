@@ -25,6 +25,7 @@ import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.adapter.TraceResultsAdapter;
 import io.github.shadow578.tenshi.databinding.ActivityImageSearchBinding;
 import io.github.shadow578.tenshi.trace.TraceAPI;
+import io.github.shadow578.tenshi.trace.model.QuotaInfo;
 import io.github.shadow578.tenshi.trace.model.TraceResponse;
 import io.github.shadow578.tenshi.trace.model.TraceResult;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
@@ -136,10 +137,50 @@ public class ImageSearchActivity extends TenshiActivity {
      * @param bmp the image to search for. may be scaled by TraceAPI
      */
     private void doImageSearch(@NonNull Bitmap bmp) {
-        //TODO check quota first
-
+        // show loading
         b.loadingIndicator.show();
         b.noResultText.setVisibility(View.GONE);
+
+        // check quota first
+        trace.getService().getQuota().enqueue(new Callback<QuotaInfo>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<QuotaInfo> call, Response<QuotaInfo> response) {
+                final QuotaInfo quota = response.body();
+                if (response.isSuccessful() && notNull(quota)) {
+                    // check quota and continue search
+                    // show error when no quota left
+                    if (quota.quotaUsed >= quota.quotaTotal) {
+                        Snackbar.make(b.getRoot(), "no search quota left this month. try again next month (or with a different IP)", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                        return;
+                    }
+
+                    // show warning when low on quota (80% used)
+                    if (quota.quotaUsed > (quota.quotaTotal * 0.8))
+                        Snackbar.make(b.getRoot(), "you used over 80% of your search quota this month", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+
+                    searchImpl(bmp);
+                } else
+                    Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<QuotaInfo> call, Throwable t) {
+                Log.e("Tenshi", t.toString());
+                b.loadingIndicator.hide();
+                Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+            }
+        });
+    }
+
+    /**
+     * the actual search call behind {@link #doImageSearch(Bitmap)}, after the quota check.
+     * do not use this function directly, as it would bypass the quota check
+     *
+     * @param bmp the image to search for. may be scaled by TraceAPI
+     */
+    private void searchImpl(@NonNull Bitmap bmp) {
         trace.search(bmp, new Callback<TraceResponse>() {
             @Override
             @EverythingIsNonNull
