@@ -103,11 +103,6 @@ public class TenshiApp extends Application {
         INSTANCE = this;
 
 
-        //TODO traceAPI test call
-        async(() ->
-                TraceAPI.test(getApplicationContext())
-        );
-
         //TODO trace activity test call
         getApplicationContext().startActivity(new Intent(getApplicationContext(), ImageSearchActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
