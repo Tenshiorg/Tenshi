@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import io.github.shadow578.tenshi.R;
+import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.adapter.TraceResultsAdapter;
 import io.github.shadow578.tenshi.databinding.ActivityImageSearchBinding;
 import io.github.shadow578.tenshi.trace.TraceAPI;
@@ -36,6 +38,7 @@ import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
@@ -186,14 +189,28 @@ public class ImageSearchActivity extends TenshiActivity {
             @EverythingIsNonNull
             public void onResponse(Call<TraceResponse> call, Response<TraceResponse> response) {
                 b.loadingIndicator.hide();
-                final TraceResponse traceResponse = response.body();
+                TraceResponse traceResponse = response.body();
                 if (response.isSuccessful() && notNull(traceResponse) && nullOrWhitespace(traceResponse.errorMessage)) {
                     showResults(traceResponse);
-                } else if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
-                    //TODO on actual errors, retrofit does not populate .body(), but .errorBody() instead. thus, this branch is never reached
-                    Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
-                else
-                    Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                } else {
+                    // if we don't have a response with error message, try to get it from the error body
+                    if (isNull(traceResponse) || nullOrWhitespace(traceResponse.errorMessage)) {
+                        try {
+                            if (notNull(response.errorBody()))
+                                traceResponse = TenshiApp.getGson().fromJson(response.errorBody().string(), TraceResponse.class);
+                        } catch (IOException | JsonSyntaxException ignored) {
+                            // either errorBody().string() failed or the error body wasn't correct json, show a generic error
+                            Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                            return;
+                        }
+                    }
+
+                    // show error with message if possible, fallback to generic error
+                    if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
+                        Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                    else
+                        Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+                }
             }
 
             @Override
