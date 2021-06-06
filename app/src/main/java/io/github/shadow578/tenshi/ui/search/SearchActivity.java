@@ -82,7 +82,6 @@ public class SearchActivity extends TenshiActivity {
         // setup search view
         final SearchView searchView = b.searchToolbar.findViewById(R.id.search_view);
         searchView.setQueryHint(getString(R.string.search_query_hint));
-        searchView.setIconifiedByDefault(false);
         searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -97,6 +96,9 @@ public class SearchActivity extends TenshiActivity {
                 return true;
             }
         });
+
+        // setup image search button
+        b.openImageSearch.setOnClickListener((v) -> openImageSearch());
     }
 
     /**
@@ -177,6 +179,16 @@ public class SearchActivity extends TenshiActivity {
         final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, poster, poster.getTransitionName());
         final Intent i = new Intent(this, AnimeDetailsActivity.class);
         i.putExtra(AnimeDetailsActivity.EXTRA_ANIME_ID, animeId);
+        startActivity(i, opt.toBundle());
+    }
+
+
+    /**
+     * open the image search activity
+     */
+    private void openImageSearch() {
+        final Intent i = new Intent(this, ImageSearchActivity.class);
+        final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, b.mainAppbar, b.mainAppbar.getTransitionName());
         startActivity(i, opt.toBundle());
     }
 }

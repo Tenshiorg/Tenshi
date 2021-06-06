@@ -123,7 +123,6 @@ public class ImageSearchActivity extends TenshiActivity {
         chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pick});
 
         startActivityForResult(chooser, REQUEST_SELECT_IMAGE);
-
     }
 
     /**

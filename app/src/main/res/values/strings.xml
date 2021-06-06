@@ -142,6 +142,7 @@
     <string name="search_title">Search</string>
     <string name="search_no_results">No results</string>
     <string name="search_query_hint">Search</string>
+    <string name="search_open_image_search_content_desc">Open Image Search</string>
     <!-- endregion -->
 
     <!-- region Image Search Activity -->

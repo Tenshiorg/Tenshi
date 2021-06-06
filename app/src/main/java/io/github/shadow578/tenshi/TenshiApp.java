@@ -28,11 +28,9 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
-import io.github.shadow578.tenshi.trace.TraceAPI;
 import io.github.shadow578.tenshi.ui.MainActivity;
-import io.github.shadow578.tenshi.ui.search.ImageSearchActivity;
-import io.github.shadow578.tenshi.ui.search.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
+import io.github.shadow578.tenshi.ui.search.SearchActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.converter.GSONLocalDateAdapter;
 import io.github.shadow578.tenshi.util.converter.GSONLocalTimeAdapter;
@@ -101,11 +99,6 @@ public class TenshiApp extends Application {
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
-
-
-        //TODO trace activity test call
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), ImageSearchActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-
 
         // create app shortcuts
         initAppShortcuts();
