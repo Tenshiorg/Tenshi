@@ -1,4 +1,4 @@
-package io.github.shadow578.tenshi.ui;
+package io.github.shadow578.tenshi.ui.search;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +23,8 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.AnimeList;
 import io.github.shadow578.tenshi.mal.model.AnimeListItem;
+import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
+import io.github.shadow578.tenshi.ui.TenshiActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.Util;
 import retrofit2.Call;
@@ -36,7 +38,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrE
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
- * anime search activity
+ * anime search activity (search by text / MAL search)
  */
 public class SearchActivity extends TenshiActivity {
 

@@ -144,6 +144,11 @@
     <string name="search_query_hint">Search</string>
     <!-- endregion -->
 
+    <!-- region Image Search Activity -->
+    <string name="trace_title">Image Search</string>
+    <string name="trace_select_image_button">Select a Image</string>
+    <!-- endregion -->
+
     <!-- region Fullscreen image Activity -->
     <string name="fullscreen_img_title">Image</string>
     <!-- endregion -->
