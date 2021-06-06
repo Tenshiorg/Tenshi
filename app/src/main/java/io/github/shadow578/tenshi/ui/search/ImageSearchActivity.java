@@ -173,6 +173,7 @@ public class ImageSearchActivity extends TenshiActivity {
         b.loadingIndicator.show();
         b.noResultText.setVisibility(View.GONE);
         b.resultsGroup.setVisibility(View.GONE);
+        b.selectImage.setEnabled(false);
 
         // check quota first
         trace.getService().getQuota().enqueue(new Callback<QuotaInfo>() {
@@ -185,6 +186,7 @@ public class ImageSearchActivity extends TenshiActivity {
                     // show error when no quota left
                     if (quota.quotaUsed >= quota.quotaTotal) {
                         b.noResultText.setVisibility(View.VISIBLE);
+                        b.selectImage.setEnabled(true);
                         Snackbar.make(b.getRoot(), R.string.trace_snack_no_quota, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
@@ -194,8 +196,11 @@ public class ImageSearchActivity extends TenshiActivity {
                         Snackbar.make(b.getRoot(), R.string.trace_snack_low_quota, Snackbar.LENGTH_SHORT).show();
 
                     searchImpl(bmp);
-                } else
+                } else {
                     Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
+                    b.noResultText.setVisibility(View.VISIBLE);
+                    b.selectImage.setEnabled(true);
+                }
             }
 
             @Override
@@ -204,6 +209,7 @@ public class ImageSearchActivity extends TenshiActivity {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
                 b.noResultText.setVisibility(View.VISIBLE);
+                b.selectImage.setEnabled(true);
                 Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         });
@@ -238,13 +244,13 @@ public class ImageSearchActivity extends TenshiActivity {
                     }
 
                     // show error with message if possible, fallback to generic error
-                    if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage)) {
-                        b.noResultText.setVisibility(View.VISIBLE);
+                    if (notNull(traceResponse) && !nullOrWhitespace(traceResponse.errorMessage))
                         Snackbar.make(b.getRoot(), fmt(ImageSearchActivity.this, R.string.trace_snack_api_error_fmt, traceResponse.errorMessage), Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        b.noResultText.setVisibility(View.VISIBLE);
+                    else
                         Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
-                    }
+
+                    b.noResultText.setVisibility(View.VISIBLE);
+                    b.selectImage.setEnabled(true);
                 }
             }
 
@@ -254,6 +260,7 @@ public class ImageSearchActivity extends TenshiActivity {
                 Log.e("Tenshi", t.toString());
                 b.loadingIndicator.hide();
                 b.noResultText.setVisibility(View.VISIBLE);
+                b.selectImage.setEnabled(true);
                 Snackbar.make(b.getRoot(), R.string.trace_snack_cannot_connect, Snackbar.LENGTH_SHORT).show();
             }
         }, true);
@@ -294,6 +301,9 @@ public class ImageSearchActivity extends TenshiActivity {
 
         // notify data changed
         resultsAdapter.notifyDataSetChanged();
+
+        // re- enable image select button
+        b.selectImage.setEnabled(true);
     }
 
     /**
