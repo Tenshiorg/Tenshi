@@ -191,6 +191,9 @@
     <string name="settings_app_build_date_title">Build Time</string>
     <string name="settings_about_libraries_title">About Libraries</string>
     <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
+    <string name="settings_about_trace_title">trace.moe</string>
+    <string name="settings_about_trace_summary">Tenshi uses trace.moe for reverse image search</string>
+    <string name="settings_about_trace_url">https://trace.moe/</string>
 
     <string name="settings_theme_follow_system">Default</string>
     <string name="settings_theme_light">Light</string>
