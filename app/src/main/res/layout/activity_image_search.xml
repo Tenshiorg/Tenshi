@@ -51,7 +51,21 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintTop_toBottomOf="@id/main_appbar" />
 
-    <!-- no results-->
+    <!-- searched frames count -->
+    <TextView
+        android:id="@+id/total_frames_searched"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/search_no_results"
+        android:textColor="?attr/colorOnBackground"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/div_appbar_content"
+        tools:text="Searched 9999 Frames"
+        tools:visibility="visible" />
+
+    <!-- no results -->
     <TextView
         android:id="@+id/no_result_text"
         android:layout_width="wrap_content"
@@ -76,13 +90,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- TODO imageview to show selection; recycler GONE-->
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/dev_img_view"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        app:layout_constraintTop_toBottomOf="@+id/div_appbar_content" />
-
     <!-- recycler for search results -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/results_recycler"
@@ -93,6 +100,6 @@
         android:scrollbars="none"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dev_img_view"
+        app:layout_constraintTop_toBottomOf="@id/total_frames_searched"
         tools:listitem="@layout/recycler_trace_result" />
 </androidx.constraintlayout.widget.ConstraintLayout>

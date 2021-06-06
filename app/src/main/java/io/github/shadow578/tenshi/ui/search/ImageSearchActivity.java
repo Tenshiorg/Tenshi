@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -13,21 +14,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import io.github.shadow578.tenshi.R;
-import io.github.shadow578.tenshi.adapter.AnimeListAdapter;
 import io.github.shadow578.tenshi.adapter.TraceResultsAdapter;
 import io.github.shadow578.tenshi.databinding.ActivityImageSearchBinding;
-import io.github.shadow578.tenshi.trace.model.AnilistInfo;
-import io.github.shadow578.tenshi.trace.model.AnilistTitles;
+import io.github.shadow578.tenshi.trace.TraceAPI;
+import io.github.shadow578.tenshi.trace.model.TraceResponse;
 import io.github.shadow578.tenshi.trace.model.TraceResult;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.ui.TenshiActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrEmpty;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
@@ -40,9 +49,14 @@ public class ImageSearchActivity extends TenshiActivity {
      */
     private final int REQUEST_SELECT_IMAGE = 74;
 
+    /**
+     * trace api instance
+     */
+    private final TraceAPI trace = new TraceAPI();
+
     private ActivityImageSearchBinding b;
     private TraceResultsAdapter resultsAdapter;
-    private ArrayList<TraceResult> results = new ArrayList<>();
+    private final ArrayList<TraceResult> results = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,23 +90,15 @@ public class ImageSearchActivity extends TenshiActivity {
         // hide loading indicator
         b.loadingIndicator.hide();
 
+        // show "no results" text initially
+        b.noResultText.setVisibility(View.VISIBLE);
+        b.resultsRecycler.setVisibility(View.GONE);
+        b.totalFramesSearched.setVisibility(View.GONE);
+
         // set select image button handler
         b.selectImage.setOnClickListener((v) -> openImageSelector());
 
         // TODO handle share intent
-
-        // TODO dummy data for display
-        TraceResult a = new TraceResult();
-        a.anilistInfo = new AnilistInfo();
-        a.anilistInfo.titles = new AnilistTitles();
-        a.anilistInfo.titles.englishTitle = "test A";
-        a.episode = 5;
-        a.sceneStartSeconds = 10;
-        a.sceneEndSeconds = 15;
-        a.previewImageUrl = "https://media.trace.moe/image/10079/%5BSumiSora%5D%5BHoshizora%20e%20Kakaru%20Hashi%5D%5BBDrip%5D%5B04%5D%5BBIG5%5D%5B720P%5D.mp4?t=1272.5&token=yroMGLXtDpylWEFG7OWqPcd4zUQ";
-        a.similarity = .5;
-        results.add(a);
-        resultsAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -120,9 +126,81 @@ public class ImageSearchActivity extends TenshiActivity {
      * @param bmp the selected image
      */
     private void onImageSelectorResult(@NonNull Bitmap bmp) {
+        doImageSearch(bmp);
+    }
 
-        b.devImgView.setImageBitmap(bmp);
+    /**
+     * start a image search. calls {@link #showResults(TraceResponse)} on successfull response, otherwise shows error to user
+     *
+     * @param bmp the image to search for. may be scaled by TraceAPI
+     */
+    private void doImageSearch(@NonNull Bitmap bmp) {
+        b.loadingIndicator.show();
+        b.noResultText.setVisibility(View.GONE);
+        trace.search(bmp, new Callback<TraceResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<TraceResponse> call, Response<TraceResponse> response) {
+                final TraceResponse traceResponse = response.body();
+                if (response.isSuccessful() && notNull(traceResponse)) {
+                    // hide loading
+                    b.loadingIndicator.hide();
 
+                    // check if error
+                    if (nullOrWhitespace(traceResponse.errorMessage)) {
+                        // response is ok
+                        showResults(traceResponse);
+                    } else {
+                        // response failed
+                        Snackbar.make(b.getRoot(), "Trace.moe returned error: " + traceResponse.errorMessage, Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+                    }
+                } else if (response.code() == 401)
+                    Snackbar.make(b.getRoot(), "cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show();//TODO hardcoded string
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<TraceResponse> call, Throwable t) {
+                Log.e("Tenshi", t.toString());
+                b.loadingIndicator.hide();
+                Snackbar.make(b.getRoot(), "Cannot connect to trace.moe", Snackbar.LENGTH_SHORT).show(); //TODO hardcoded string
+            }
+        }, true);
+    }
+
+    /**
+     * show the results of a trace call
+     *
+     * @param response the response from trace.moe
+     */
+    private void showResults(@NonNull TraceResponse response) {
+        // clear previous results
+        results.clear();
+
+        // check if there are any results
+        if (!nullOrEmpty(response.results)) {
+            // have results, add them
+            results.addAll(response.results);
+
+            // hide "no results" text, show recycler
+            b.resultsRecycler.setVisibility(View.VISIBLE);
+            b.noResultText.setVisibility(View.GONE);
+
+            // update frames searched text
+            if (notNull(response.totalFramesSearched)) {
+                b.totalFramesSearched.setText("Searched " + fmt(response.totalFramesSearched) + " Frames"); //TODO hardcoded string
+                b.totalFramesSearched.setVisibility(View.VISIBLE);
+            } else
+                b.totalFramesSearched.setVisibility(View.GONE);
+        } else {
+            // no search results, show "no results" text, hide recycler and frame count
+            b.resultsRecycler.setVisibility(View.GONE);
+            b.totalFramesSearched.setVisibility(View.GONE);
+            b.noResultText.setVisibility(View.VISIBLE);
+        }
+
+        // notify data changed
+        resultsAdapter.notifyDataSetChanged();
     }
 
     /**
