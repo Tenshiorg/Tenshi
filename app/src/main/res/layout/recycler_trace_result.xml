@@ -64,7 +64,7 @@
         </FrameLayout>
 
         <!-- details container -->
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -80,9 +80,11 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="Senko-San"
+                tools:text="I was trapped in a underground dungeons for 100 years and maxed out my suffering level"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:layout_alignParentTop="true"/>
 
             <!-- scene episode -->
             <TextView
@@ -93,7 +95,8 @@
                 android:layout_marginTop="8dp"
                 android:text="Episode 8"
                 android:textColor="?attr/colorOnSurface"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:layout_above="@id/scene_span"/>
 
             <!-- scene from/to-->
             <TextView
@@ -101,10 +104,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_text"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="8dp"
                 android:text="10:12 - 13:60"
                 android:textColor="?attr/colorOnSurface"
-                tools:ignore="HardcodedText" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+                tools:ignore="HardcodedText"
+                android:layout_alignParentBottom="true"/>
+        </RelativeLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </com.google.android.material.card.MaterialCardView>

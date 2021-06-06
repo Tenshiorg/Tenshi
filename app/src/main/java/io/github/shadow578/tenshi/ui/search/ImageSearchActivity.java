@@ -241,6 +241,8 @@ public class ImageSearchActivity extends TenshiActivity {
             // normally, trace.moe should return the results in order, but better make sure
             Collections.sort(results, (a, b) -> -Double.compare(a.similarity, b.similarity));
 
+            //TODO filter NSFW
+
             // hide "no results" text, show results group
             b.resultsGroup.setVisibility(View.VISIBLE);
             b.noResultText.setVisibility(View.GONE);

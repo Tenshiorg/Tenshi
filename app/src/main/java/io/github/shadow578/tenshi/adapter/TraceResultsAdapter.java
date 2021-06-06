@@ -81,8 +81,8 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
         // scene span
         // TODO convert seconds to mm:ss (or hh:mm:ss if that long)
         // TODO hardcoded string, use resource
-        final String sceneStart = fmt("%.0f", result.sceneStartSeconds);
-        final String sceneEnd = fmt("%.0f", result.sceneEndSeconds);
+        final String sceneStart = secondsToTimestamp(result.sceneStartSeconds);
+        final String sceneEnd = secondsToTimestamp(result.sceneEndSeconds);
         b.sceneSpan.setText(sceneStart + " - " + sceneEnd);
 
         // match confidence
@@ -95,6 +95,35 @@ public class TraceResultsAdapter extends RecyclerView.Adapter<TraceResultsAdapte
     @Override
     public int getItemCount() {
         return results.size();
+    }
+
+    /**
+     * convert a second value into a timestamp like those used by video players.
+     * uses ss format for everything below 1 minute, then mm:ss for everything below 1h hour, above that hh:mm:ss is used
+     *
+     * @param seconds the number of seconds to format
+     * @return the formatted video timestamp string
+     */
+    @NonNull
+    private String secondsToTimestamp(double seconds) {
+        // if less than 60 seconds, just use format ss
+        if (seconds < 60)
+            return fmt("%.0f", seconds);
+
+        // get minutes
+        double minutes = seconds / 60;
+        seconds %= 60;
+
+        // if less than 60 minutes, just use format mm:ss
+        if (minutes < 60)
+            return fmt("%.0f:%02.0f", minutes, seconds);
+
+        // get hours
+        double hours = minutes / 60;
+        minutes %= 60;
+
+        // use hh:mm:ss format
+        return fmt("%.0f:%02.0f:%02.0f", hours, minutes, seconds);
     }
 
     public static class Holder extends RecyclerView.ViewHolder {
