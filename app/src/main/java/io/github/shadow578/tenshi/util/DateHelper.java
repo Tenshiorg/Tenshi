@@ -3,12 +3,11 @@ package io.github.shadow578.tenshi.util;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -25,37 +24,53 @@ public class DateHelper {
     // region get date and time
 
     /**
+     * UTC timezone
+     */
+    public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
+
+    /**
+     * default timezone of the device
+     */
+    public static final ZoneId DEVICE_ZONE = ZoneId.systemDefault();
+
+    /**
+     * timezone of Asia/Tokyo
+     */
+    public static final ZoneId JAPAN_ZONE = ZoneId.of("Asia/Tokyo");
+
+    /**
      * the date and time in the device's time zone
      */
-    private static LocalDateTime local() {
-        return LocalDateTime.now();
+    private static ZonedDateTime local() {
+        return ZonedDateTime.now();
     }
 
     /**
      * the date and time in Tokyo
      */
-    private static LocalDateTime jp() {
-        return LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
+    private static ZonedDateTime jp() {
+        return local().withZoneSameInstant(JAPAN_ZONE);
     }
 
     /**
-     * get the epoch value of a datetime
+     * get the epoch value of a datetime in the UTC time zone
      *
+     * @param time the time to convert. may be in any timezone
      * @return the epoch value (seconds)
      */
-    public static long toEpoch(@NonNull LocalDateTime time) {
-        return time.toEpochSecond(ZoneOffset.UTC);
+    public static long toEpoch(@NonNull ZonedDateTime time) {
+        return time.withZoneSameInstant(UTC_ZONE).toEpochSecond();
     }
 
     /**
-     * convert a epoch value to the device's local date and time
+     * convert a epoch value to a date and time in the devices timezone
      *
-     * @param epoch the epoch value (seconds)
-     * @return the local datetime
+     * @param epoch the epoch value (seconds, in UTC) as returned by {@link #toEpoch(ZonedDateTime)}
+     * @return the datetime in the local zone
      */
     @NonNull
-    public static LocalDateTime fromEpoc(long epoch) {
-        return LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC);
+    public static ZonedDateTime fromEpoc(long epoch) {
+        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epoch), UTC_ZONE).withZoneSameInstant(DEVICE_ZONE);
     }
 
     /**
@@ -73,7 +88,7 @@ public class DateHelper {
      *
      * @return date and time in the local timezone
      */
-    public static LocalDateTime getLocalTime() {
+    public static ZonedDateTime getLocalTime() {
         return local();
     }
 
@@ -82,7 +97,7 @@ public class DateHelper {
      *
      * @return date and time in Tokyo
      */
-    public static LocalDateTime getJapanTime() {
+    public static ZonedDateTime getJapanTime() {
         return jp();
     }
 

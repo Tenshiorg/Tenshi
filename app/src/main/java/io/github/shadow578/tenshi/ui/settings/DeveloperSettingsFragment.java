@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -215,14 +217,14 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
                 final DatePickerDialog dateDialog = new DatePickerDialog(ctx);
                 dateDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
                     // select time
-                    final LocalDateTime now = DateHelper.getLocalTime();
+                    final ZonedDateTime now = DateHelper.getLocalTime();
                     final TimePickerDialog timeDialog = new TimePickerDialog(ctx, (view1, hourOfDay, minute) -> {
                         // both date and time have been selected, build the target datetime
                         final LocalDateTime target = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute, 0);
 
                         // schedule the notification
                         TenshiApp.getNotifyManager().sendAt(getTestNotification("dbg_notification_at_time at " + target.toString()),
-                                target);
+                                target.atZone(ZoneId.systemDefault()));
                         Toast.makeText(ctx, "scheduled notification for " + target.toString(), Toast.LENGTH_SHORT).show();
                     },
                             now.getHour(),

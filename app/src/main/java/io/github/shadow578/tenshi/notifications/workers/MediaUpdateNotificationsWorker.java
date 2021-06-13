@@ -9,7 +9,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -22,8 +21,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +85,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
 
         // enqueue the worker with the unique name
         WorkManager.getInstance(ctx)
-                .enqueueUniquePeriodicWork(UNIQUE_WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, workRequest);
+                .enqueueUniquePeriodicWork(UNIQUE_WORKER_NAME, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
 
     /**
@@ -175,7 +177,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
             checkRelatedAiringAlarms(showNSFW);
 
             // write run time to prefs
-            TenshiPrefs.setString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, DateHelper.getLocalTime().toString() + " success");
+            appendRunInfo(DateHelper.getLocalTime().toString() + " success");
 
             return Result.success();
         } catch (Exception e) {
@@ -185,8 +187,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
             // write error info to prefs instead of last run date
             StringWriter b = new StringWriter();
             e.printStackTrace(new PrintWriter(b));
-            TenshiPrefs.setString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo,
-                    DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
+            appendRunInfo(DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
 
             // send a notification with the error
             Notification n = notifyManager.notificationBuilder(TenshiNotificationChannel.Default)
@@ -199,6 +200,20 @@ public class MediaUpdateNotificationsWorker extends Worker {
         }
     }
 
+    private void appendRunInfo(String s) {
+        List<String> ri = TenshiPrefs.getObject(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, List.class, new ArrayList<String>());
+        int toRemove = ri.size() - 9;
+        Iterator<String> i = ri.iterator();
+        while (toRemove > 0 && i.hasNext()) {
+            i.next();
+            i.remove();
+            toRemove--;
+        }
+
+        ri.add(s);
+        TenshiPrefs.setObject(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, ri);
+    }
+
     /**
      * check and schedule notifications for anime that will air soon
      *
@@ -209,7 +224,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
         final List<UserLibraryEntry> animeForAiringCheck = getEntries(db, getCategoriesForAiringAlarms(), showNSFW);
 
         // get the current time and weekday in japan
-        final LocalDateTime now = DateHelper.getJapanTime();
+        final ZonedDateTime now = DateHelper.getJapanTime();
         final LocalDate nowDate = now.toLocalDate();
 
         // check each entry
@@ -235,6 +250,16 @@ public class MediaUpdateNotificationsWorker extends Worker {
             if (notNull(anime.endDate)
                     && nowDate.until(anime.endDate, ChronoUnit.DAYS) < 0)
                 continue;
+
+
+            //TODO overwrite broadcast schedule for Higehiro to be on the current weekday
+            // as I keep missing the notification for testing
+            if (anime.animeId == 40938) {
+                anime.broadcastInfo.weekday = DateHelper.convertDayOfWeek(now.getDayOfWeek());
+                //anime.broadcastInfo.startTime = now.toLocalTime().plusMinutes(5);
+                Log.w("Tenshi", "MediaUpdateNotification overwrite for 40938 / Higehiro: air on " + anime.broadcastInfo.weekday.name() + " at " + anime.broadcastInfo.startTime.toString());
+            }
+
 
             // get the next broadcast day and time
             final LocalDateTime nextBroadcast = getNextBroadcast(now, anime.broadcastInfo);
@@ -267,7 +292,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
         final List<UserLibraryEntry> animeForAiringCheck = getEntries(db, getCategoriesForRelatedPremiereAlarms(), showNSFW);
 
         // get the current time and weekday in japan
-        final LocalDateTime now = DateHelper.getJapanTime();
+        final ZonedDateTime now = DateHelper.getJapanTime();
         final LocalDate nowDate = now.toLocalDate();
 
         // check each entry's related anime
@@ -329,7 +354,8 @@ public class MediaUpdateNotificationsWorker extends Worker {
         }
 
         // schedule notification
-        notifyManager.sendAt(entry.anime.animeId, notification, nextBroadcastTime);
+        //TODO: just hardcoding to JP timezone right now, but should probably use ZonedDateTime in DateHelper and everywhere else
+        notifyManager.sendAt(entry.anime.animeId, notification, nextBroadcastTime.atZone(ZoneId.of("Asia/Tokyo")));
     }
 
     /**
@@ -377,7 +403,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
      * @return the next broadcast
      */
     @NonNull
-    private LocalDateTime getNextBroadcast(@NonNull LocalDateTime now, @NonNull BroadcastInfo broadcastInfo) {
+    private LocalDateTime getNextBroadcast(@NonNull ZonedDateTime now, @NonNull BroadcastInfo broadcastInfo) {
         // make datetime with the right time on the current day
         LocalDateTime nextBroadcast = LocalDateTime.of(now.toLocalDate(), broadcastInfo.startTime);
 
@@ -446,7 +472,7 @@ public class MediaUpdateNotificationsWorker extends Worker {
     private static Constraints getConstrains() {
         //TODO constrains configuration in props
         return new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.UNMETERED)
+                //.setRequiredNetworkType(NetworkType.UNMETERED)
                 .setRequiresBatteryNotLow(true)
                 .build();
     }

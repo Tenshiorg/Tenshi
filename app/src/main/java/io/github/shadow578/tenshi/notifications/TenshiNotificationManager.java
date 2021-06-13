@@ -10,12 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.core.app.AlarmManagerCompat;
 import androidx.core.app.NotificationCompat;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Random;
 
 import io.github.shadow578.tenshi.R;
+import io.github.shadow578.tenshi.util.DateHelper;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.cast;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
@@ -116,7 +115,7 @@ public class TenshiNotificationManager {
      * @param notification the notification
      * @param time         the time to send the notification at.
      */
-    public void sendAt(@NonNull Notification notification, @NonNull LocalDateTime time) {
+    public void sendAt(@NonNull Notification notification, @NonNull ZonedDateTime time) {
         sendAt(randomId(), notification, time);
     }
 
@@ -128,10 +127,9 @@ public class TenshiNotificationManager {
      * @param notification   the notification
      * @param time           the time to send the notification at.
      */
-    public void sendAt(int notificationId, @NonNull Notification notification, @NonNull LocalDateTime time) {
-        // calculate millis timestamp to send at
-        final ZonedDateTime zoned = time.atZone(ZoneId.systemDefault());
-        long timestampMillis = zoned.toInstant().toEpochMilli();
+    public void sendAt(int notificationId, @NonNull Notification notification, @NonNull ZonedDateTime time) {
+        // calculate millis timestamp to send at, in the system timezone
+        long timestampMillis = DateHelper.toEpoch(time);
 
         // send notification
         sendAt(notificationId, notification, timestampMillis);
@@ -161,6 +159,10 @@ public class TenshiNotificationManager {
             Log.e("Tenshi", "NotificationHelper#sendAt() target time is in the past! sending asap");
             timestamp = System.currentTimeMillis() + 10000;
         }
+
+        //TODO log sendat time
+        final ZonedDateTime time = DateHelper.fromEpoc(timestamp / 1000);
+        Log.i("TenshiNotify", "schedule notification for timestamp " + timestamp + "(ms); time is " + time.toString());
 
         // create target intent
         final PendingIntent intent = NotificationPublisher.getPendingIntent(ctx, notificationId, notification);
