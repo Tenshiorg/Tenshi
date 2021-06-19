@@ -48,7 +48,7 @@ public class TenshiNotificationManager {
      */
     public NotificationCompat.Builder notificationBuilder(@NonNull TenshiNotificationChannel channel) {
         return new NotificationCompat.Builder(ctx, channel.id())
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setSmallIcon(R.drawable.ic_notify_icon_24);
     }
 
     /**
