@@ -129,7 +129,8 @@ public class TenshiNotificationManager {
      */
     public void sendAt(int notificationId, @NonNull Notification notification, @NonNull ZonedDateTime time) {
         // calculate millis timestamp to send at, in the system timezone
-        long timestampMillis = DateHelper.toEpoch(time);
+        // multiply by 1000 to get to millis timestamp
+        final long timestampMillis = DateHelper.toEpoch(time) * 1000;
 
         // send notification
         sendAt(notificationId, notification, timestampMillis);

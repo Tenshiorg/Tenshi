@@ -37,7 +37,6 @@ import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
-import io.github.shadow578.tenshi.notifications.workers.MediaUpdateNotificationsWorker;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -90,7 +89,6 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         setupThrowExceptionFunctions();
         setupUtilFunctions();
         setupNotificationFunctions();
-        setupWorkerFunctions();
         setupDatabaseFunctions();
         setupSharedPrefsFunctions();
         setupContentAdapterFunctions();
@@ -158,24 +156,6 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
             TenshiApp.INSTANCE.invalidateTokenAndLogin(requireActivity());
             return true;
         }));
-    }
-
-    /**
-     * setup work manager test functions
-     */
-    private void setupWorkerFunctions() {
-        // media update worker run now
-        final Preference mediaWorkerNow = findPreference("dbg_media_update_worker_now");
-        with(mediaWorkerNow, wrk -> wrk.setOnPreferenceClickListener(preference -> {
-            MediaUpdateNotificationsWorker.runNow(ctx);
-            Toast.makeText(ctx, "worker started...", Toast.LENGTH_LONG).show();
-            return true;
-        }));
-
-        // media update worker last run
-        final Preference mediaWorkerLastRun = findPreference("dbg_media_update_worker_last_run");
-        with(mediaWorkerLastRun, wrk ->
-                wrk.setSummary(TenshiPrefs.getString(TenshiPrefs.Key.DBG_MediaUpdateNotificationsWorkerLastRunInfo, "unknown")));
     }
 
     /**

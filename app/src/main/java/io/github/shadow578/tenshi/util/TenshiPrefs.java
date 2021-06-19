@@ -85,10 +85,11 @@ public class TenshiPrefs {
         AnimeDetailsInLibTutorialFinished,
 
         /**
-         * date and time the {@link io.github.shadow578.tenshi.notifications.workers.MediaUpdateNotificationsWorker} last ran, plus info on exceptions in the worker
-         * TODO this is temporary only, and should not be included in production
+         * keys to hold the logging info of the two notification workers
+         * TODO should remove
          */
-        DBG_MediaUpdateNotificationsWorkerLastRunInfo
+        DEV_AiringAnimeWorkerLog,
+        DEV_RelatedAnimeWorkerLog
     }
 
     /**
