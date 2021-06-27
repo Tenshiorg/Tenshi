@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.Worker;
@@ -105,6 +106,8 @@ public class AiringAnimeWorker extends WorkerBase {
             Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
                     .setContentTitle("MediaUpdateNotificationsWorker exception")
                     .setContentText(e.toString() + ": " + b.toString())
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(e.toString() + ": " + b.toString()))
                     .build();
             getNotifyManager().sendNow(n);
 
@@ -200,15 +203,21 @@ public class AiringAnimeWorker extends WorkerBase {
         final Notification notification;
         if (isPremiere) {
             notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle(a.title + " premiers soon")
+                    .setContentTitle("Upcoming Anime premiere soon")
                     .setContentText(a.title + " will premiere soon! check it out now.")
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(a.title + " will premiere soon! check it out now."))
                     .setContentIntent(getDetailsOpenIntent(a.animeId))
+                    .setAutoCancel(true)
                     .build();
         } else {
             notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle(a.title + " airs soon")
+                    .setContentTitle("Anime will air soon")
                     .setContentText(a.title + " will air soon! check it out now.")
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(a.title + " will air soon! check it out now."))
                     .setContentIntent(getDetailsOpenIntent(a.animeId))
+                    .setAutoCancel(true)
                     .build();
         }
 

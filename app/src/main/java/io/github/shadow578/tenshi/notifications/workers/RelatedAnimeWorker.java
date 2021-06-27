@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.Worker;
@@ -105,6 +106,8 @@ public class RelatedAnimeWorker extends WorkerBase {
             Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
                     .setContentTitle("MediaUpdateNotificationsWorker exception")
                     .setContentText(e.toString() + ": " + b.toString())
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(e.toString() + ": " + b.toString()))
                     .build();
             getNotifyManager().sendNow(n);
 
@@ -177,9 +180,12 @@ public class RelatedAnimeWorker extends WorkerBase {
         // create notification
         //TODO channel and content hardcode
         final Notification notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                .setContentTitle(a.title + " will air soon")
+                .setContentTitle("Upcoming related Anime")
                 .setContentText(a.title + "(related to " + parentEntry.anime.title + ") will air on " + a.broadcastInfo.weekday + "! check it out now.")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(a.title + "(related to " + parentEntry.anime.title + ") will air on " + a.broadcastInfo.weekday + "! check it out now."))
                 .setContentIntent(getDetailsOpenIntent(a.animeId))
+                .setAutoCancel(true)
                 .build();
 
         // and schedule it
