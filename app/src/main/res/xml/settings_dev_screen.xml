@@ -98,7 +98,7 @@
     </PreferenceCategory>
 
     <!-- database functions -->
-    <PreferenceCategory android:title="Database">
+    <PreferenceCategory android:title="Anime Database">
         <!-- export database -->
         <Preference
             android:key="dbg_export_database"
@@ -112,6 +112,19 @@
         <!-- delete database -->
         <Preference
             android:key="dbg_delete_database"
+            android:title="Delete Database" />
+    </PreferenceCategory>
+
+    <!-- database functions -->
+    <PreferenceCategory android:title="Notifications Database">
+        <!-- export database -->
+        <Preference
+            android:key="dbg_export_notify_database"
+            android:title="Export Database" />
+
+        <!-- delete database -->
+        <Preference
+            android:key="dbg_delete_notify_database"
             android:title="Delete Database" />
     </PreferenceCategory>
 

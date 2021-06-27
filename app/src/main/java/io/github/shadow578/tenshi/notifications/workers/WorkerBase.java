@@ -20,6 +20,7 @@ import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibrarySortMode;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
 import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -33,13 +34,16 @@ public abstract class WorkerBase extends Worker {
 
     /**
      * the database instance.
-     * this should be initialized in {@link #doWork()} before anything depending on it is called.
      */
     private TenshiDB db = null;
 
     /**
+     * notification database instance
+     */
+    private SentNotificationsDB notificationsDB = null;
+
+    /**
      * notification manager instance.
-     * this should be initialized in {@link #doWork()} before anything depending on it is called.
      */
     private TenshiNotificationManager notifyManager = null;
 
@@ -108,7 +112,7 @@ public abstract class WorkerBase extends Worker {
     /**
      * initialize TenshiPrefs
      */
-    protected void requirePrefs(){
+    protected void requirePrefs() {
         TenshiPrefs.init(getApplicationContext());
     }
 
@@ -135,6 +139,28 @@ public abstract class WorkerBase extends Worker {
     }
 
     /**
+     * get the notification database instance.
+     * database is created on demand
+     *
+     * @return the database instance
+     */
+    @NonNull
+    protected SentNotificationsDB getNotifyDB() {
+        if (notNull(notificationsDB))
+            return notificationsDB;
+
+        // try to get database from TenshiApp first
+        if (notNull(TenshiApp.INSTANCE)) {
+            notificationsDB = TenshiApp.getNotifyDB();
+            return notificationsDB;
+        }
+
+        // app not running, create on demand
+        notificationsDB = SentNotificationsDB.create(getApplicationContext());
+        return notificationsDB;
+    }
+
+    /**
      * get the tenshi notification manager instance.
      * if the app is not running ({@link TenshiApp#getNotifyManager()} ()} not possible) this initializes the manager on the first call.
      *
@@ -142,11 +168,11 @@ public abstract class WorkerBase extends Worker {
      */
     @NonNull
     protected TenshiNotificationManager getNotifyManager() {
-        if(notNull(notifyManager))
+        if (notNull(notifyManager))
             return notifyManager;
 
         // try to get manager from TenshiApp first
-        if(notNull(TenshiApp.INSTANCE)){
+        if (notNull(TenshiApp.INSTANCE)) {
             notifyManager = TenshiApp.getNotifyManager();
             return notifyManager;
         }

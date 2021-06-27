@@ -7,7 +7,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
-import androidx.work.NetworkType;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -27,9 +27,11 @@ import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationInfo;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
@@ -41,7 +43,7 @@ public class AiringAnimeWorker extends WorkerBase {
     /**
      * get the constrains that are placed on the execution of this worker
      *
-     * @param ctx  context to work in
+     * @param ctx context to work in
      * @return the constrains
      */
     @NonNull
@@ -198,28 +200,39 @@ public class AiringAnimeWorker extends WorkerBase {
         // get anime from entry
         final Anime a = libraryEntry.anime;
 
+        // get notification content
+        final String title, text;
+        if (isPremiere) {
+            title = "Upcoming Anime premiere";
+            text = fmt("%s will premiere soon!", a.title);
+
+        } else {
+            title = "Anime will air soon";
+            text = fmt("%s will air soon!", a.title);
+        }
+
+        // check if already in db, do not send if it is
+        // otherwise insert
+        if (!getNotifyDB().notificationsDB().insertIfNotPresent(SentNotificationInfo.create(Duration.ofDays(7),
+                a.animeId,
+                title,
+                text,
+                TenshiNotificationChannel.Default.id(),
+                "at: " + nextBroadcast.toString()))) {
+            // sent this notification already, do not sent again
+            return;
+        }
+
         // create notification
         //TODO channel and content hardcode
-        final Notification notification;
-        if (isPremiere) {
-            notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle("Upcoming Anime premiere soon")
-                    .setContentText(a.title + " will premiere soon! check it out now.")
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText(a.title + " will premiere soon! check it out now."))
-                    .setContentIntent(getDetailsOpenIntent(a.animeId))
-                    .setAutoCancel(true)
-                    .build();
-        } else {
-            notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle("Anime will air soon")
-                    .setContentText(a.title + " will air soon! check it out now.")
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText(a.title + " will air soon! check it out now."))
-                    .setContentIntent(getDetailsOpenIntent(a.animeId))
-                    .setAutoCancel(true)
-                    .build();
-        }
+        final Notification notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(text))
+                .setContentIntent(getDetailsOpenIntent(a.animeId))
+                .setAutoCancel(true)
+                .build();
 
         // schedule the notification
         getNotifyManager().sendAt(a.animeId, notification, nextBroadcast);

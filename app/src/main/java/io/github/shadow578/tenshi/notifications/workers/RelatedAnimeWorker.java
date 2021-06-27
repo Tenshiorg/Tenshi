@@ -6,7 +6,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
-import androidx.work.NetworkType;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -14,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -27,9 +27,11 @@ import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationInfo;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.fmt;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.listOf;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
@@ -41,7 +43,7 @@ public class RelatedAnimeWorker extends WorkerBase {
     /**
      * get the constrains that are placed on the execution of this worker
      *
-     * @param ctx  context to work in
+     * @param ctx context to work in
      * @return the constrains
      */
     @NonNull
@@ -177,13 +179,28 @@ public class RelatedAnimeWorker extends WorkerBase {
         if (isNull(a.broadcastInfo))
             return;
 
+        // get notification content
+        final String title = "Upcoming related Anime";
+        final String text = fmt("%s will air next %s! %ncheck it out now.", a.title, a.broadcastInfo.weekday);
+
+        // check if already in db, do not send if it is
+        // otherwise insert
+        if (!getNotifyDB().notificationsDB().insertIfNotPresent(SentNotificationInfo.create(Duration.ofDays(7),
+                a.animeId,
+                title,
+                text,
+                TenshiNotificationChannel.Default.id()))) {
+            // sent this notification already, do not sent again
+            return;
+        }
+
         // create notification
         //TODO channel and content hardcode
         final Notification notification = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                .setContentTitle("Upcoming related Anime")
-                .setContentText(a.title + "(related to " + parentEntry.anime.title + ") will air on " + a.broadcastInfo.weekday + "! check it out now.")
+                .setContentTitle(title)
+                .setContentText(text)
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(a.title + "(related to " + parentEntry.anime.title + ") will air on " + a.broadcastInfo.weekday + "! check it out now."))
+                        .bigText(text))
                 .setContentIntent(getDetailsOpenIntent(a.animeId))
                 .setAutoCancel(true)
                 .build();

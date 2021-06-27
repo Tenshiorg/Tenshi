@@ -37,6 +37,7 @@ import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
@@ -62,6 +63,11 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     private static final int REQUEST_CHOOSE_DB_EXPORT_PATH = 21;
 
     /**
+     * request id for document chooser used when choosing the notification database export path
+     */
+    private static final int REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH = 22;
+
+    /**
      * context. setup before any setup*() functions are called.
      */
     private Context ctx;
@@ -70,12 +76,19 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // export database to file
+        // export anime database to file
         if (requestCode == REQUEST_CHOOSE_DB_EXPORT_PATH
                 && resultCode == Activity.RESULT_OK
                 && notNull(data)
                 && notNull(data.getData()))
-            exportDatabaseTo(data.getData());
+            exportDatabaseTo(TenshiDB.getDatabasePath(requireContext()).getAbsolutePath(), data.getData());
+
+        // export notify database to file
+        if (requestCode == REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH
+                && resultCode == Activity.RESULT_OK
+                && notNull(data)
+                && notNull(data.getData()))
+            exportDatabaseTo(SentNotificationsDB.getDatabasePath(requireContext()).getAbsolutePath(), data.getData());
     }
 
     @Override
@@ -90,6 +103,7 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         setupUtilFunctions();
         setupNotificationFunctions();
         setupDatabaseFunctions();
+        setupNotifyDatabaseFunctions();
         setupSharedPrefsFunctions();
         setupContentAdapterFunctions();
     }
@@ -277,6 +291,37 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
+     * setup debug functions for database
+     */
+    private void setupNotifyDatabaseFunctions() {
+        // setup 'export database' button
+        final Preference exportDbPref = findPreference("dbg_export_notify_database");
+        final String dbPath = SentNotificationsDB.getDatabasePath(ctx).getAbsolutePath();
+        with(exportDbPref, exportDb -> {
+            exportDb.setSummary(dbPath);
+            exportDb.setOnPreferenceClickListener(preference -> {
+                // print path to log
+                Log.e("Tenshi", "Database Path: " + dbPath);
+
+                // start document chooser
+                final Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                exportIntent.setType("*/*");
+                startActivityForResult(exportIntent, REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH);
+                return true;
+            });
+        });
+
+        // setup 'delete database' button
+        final Preference deleteDbPref = findPreference("dbg_delete_notify_database");
+        with(deleteDbPref,
+                deleteDb -> deleteDb.setOnPreferenceClickListener(preference -> {
+                    async(() -> TenshiApp.getNotifyDB().clearAllTables());
+                    Toast.makeText(ctx, "Deleted Database", Toast.LENGTH_SHORT).show();
+                    return true;
+                }));
+    }
+
+    /**
      * setup debug functions for shared preferences
      */
     private void setupSharedPrefsFunctions() {
@@ -413,13 +458,13 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * export the database to a file
+     * export a database to a file
      *
      * @param targetPath the path of the file to export to
      */
-    private void exportDatabaseTo(@NonNull Uri targetPath) {
+    private void exportDatabaseTo(@NonNull String dbPath, @NonNull Uri targetPath) {
         // open output and database file and start copy
-        try (final FileInputStream dbIn = new FileInputStream(TenshiDB.getDatabasePath(requireContext()));
+        try (final FileInputStream dbIn = new FileInputStream(dbPath);
              final OutputStream out = requireContext().getContentResolver().openOutputStream(targetPath)) {
             // copy file
             final byte[] buf = new byte[1024];

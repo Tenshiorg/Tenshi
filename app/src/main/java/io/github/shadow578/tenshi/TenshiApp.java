@@ -30,6 +30,7 @@ import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
 import io.github.shadow578.tenshi.notifications.workers.WorkerHelper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
@@ -99,6 +100,11 @@ public class TenshiApp extends Application {
     private TenshiDB database;
 
     /**
+     * sent notifications database
+     */
+    private SentNotificationsDB notifyDatabase;
+
+    /**
      * notification manager
      */
     private TenshiNotificationManager notificationManager;
@@ -124,7 +130,11 @@ public class TenshiApp extends Application {
 
         // init database and start cleanup
         database = TenshiDB.create(getApplicationContext());
-        cleanupDatabase();
+        cleanupAnimeDatabase();
+
+        // cleanup notification database
+        notifyDatabase = SentNotificationsDB.create(getApplicationContext());
+        cleanupNotifyDatabase();
 
         // init and find content adapters
         contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
@@ -191,12 +201,22 @@ public class TenshiApp extends Application {
     }
 
     /**
-     * cleanup the database
+     * cleanup the anime database
      */
-    public void cleanupDatabase() {
+    public void cleanupAnimeDatabase() {
         async(() -> {
             final int removedEntities = database.cleanupDatabase();
-            Log.i("Tenshi", fmt("Database cleanup finished with %d entities removed", removedEntities));
+            Log.i("Tenshi", fmt("anime database cleanup finished with %d entities removed", removedEntities));
+        });
+    }
+
+    /**
+     * cleanup the notifications database
+     */
+    private void cleanupNotifyDatabase() {
+        async(() -> {
+            final int removedEntries = notifyDatabase.notificationsDB().removeExpired();
+            Log.i("Tenshi", fmt("notification database cleanup finished with %d entries removed", removedEntries));
         });
     }
 
@@ -445,6 +465,14 @@ public class TenshiApp extends Application {
     @NonNull
     public static TenshiDB getDB() {
         return INSTANCE.database;
+    }
+
+    /**
+     * @return the sent notifications database instance
+     */
+    @NonNull
+    public static SentNotificationsDB getNotifyDB() {
+        return INSTANCE.notifyDatabase;
     }
 
     /**
