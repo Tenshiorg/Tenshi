@@ -14,7 +14,7 @@ import java.io.File;
  */
 @Database(entities = {
         SentNotificationInfo.class
-}, version = 1)
+}, version = 2)
 public abstract class SentNotificationsDB extends RoomDatabase {
     /**
      * database name

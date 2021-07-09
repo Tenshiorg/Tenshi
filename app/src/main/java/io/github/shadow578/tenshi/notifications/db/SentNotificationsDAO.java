@@ -38,7 +38,7 @@ public abstract class SentNotificationsDAO {
             return 0;
 
         // map to a list of identifiers
-        final List<String> expiredIdentifiers = expired.stream()
+        final List<Long> expiredIdentifiers = expired.stream()
                 .map((info) -> info.notificationIdentifier)
                 .collect(Collectors.toList());
 
@@ -57,7 +57,8 @@ public abstract class SentNotificationsDAO {
     @Transaction
     public boolean insertIfNotPresent(SentNotificationInfo info) {
         // find info with that id, abort if found
-        if (notNull(getInfo(info.notificationIdentifier)))
+        final SentNotificationInfo sentInfo = getInfo(info.notificationIdentifier);
+        if (notNull(sentInfo) && sentInfo.equals(info))
             return false;
 
         // not found, insert
@@ -68,11 +69,11 @@ public abstract class SentNotificationsDAO {
     /**
      * get a notification info with the given identifier
      *
-     * @param notificationIdentifier the identifier to find
+     * @param id the identifier to find
      * @return the notification info, or null if not found
      */
-    @Query("SELECT * FROM sent_notifications WHERE identifier = :notificationIdentifier")
-    public abstract SentNotificationInfo getInfo(String notificationIdentifier);
+    @Query("SELECT * FROM sent_notifications WHERE identifier = :id")
+    public abstract SentNotificationInfo getInfo(long id);
 
     /**
      * insert a notification info into the db
@@ -97,5 +98,5 @@ public abstract class SentNotificationsDAO {
      * @param identifiersToDelete the list of identifiers to delete
      */
     @Query("DELETE FROM sent_notifications WHERE identifier IN (:identifiersToDelete)")
-    protected abstract void _deleteAll(List<String> identifiersToDelete);
+    protected abstract void _deleteAll(List<Long> identifiersToDelete);
 }

@@ -43,24 +43,43 @@ public class SentNotificationInfo {
         for (String e : extra)
             extraBuilder.add(e);
 
-        info.notificationIdentifier = fmt("id: %d; title: %s; text: %s; channel: %s; extra: %s",
+        info.description = fmt("id: %d; title: %s; text: %s; channel: %s; extra: %s",
                 notificationId, contentTitle, contentText, channelID,
                 extraBuilder.toString());
-
-        // TODO: use hash instead of clear- text identifier
+        info.notificationIdentifier = longHash(info.description);
 
         // set expiration
-        info.expirationTimestamp = DateHelper.toEpoch(DateHelper.getLocalTime()) + timeToLive.getSeconds();
+        info.expirationTimestamp = DateHelper.toEpoch(DateHelper.getLocalTime().plus(timeToLive));
         return info;
+    }
+
+    /**
+     * calculate the hash of a string, but using a 64bit hash instead of 32 bit
+     *
+     * @param string the string to hash
+     * @return the hash of the string
+     */
+    private static long longHash(String string) {
+        long h = 1125899906842597L;
+        for (char c : string.toCharArray()) {
+            h = 31 * h + c;
+        }
+        return h;
     }
 
     /**
      * the unique notification identifier. this is unique for each notification with equal content
      */
-    @NonNull
     @PrimaryKey
     @ColumnInfo(name = "identifier")
-    public String notificationIdentifier = "";
+    public long notificationIdentifier;
+
+    /**
+     * cleartext notification identifier
+     * TODO for testing only, remove in production
+     */
+    @NonNull
+    public String description = "";
 
     /**
      * when this notification expires
@@ -72,12 +91,11 @@ public class SentNotificationInfo {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-
         if (o == null || getClass() != o.getClass())
             return false;
 
-        SentNotificationInfo that = (SentNotificationInfo) o;
-        return notificationIdentifier.equals(that.notificationIdentifier);
+        final SentNotificationInfo that = (SentNotificationInfo) o;
+        return notificationIdentifier == that.notificationIdentifier;
     }
 
     @Override

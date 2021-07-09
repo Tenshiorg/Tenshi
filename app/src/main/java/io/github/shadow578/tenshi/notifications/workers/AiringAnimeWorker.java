@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import io.github.shadow578.tenshi.mal.model.Anime;
+import io.github.shadow578.tenshi.mal.model.BroadcastInfo;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
 import io.github.shadow578.tenshi.mal.model.type.BroadcastStatus;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
@@ -138,6 +139,17 @@ public class AiringAnimeWorker extends WorkerBase {
         for (UserLibraryEntry a : animeForAiringCheck) {
             final Anime anime = a.anime;
 
+            //TODO overwrite broadcast schedule for Higehiro to be on the current weekday
+            // as I keep missing the notification for testing
+            if (anime.animeId == 40938) {
+                anime.broadcastInfo = new BroadcastInfo();
+                anime.broadcastInfo.weekday = DateHelper.convertDayOfWeek(now.getDayOfWeek());
+                anime.broadcastInfo.startTime = now.toLocalTime().plusMinutes(5);
+                anime.endDate = LocalDate.of(2022, 12, 24);
+                anime.broadcastStatus = BroadcastStatus.CurrentlyAiring;
+                Log.w("Tenshi", "MediaUpdateNotification overwrite for 40938 / Higehiro: air on " + anime.broadcastInfo.weekday.name() + " at " + anime.broadcastInfo.startTime.toString());
+            }
+
             // check if anime broadcast info is valid
             // and anime is currently airing
             if (isNull(anime.broadcastStatus)
@@ -157,16 +169,6 @@ public class AiringAnimeWorker extends WorkerBase {
             if (notNull(anime.endDate)
                     && nowDate.until(anime.endDate, ChronoUnit.DAYS) < 0)
                 continue;
-
-
-            //TODO overwrite broadcast schedule for Higehiro to be on the current weekday
-            // as I keep missing the notification for testing
-            if (anime.animeId == 40938) {
-                anime.broadcastInfo.weekday = DateHelper.convertDayOfWeek(now.getDayOfWeek());
-                //anime.broadcastInfo.startTime = now.toLocalTime().plusMinutes(5);
-                Log.w("Tenshi", "MediaUpdateNotification overwrite for 40938 / Higehiro: air on " + anime.broadcastInfo.weekday.name() + " at " + anime.broadcastInfo.startTime.toString());
-            }
-
 
             // get the next broadcast day and time
             final ZonedDateTime nextBroadcast = anime.broadcastInfo.getNextBroadcast(now);
