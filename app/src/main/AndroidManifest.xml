@@ -93,8 +93,16 @@
             android:label="Settings"
             android:parentActivityName=".ui.MainActivity" />
 
-        <!-- notifications -->
+        <!-- notifications publisher -->
         <receiver android:name=".notifications.NotificationPublisher" />
+
+        <!-- notifications boot listener -->
+        <receiver android:name=".notifications.boot.NotificationBootListener">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".notifications.boot.NotificationBootService" />
 
     </application>
 </manifest>

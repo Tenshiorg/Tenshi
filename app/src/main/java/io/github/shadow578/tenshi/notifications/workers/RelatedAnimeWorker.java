@@ -187,6 +187,7 @@ public class RelatedAnimeWorker extends WorkerBase {
         // otherwise insert
         if (!getNotifyDB().notificationsDB().insertIfNotPresent(SentNotificationInfo.create(Duration.ofDays(7),
                 a.animeId,
+                false,
                 title,
                 text,
                 TenshiNotificationChannel.Default.id()))) {

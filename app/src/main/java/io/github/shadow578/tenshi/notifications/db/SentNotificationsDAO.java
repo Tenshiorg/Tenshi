@@ -48,6 +48,30 @@ public abstract class SentNotificationsDAO {
     }
 
     /**
+     * remove all scheduled notifications from the db
+     *
+     * @return the number of removed entries
+     */
+    @Transaction
+    public int removeScheduled() {
+        // find all that are scheduled
+        final List<SentNotificationInfo> scheduled = _getScheduled();
+
+        // cancel if none found
+        if (nullOrEmpty(scheduled))
+            return 0;
+
+        // map to a list of identifiers
+        final List<Long> expiredIdentifiers = scheduled.stream()
+                .map((info) -> info.notificationIdentifier)
+                .collect(Collectors.toList());
+
+        // remove all expired
+        _deleteAll(expiredIdentifiers);
+        return scheduled.size();
+    }
+
+    /**
      * insert a info into the database if it was not present
      *
      * @param info the info to insert
@@ -91,6 +115,14 @@ public abstract class SentNotificationsDAO {
      */
     @Query("SELECT * FROM sent_notifications WHERE expiration < :epochNow")
     protected abstract List<SentNotificationInfo> _getExpired(long epochNow);
+
+    /**
+     * get all notification info that have the scheduled flag
+     *
+     * @return a list of all scheduled notification info
+     */
+    @Query("SELECT * FROM sent_notifications WHERE is_scheduled = 1")
+    protected abstract List<SentNotificationInfo> _getScheduled();
 
     /**
      * delete all notification info with the given identifiers

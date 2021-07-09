@@ -217,6 +217,7 @@ public class AiringAnimeWorker extends WorkerBase {
         // otherwise insert
         if (!getNotifyDB().notificationsDB().insertIfNotPresent(SentNotificationInfo.create(Duration.ofDays(7),
                 a.animeId,
+                true,
                 title,
                 text,
                 TenshiNotificationChannel.Default.id(),

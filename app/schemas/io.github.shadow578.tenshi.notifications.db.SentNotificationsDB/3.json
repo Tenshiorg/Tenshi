@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "cde411f7c5bcec3795d7ae88e871b4c8",
+    "entities": [
+      {
+        "tableName": "sent_notifications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identifier` INTEGER NOT NULL, `description` TEXT NOT NULL, `expiration` INTEGER NOT NULL, `is_scheduled` INTEGER NOT NULL, PRIMARY KEY(`identifier`))",
+        "fields": [
+          {
+            "fieldPath": "notificationIdentifier",
+            "columnName": "identifier",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expirationTimestamp",
+            "columnName": "expiration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isScheduledNotification",
+            "columnName": "is_scheduled",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "identifier"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cde411f7c5bcec3795d7ae88e871b4c8')"
+    ]
+  }
+}

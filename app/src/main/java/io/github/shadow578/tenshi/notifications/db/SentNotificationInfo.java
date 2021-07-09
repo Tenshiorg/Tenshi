@@ -22,17 +22,19 @@ public class SentNotificationInfo {
     /**
      * create a notification info from notification details
      *
-     * @param timeToLive     how long the info should live
-     * @param notificationId the notification ID
-     * @param contentTitle   the title of the notification
-     * @param contentText    the main text of the notification
-     * @param channelID      the channel id the notification is posted in
-     * @param extra          additional notification parameter. may be empty
+     * @param timeToLive              how long the info should live
+     * @param notificationId          the notification ID
+     * @param isScheduledNotification is this a notification that is scheduled? see {@link #isScheduledNotification}
+     * @param contentTitle            the title of the notification
+     * @param contentText             the main text of the notification
+     * @param channelID               the channel id the notification is posted in
+     * @param extra                   additional notification parameter. may be empty
      * @return the notification info
      */
     @NonNull
     public static SentNotificationInfo create(@NonNull Duration timeToLive,
                                               int notificationId,
+                                              boolean isScheduledNotification,
                                               @NonNull String contentTitle,
                                               @NonNull String contentText,
                                               @NonNull String channelID,
@@ -50,6 +52,7 @@ public class SentNotificationInfo {
 
         // set expiration
         info.expirationTimestamp = DateHelper.toEpoch(DateHelper.getLocalTime().plus(timeToLive));
+        info.isScheduledNotification = isScheduledNotification;
         return info;
     }
 
@@ -86,6 +89,15 @@ public class SentNotificationInfo {
      */
     @ColumnInfo(name = "expiration")
     public long expirationTimestamp;
+
+    /**
+     * is this a scheduled notification?
+     * scheduled notifications are expired on device reboot, as the
+     * {@link io.github.shadow578.tenshi.notifications.TenshiNotificationManager} does not
+     * handle re- scheduling notifications on reboot
+     */
+    @ColumnInfo(name = "is_scheduled")
+    public boolean isScheduledNotification;
 
     @Override
     public boolean equals(Object o) {
