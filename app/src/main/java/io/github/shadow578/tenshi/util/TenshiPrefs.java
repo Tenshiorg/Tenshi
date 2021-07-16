@@ -99,7 +99,8 @@ public class TenshiPrefs {
          * TODO should remove
          */
         DEV_AiringAnimeWorkerLog,
-        DEV_RelatedAnimeWorkerLog
+        DEV_RelatedAnimeWorkerLog,
+        DEV_EnableHigehiroOverwrite
     }
 
     /**

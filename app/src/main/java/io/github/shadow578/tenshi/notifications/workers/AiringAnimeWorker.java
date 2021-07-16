@@ -144,7 +144,8 @@ public class AiringAnimeWorker extends WorkerBase {
 
             //TODO overwrite broadcast schedule for Higehiro to be on the current weekday
             // as I keep missing the notification for testing
-            if (BuildConfig.DEBUG && anime.animeId == 40938) {
+            if (TenshiPrefs.getBool(TenshiPrefs.Key.DEV_EnableHigehiroOverwrite, false)
+                    && anime.animeId == 40938) {
                 anime.broadcastInfo = new BroadcastInfo();
                 anime.broadcastInfo.weekday = DateHelper.convertDayOfWeek(now.getDayOfWeek());
                 anime.broadcastInfo.startTime = now.toLocalTime().plusMinutes(5);

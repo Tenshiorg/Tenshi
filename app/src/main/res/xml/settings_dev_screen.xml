@@ -95,6 +95,12 @@
             android:key="dbg_notification_at_time"
             android:title="Notification at specific time"
             android:summary="Schedule a test notification for a specified time"/>
+
+        <!-- enable higehiro overwrite -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="DEV_EnableHigehiroOverwrite"
+            android:title="Higehiro notification schedule overwrite" />
     </PreferenceCategory>
 
     <!-- database functions -->
