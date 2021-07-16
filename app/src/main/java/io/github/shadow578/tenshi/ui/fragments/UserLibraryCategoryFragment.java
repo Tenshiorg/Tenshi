@@ -48,7 +48,7 @@ public class UserLibraryCategoryFragment extends TenshiFragment {
      */
     public static final int REQUEST_ANIME_DETAILS = 17;
 
-    private static final String REQUEST_FIELDS = "main_picture,title,list_status{score},num_episodes,status,nsfw";//MalApiHelper.getQueryableFields(UserLibraryEntry.class);
+    private static final String REQUEST_FIELDS = "main_picture,title,alternative_titles,list_status{score},num_episodes,status,nsfw";//MalApiHelper.getQueryableFields(UserLibraryEntry.class);
 
     private UserLibraryList animeListResponse;
     private UserAnimeListAdapter animeListAdapter;
