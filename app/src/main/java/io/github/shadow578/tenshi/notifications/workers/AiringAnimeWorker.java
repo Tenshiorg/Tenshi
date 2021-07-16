@@ -2,6 +2,7 @@ package io.github.shadow578.tenshi.notifications.workers;
 
 import android.app.Notification;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.BroadcastInfo;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
@@ -91,29 +93,32 @@ public class AiringAnimeWorker extends WorkerBase {
             // run the checks
             checkAiring();
 
-            //TODO dev testing
-            // write run time to prefs
-            appendRunInfo(DateHelper.getLocalTime().toString() + " success");
+            if(BuildConfig.DEBUG) {
+                //TODO dev testing
+                // write run time to prefs
+                appendRunInfo(DateHelper.getLocalTime().toString() + " success");
+            }
             return Result.success();
         } catch (Exception e) {
             // idk, retry on error
             e.printStackTrace();
 
-            //TODO dev testing
-            // write error info to prefs instead of last run date
-            StringWriter b = new StringWriter();
-            e.printStackTrace(new PrintWriter(b));
-            appendRunInfo(DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
+            if (BuildConfig.DEBUG) {
+                //TODO dev testing
+                // write error info to prefs instead of last run date
+                StringWriter b = new StringWriter();
+                e.printStackTrace(new PrintWriter(b));
+                appendRunInfo(DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
 
-            // send a notification with the error
-            Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle("MediaUpdateNotificationsWorker exception")
-                    .setContentText(e.toString() + ": " + b.toString())
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText(e.toString() + ": " + b.toString()))
-                    .build();
-            getNotifyManager().sendNow(n);
-
+                // send a notification with the error
+                Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+                        .setContentTitle("MediaUpdateNotificationsWorker exception")
+                        .setContentText(e.toString() + ": " + b.toString())
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(e.toString() + ": " + b.toString()))
+                        .build();
+                getNotifyManager().sendNow(n);
+            }
 
             return Result.retry();
         }
@@ -141,7 +146,7 @@ public class AiringAnimeWorker extends WorkerBase {
 
             //TODO overwrite broadcast schedule for Higehiro to be on the current weekday
             // as I keep missing the notification for testing
-            if (anime.animeId == 40938) {
+            if (BuildConfig.DEBUG && anime.animeId == 40938) {
                 anime.broadcastInfo = new BroadcastInfo();
                 anime.broadcastInfo.weekday = DateHelper.convertDayOfWeek(now.getDayOfWeek());
                 anime.broadcastInfo.startTime = now.toLocalTime().plusMinutes(5);

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.UserLibraryEntry;
@@ -90,28 +91,32 @@ public class RelatedAnimeWorker extends WorkerBase {
             // run the checks
             checkRelated();
 
-            // write run time to prefs
-            appendRunInfo(DateHelper.getLocalTime().toString() + " success");
+            if(BuildConfig.DEBUG) {
+                // write run time to prefs
+                appendRunInfo(DateHelper.getLocalTime().toString() + " success");
+            }
 
             return Result.success();
         } catch (Exception e) {
             // idk, retry on error
             e.printStackTrace();
 
-            //TODO dev testing
-            // write error info to prefs instead of last run date
-            StringWriter b = new StringWriter();
-            e.printStackTrace(new PrintWriter(b));
-            appendRunInfo(DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
+            if(BuildConfig.DEBUG) {
+                //TODO dev testing
+                // write error info to prefs instead of last run date
+                StringWriter b = new StringWriter();
+                e.printStackTrace(new PrintWriter(b));
+                appendRunInfo(DateHelper.getLocalTime().toString() + " failed (" + e.toString() + ":" + b.toString() + ")");
 
-            // send a notification with the error
-            Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
-                    .setContentTitle("MediaUpdateNotificationsWorker exception")
-                    .setContentText(e.toString() + ": " + b.toString())
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText(e.toString() + ": " + b.toString()))
-                    .build();
-            getNotifyManager().sendNow(n);
+                // send a notification with the error
+                Notification n = getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+                        .setContentTitle("MediaUpdateNotificationsWorker exception")
+                        .setContentText(e.toString() + ": " + b.toString())
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(e.toString() + ": " + b.toString()))
+                        .build();
+                getNotifyManager().sendNow(n);
+            }
 
             return Result.retry();
         }
