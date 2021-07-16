@@ -46,6 +46,7 @@ import io.github.shadow578.tenshi.mal.model.LibraryStatus;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
 import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsInLibTutorial;
 import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsNoLibTutorial;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
@@ -82,26 +83,6 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withRet
  * If the library entry was updated, the return intent has the EXTRA_ENTRY_UPDATED set to true
  */
 public class AnimeDetailsActivity extends TenshiActivity {
-    /**
-     * details main title display modes
-     */
-    public enum TitleDisplayMode {
-        /**
-         * prefer the canonical title
-         */
-        Canonical,
-
-        /**
-         * prefer the english title
-         */
-        English,
-
-        /**
-         * prefer the japanese title
-         */
-        Japanese
-    }
-
     /**
      * extra to tell the activity what anime to show
      */
@@ -777,7 +758,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // title
         final TitleDisplayMode titleMode = TenshiPrefs.getEnum(TenshiPrefs.Key.TitleDisplayMode, TitleDisplayMode.class, TitleDisplayMode.Canonical);
-        b.animeMainTitle.setText(elvisEmpty(getTitle(animeDetails, titleMode), unknown));
+        b.animeMainTitle.setText(elvisEmpty(animeDetails.getDisplayTitle(titleMode), unknown));
 
         // media type
         if (notNull(animeDetails.mediaType))
@@ -968,50 +949,6 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // setup watch now
         setupWatchNowControls();
-    }
-
-    /**
-     * get the title to display for the anime
-     *
-     * @param anime the anime to get the display of
-     * @param mode  the title display mode. the mode is no guarantee that that title is actually used (only if it's available)
-     * @return the title to display
-     */
-    @Nullable
-    private String getTitle(@NonNull Anime anime, @NonNull TitleDisplayMode mode) {
-        // always fall back to canonical if no title synonyms
-        if (isNull(anime.titleSynonyms))
-            return anime.title;
-
-        // use preferred title
-        String title;
-        switch (mode) {
-            default:
-            case Canonical:
-                title = anime.title;
-                break;
-            case English:
-                title = anime.titleSynonyms.en;
-                break;
-            case Japanese:
-                title = anime.titleSynonyms.jp;
-                break;
-        }
-
-        // fallback to canonical
-        if (nullOrWhitespace(title))
-            title = anime.title;
-
-        // fallback to english
-        if (nullOrWhitespace(title))
-            title = anime.titleSynonyms.en;
-
-        // fallback to japanese
-        if (nullOrWhitespace(title))
-            title = anime.titleSynonyms.jp;
-
-        // should now be set according to the mode, or to fallback
-        return title;
     }
 
     /**

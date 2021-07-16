@@ -16,8 +16,10 @@ import io.github.shadow578.tenshi.databinding.RecyclerAnimeSmallBinding;
 import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
 import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
@@ -75,7 +77,8 @@ public class RelatedMediaAdapter extends RecyclerView.Adapter<RelatedMediaAdapte
                 ->GlideHelper.glide(ctx, p.mediumUrl).into(b.animeMainPoster));
 
         // title
-        b.animeTitle.setText(elvisEmpty(anime.relatedAnime.title, unknown));
+        final TitleDisplayMode titleMode = TenshiPrefs.getEnum(TenshiPrefs.Key.TitleDisplayMode, TitleDisplayMode.class, TitleDisplayMode.Canonical);
+        b.animeTitle.setText(elvisEmpty(anime.relatedAnime.getDisplayTitle(titleMode), unknown));
 
         // relation
         b.animeRelationType.setText(elvisEmpty(LocalizationHelper.localizeRelation(anime.relationType, ctx), unknown));

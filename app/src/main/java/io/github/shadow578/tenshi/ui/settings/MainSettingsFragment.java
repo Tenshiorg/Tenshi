@@ -15,7 +15,7 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
-import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.EnumHelper;
@@ -195,9 +195,9 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
             // prepare property values and their display name
             // the lists have to be in the same order
             final String[] themeValues = listOf(
-                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.Canonical),
-                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.English),
-                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.Japanese)
+                    EnumHelper.valueOf(TitleDisplayMode.Canonical),
+                    EnumHelper.valueOf(TitleDisplayMode.English),
+                    EnumHelper.valueOf(TitleDisplayMode.Japanese)
             ).toArray(new String[0]);
             final String[] themeNames = listOf(
                     ctx.getString(R.string.settings_title_mode_canonical),

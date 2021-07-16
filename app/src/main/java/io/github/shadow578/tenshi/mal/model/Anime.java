@@ -1,5 +1,6 @@
 package io.github.shadow578.tenshi.mal.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
@@ -21,6 +22,10 @@ import io.github.shadow578.tenshi.mal.model.type.ContentRating;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
 import io.github.shadow578.tenshi.mal.model.type.NSFWRating;
 import io.github.shadow578.tenshi.mal.model.type.Source;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
+
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
+import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrWhitespace;
 
 /**
  * a anime on MAL
@@ -297,4 +302,48 @@ public final class Anime {
     @SerializedName("ending_themes")
     @Ignore
     public List<Theme> endingThemes;
+
+
+    /**
+     * get the title to display for the anime
+     *
+     * @param mode the title display mode. the mode is no guarantee that that title is actually used (only if it's available)
+     * @return the title to display
+     */
+    @Nullable
+    public String getDisplayTitle(@NonNull TitleDisplayMode mode) {
+        // always fall back to canonical if no title synonyms
+        if (isNull(titleSynonyms))
+            return title;
+
+        // use preferred title
+        String prefTitle;
+        switch (mode) {
+            default:
+            case Canonical:
+                prefTitle = title;
+                break;
+            case English:
+                prefTitle = titleSynonyms.en;
+                break;
+            case Japanese:
+                prefTitle = titleSynonyms.jp;
+                break;
+        }
+
+        // fallback to canonical
+        if (nullOrWhitespace(prefTitle))
+            prefTitle = title;
+
+        // fallback to english
+        if (nullOrWhitespace(prefTitle))
+            prefTitle = titleSynonyms.en;
+
+        // fallback to japanese
+        if (nullOrWhitespace(prefTitle))
+            prefTitle = titleSynonyms.jp;
+
+        // should now be set according to the mode, or to fallback
+        return prefTitle;
+    }
 }
