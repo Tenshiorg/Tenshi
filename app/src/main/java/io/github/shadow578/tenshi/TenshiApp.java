@@ -31,7 +31,7 @@ import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
 import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
 import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
-import io.github.shadow578.tenshi.notifications.workers.WorkerHelper;
+import io.github.shadow578.tenshi.notifications.workers.NotificationWorkerHelper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
@@ -154,7 +154,7 @@ public class TenshiApp extends Application {
                 -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
 
         // register workers
-        WorkerHelper.registerNotificationWorkers(getApplicationContext());
+        NotificationWorkerHelper.registerNotificationWorkers(getApplicationContext());
     }
 
     /**

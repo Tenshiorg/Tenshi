@@ -20,9 +20,9 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.notNull;
 
 /**
- * class to manage registration of (notification) workers
+ * class to manage registration of notification workers
  */
-public final class WorkerHelper {
+public final class NotificationWorkerHelper {
 
     /**
      * unique name for the notification worker(s)
@@ -31,17 +31,24 @@ public final class WorkerHelper {
 
     /**
      * register the notification workers
+     *
      * @param ctx the context to work in
      */
     public static void registerNotificationWorkers(@NonNull Context ctx) {
+        // skip all if no worker is even enabled
+        if (!DBUpdateWorker.shouldEnable(ctx)
+                && !AiringAnimeWorker.shouldEnable(ctx)
+                && !RelatedAnimeWorker.shouldEnable(ctx))
+            return;
+
         // create the workers
         final OneTimeWorkRequest dbUpdate = createDBUpdate(ctx);
         final OneTimeWorkRequest airingAnime = createAiringAnime(ctx);
         final OneTimeWorkRequest relatedAnime = createRelatedAnime(ctx);
 
-        // make the reschedule task wait 1h before firing, delaying the re- run of the tasks by that time
+        // make the reschedule task wait 1.5h before firing, delaying the re- run of the tasks by that time
         final OneTimeWorkRequest reschedule = new OneTimeWorkRequest.Builder(RescheduleWorker.class)
-                .setInitialDelay(1, TimeUnit.HOURS)
+                .setInitialDelay(90, TimeUnit.MINUTES)
                 .build();
 
         // do not enqueue anything if both airingAnime and relatedAnime workers are null
