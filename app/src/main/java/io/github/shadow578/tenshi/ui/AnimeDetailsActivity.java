@@ -886,7 +886,7 @@ public class AnimeDetailsActivity extends TenshiActivity {
             if (useLocalTimeZone) {
                 final ZonedDateTime nextBroadcastLocal = broadcast.getNextBroadcast(DateHelper.getJapanTime()
                         .atZone(DateHelper.jpZone()))
-                        .withZoneSameLocal(DateHelper.localZone());
+                        .withZoneSameInstant(DateHelper.localZone());
 
                 broadcast.startTime = nextBroadcastLocal.toLocalTime();
                 broadcast.weekday = DateHelper.convertDayOfWeek(nextBroadcastLocal.getDayOfWeek());
