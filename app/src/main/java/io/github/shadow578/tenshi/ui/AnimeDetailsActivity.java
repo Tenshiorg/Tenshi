@@ -26,6 +26,8 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URLConnection;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,6 +41,7 @@ import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
+import io.github.shadow578.tenshi.mal.model.BroadcastInfo;
 import io.github.shadow578.tenshi.mal.model.LibraryStatus;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
@@ -79,6 +82,26 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.withRet
  * If the library entry was updated, the return intent has the EXTRA_ENTRY_UPDATED set to true
  */
 public class AnimeDetailsActivity extends TenshiActivity {
+    /**
+     * details main title display modes
+     */
+    public enum TitleDisplayMode {
+        /**
+         * prefer the canonical title
+         */
+        Canonical,
+
+        /**
+         * prefer the english title
+         */
+        English,
+
+        /**
+         * prefer the japanese title
+         */
+        Japanese
+    }
+
     /**
      * extra to tell the activity what anime to show
      */
@@ -753,7 +776,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.animeMainPoster.setOnClickListener(v -> openPoster());
 
         // title
-        b.animeMainTitle.setText(animeDetails.title);
+        final TitleDisplayMode titleMode = TenshiPrefs.getEnum(TenshiPrefs.Key.TitleDisplayMode, TitleDisplayMode.class, TitleDisplayMode.Canonical);
+        b.animeMainTitle.setText(elvisEmpty(getTitle(animeDetails, titleMode), unknown));
 
         // media type
         if (notNull(animeDetails.mediaType))
@@ -812,7 +836,15 @@ public class AnimeDetailsActivity extends TenshiActivity {
             b.genresChips.addView(chip);
         });
 
+
         // additional info:
+        // anime id (developer options)
+        if (TenshiPrefs.getBool(TenshiPrefs.Key.ShowDeveloperOptions, false)) {
+            b.devAnimeId.setText(String.valueOf(animeDetails.animeId));
+            b.devAnimeIdGroup.setVisibility(View.VISIBLE);
+        } else
+            b.devAnimeIdGroup.setVisibility(View.GONE);
+
         // alternative titles
         if (notNull(animeDetails.titleSynonyms)) {
             // synonyms
@@ -834,11 +866,28 @@ public class AnimeDetailsActivity extends TenshiActivity {
             b.titleJpGroup.setVisibility(View.GONE);
         }
 
-        // start date
-        b.startDate.setText(DateHelper.format(animeDetails.startDate, noValue));
+        // start date (with local time zone adjust)
+        final boolean useLocalTimeZone = TenshiPrefs.getBool(TenshiPrefs.Key.ShowAnimeDatesInLocalTimeZone, false);
+        LocalDate startDate = animeDetails.startDate;
+        if (useLocalTimeZone && notNull(startDate)) {
+            startDate = startDate.atStartOfDay()
+                    .atZone(DateHelper.jpZone())
+                    .withZoneSameInstant(DateHelper.localZone())
+                    .toLocalDate();
+        }
+
+        b.startDate.setText(DateHelper.format(startDate, noValue));
 
         // end date
-        b.endDate.setText(DateHelper.format(animeDetails.endDate, noValue));
+        LocalDate endDate = animeDetails.endDate;
+        if (useLocalTimeZone && notNull(endDate)) {
+            endDate = endDate.atStartOfDay()
+                    .atZone(DateHelper.jpZone())
+                    .withZoneSameInstant(DateHelper.localZone())
+                    .toLocalDate();
+        }
+
+        b.endDate.setText(DateHelper.format(endDate, noValue));
 
         // year & season
         b.season.setText(elvisEmpty(withRet(animeDetails.startSeason,
@@ -846,11 +895,28 @@ public class AnimeDetailsActivity extends TenshiActivity {
                 noValue));
 
         // broadcast time
-        if (animeDetails.broadcastInfo != null
+        if (notNull(animeDetails.broadcastInfo)
                 && notNull(animeDetails.broadcastInfo.weekday)
-                && notNull(animeDetails.broadcastInfo.startTime))
-            b.broadcast.setText(concat(LocalizationHelper.localizeWeekday(animeDetails.broadcastInfo.weekday, this), " ", DateHelper.format(animeDetails.broadcastInfo.startTime, unknown)));
+                && notNull(animeDetails.broadcastInfo.startTime)) {
+            // get broadcast info
+            BroadcastInfo broadcast = animeDetails.broadcastInfo;
 
+            // transform to local timezone if enabled
+            if (useLocalTimeZone) {
+                final ZonedDateTime nextBroadcastLocal = broadcast.getNextBroadcast(DateHelper.getJapanTime()
+                        .atZone(DateHelper.jpZone()))
+                        .withZoneSameLocal(DateHelper.localZone());
+
+                broadcast.startTime = nextBroadcastLocal.toLocalTime();
+                broadcast.weekday = DateHelper.convertDayOfWeek(nextBroadcastLocal.getDayOfWeek());
+            }
+
+            // set text
+            b.broadcast.setText(concat(LocalizationHelper.localizeWeekday(broadcast.weekday, this), " ", DateHelper.format(broadcast.startTime, unknown)));
+        } else {
+            // no broadcast info available
+            b.broadcastGroup.setVisibility(View.GONE);
+        }
 
         // episode duration
         b.duration.setText(elvisEmpty(withRet(animeDetails.averageEpisodeDuration,
@@ -902,6 +968,50 @@ public class AnimeDetailsActivity extends TenshiActivity {
 
         // setup watch now
         setupWatchNowControls();
+    }
+
+    /**
+     * get the title to display for the anime
+     *
+     * @param anime the anime to get the display of
+     * @param mode  the title display mode. the mode is no guarantee that that title is actually used (only if it's available)
+     * @return the title to display
+     */
+    @Nullable
+    private String getTitle(@NonNull Anime anime, @NonNull TitleDisplayMode mode) {
+        // always fall back to canonical if no title synonyms
+        if (isNull(anime.titleSynonyms))
+            return anime.title;
+
+        // use preferred title
+        String title;
+        switch (mode) {
+            default:
+            case Canonical:
+                title = anime.title;
+                break;
+            case English:
+                title = anime.titleSynonyms.en;
+                break;
+            case Japanese:
+                title = anime.titleSynonyms.jp;
+                break;
+        }
+
+        // fallback to canonical
+        if (nullOrWhitespace(title))
+            title = anime.title;
+
+        // fallback to english
+        if (nullOrWhitespace(title))
+            title = anime.titleSynonyms.en;
+
+        // fallback to japanese
+        if (nullOrWhitespace(title))
+            title = anime.titleSynonyms.jp;
+
+        // should now be set according to the mode, or to fallback
+        return title;
     }
 
     /**
