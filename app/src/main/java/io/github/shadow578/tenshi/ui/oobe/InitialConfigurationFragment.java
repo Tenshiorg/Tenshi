@@ -56,6 +56,11 @@ public class InitialConfigurationFragment extends OnboardingFragment {
             TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, skipTut);
             TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, skipTut);
         });
+
+        // notifications opt- in
+        b.enableNotificationsPreview.setOnCheckedChangeListener((buttonView, enableNotifications) -> {
+            TenshiPrefs.setBool(TenshiPrefs.Key.EnableNotifications, enableNotifications);
+        });
     }
 
     //region theme

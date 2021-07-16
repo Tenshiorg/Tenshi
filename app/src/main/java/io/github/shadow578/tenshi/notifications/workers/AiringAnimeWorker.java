@@ -2,7 +2,6 @@ package io.github.shadow578.tenshi.notifications.workers;
 
 import android.app.Notification;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -53,7 +52,6 @@ public class AiringAnimeWorker extends WorkerBase {
     public static Constraints getConstrains(@NonNull Context ctx) {
         //TODO constrains configuration in props
         return new Constraints.Builder()
-                //.setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
     }
@@ -63,8 +61,8 @@ public class AiringAnimeWorker extends WorkerBase {
      * @return should this worker in in the given context?
      */
     public static boolean shouldEnable(@NonNull Context ctx) {
-        //TODO load from prefs
-        return true;
+        TenshiPrefs.init(ctx);
+        return TenshiPrefs.getBool(TenshiPrefs.Key.EnableNotifications, false);
     }
 
     /**

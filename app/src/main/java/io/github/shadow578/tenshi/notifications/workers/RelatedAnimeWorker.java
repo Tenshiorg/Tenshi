@@ -51,7 +51,6 @@ public class RelatedAnimeWorker extends WorkerBase {
     public static Constraints getConstrains(@NonNull Context ctx) {
         //TODO constrains configuration in props
         return new Constraints.Builder()
-                //.setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
     }
@@ -61,8 +60,8 @@ public class RelatedAnimeWorker extends WorkerBase {
      * @return should this worker in in the given context?
      */
     public static boolean shouldEnable(@NonNull Context ctx) {
-        //TODO load from prefs
-        return true;
+        TenshiPrefs.init(ctx);
+        return TenshiPrefs.getBool(TenshiPrefs.Key.EnableNotifications, false);
     }
 
     /**

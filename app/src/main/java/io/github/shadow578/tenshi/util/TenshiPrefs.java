@@ -85,6 +85,16 @@ public class TenshiPrefs {
         AnimeDetailsInLibTutorialFinished,
 
         /**
+         * enable anime update notifications
+         */
+        EnableNotifications,
+
+        /**
+         * if notification updates should run when on a mobile data or otherwise metered connection
+         */
+        AllowNotificationUpdatesOnMeteredConnection,
+
+        /**
          * keys to hold the logging info of the two notification workers
          * TODO should remove
          */
