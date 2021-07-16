@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/shared_app_label"
-        android:src="@drawable/ic_splash"
+        android:src="@drawable/ic_icon_24"
         android:visibility="invisible"
         app:tint="?attr/colorPrimary"
         tools:visibility="visible" />

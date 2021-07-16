@@ -56,6 +56,11 @@ public class InitialConfigurationFragment extends OnboardingFragment {
             TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsNoLibTutorialFinished, skipTut);
             TenshiPrefs.setBool(TenshiPrefs.Key.AnimeDetailsInLibTutorialFinished, skipTut);
         });
+
+        // notifications opt- in
+        b.enableNotificationsPreview.setOnCheckedChangeListener((buttonView, enableNotifications) -> {
+            TenshiPrefs.setBool(TenshiPrefs.Key.EnableNotifications, enableNotifications);
+        });
     }
 
     //region theme
@@ -131,7 +136,7 @@ public class InitialConfigurationFragment extends OnboardingFragment {
 
         // inflate the preview layout with the overwritten view
         final RecyclerAnimeBigBinding tpb = RecyclerAnimeBigBinding.inflate(LayoutInflater.from(themeCtx));
-        tpb.animeMainPoster.setImageDrawable(ContextCompat.getDrawable(baseCtx, R.drawable.ic_splash));
+        tpb.animeMainPoster.setImageDrawable(ContextCompat.getDrawable(baseCtx, R.drawable.ic_icon_24));
 
         // update the layout params to include margins and fill the container
         final int marginPxs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, themeCtx.getResources().getDisplayMetrics());

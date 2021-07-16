@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.github.shadow578.tenshi.db.model.LastAccessInfo;
@@ -24,7 +25,7 @@ public abstract class LastAccessInfoDao {
      * @return the access info
      */
     @Transaction
-    public List<LastAccessInfo> getBefore(LocalDateTime time) {
+    public List<LastAccessInfo> getBefore(ZonedDateTime time) {
         return _getAccess(DateHelper.toEpoch(time));
     }
 

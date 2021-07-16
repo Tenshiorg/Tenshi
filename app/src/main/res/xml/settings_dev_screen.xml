@@ -70,8 +70,41 @@
             android:title="Pretend Auth token expired" />
     </PreferenceCategory>
 
+    <!-- notifications -->
+    <PreferenceCategory android:title="Notifications">
+        <!-- notification now -->
+        <Preference
+            android:key="dbg_notification_now"
+            android:title="Notification Now"
+            android:summary="Send a test notification now"/>
+
+        <!-- notification in 30s -->
+        <Preference
+            android:key="dbg_notification_thirty_seconds"
+            android:title="Notification 30 Seconds"
+            android:summary="Schedule a test notification in 30 seconds"/>
+
+        <!-- notification in 5m -->
+        <Preference
+            android:key="dbg_notification_five_minutes"
+            android:title="Notification 5 Minutes"
+            android:summary="Schedule a test notification in 5 minutes"/>
+
+        <!-- notification at specific time -->
+        <Preference
+            android:key="dbg_notification_at_time"
+            android:title="Notification at specific time"
+            android:summary="Schedule a test notification for a specified time"/>
+
+        <!-- enable higehiro overwrite -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="DEV_EnableHigehiroOverwrite"
+            android:title="Higehiro notification schedule overwrite" />
+    </PreferenceCategory>
+
     <!-- database functions -->
-    <PreferenceCategory android:title="Database">
+    <PreferenceCategory android:title="Anime Database">
         <!-- export database -->
         <Preference
             android:key="dbg_export_database"
@@ -85,6 +118,19 @@
         <!-- delete database -->
         <Preference
             android:key="dbg_delete_database"
+            android:title="Delete Database" />
+    </PreferenceCategory>
+
+    <!-- database functions -->
+    <PreferenceCategory android:title="Notifications Database">
+        <!-- export database -->
+        <Preference
+            android:key="dbg_export_notify_database"
+            android:title="Export Database" />
+
+        <!-- delete database -->
+        <Preference
+            android:key="dbg_delete_notify_database"
             android:title="Delete Database" />
     </PreferenceCategory>
 

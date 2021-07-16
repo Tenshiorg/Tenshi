@@ -3,17 +3,17 @@ package io.github.shadow578.tenshi.util;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import io.github.shadow578.tenshi.mal.model.Season;
+import io.github.shadow578.tenshi.mal.model.type.DayOfWeek;
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
@@ -24,45 +24,62 @@ public class DateHelper {
     // region get date and time
 
     /**
+     * UTC timezone
+     */
+    public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
+
+    /**
+     * default timezone of the device
+     */
+    public static final ZoneId DEVICE_ZONE = ZoneId.systemDefault();
+
+    /**
+     * timezone of Asia/Tokyo
+     */
+    public static final ZoneId JAPAN_ZONE = ZoneId.of("Asia/Tokyo");
+
+    /**
      * the date and time in the device's time zone
      */
-    private static LocalDateTime local() {
-        return LocalDateTime.now();
+    private static ZonedDateTime local() {
+        return ZonedDateTime.now();
     }
 
     /**
      * the date and time in Tokyo
      */
-    private static LocalDateTime jp() {
-        return LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
+    private static ZonedDateTime jp() {
+        return local().withZoneSameInstant(JAPAN_ZONE);
     }
 
     /**
-     * get the epoch value of a datetime
+     * get the epoch value of a datetime in the UTC time zone
      *
+     * @param time the time to convert. may be in any timezone
      * @return the epoch value (seconds)
      */
-    public static long toEpoch(@NonNull LocalDateTime time) {
-        return time.toEpochSecond(ZoneOffset.UTC);
+    public static long toEpoch(@NonNull ZonedDateTime time) {
+        return time.withZoneSameInstant(UTC_ZONE).toEpochSecond();
     }
 
     /**
-     * convert a epoch value to the device's local date and time
+     * convert a epoch value to a date and time in the devices timezone
      *
-     * @param epoch the epoch value (seconds)
-     * @return the local datetime
+     * @param epoch the epoch value (seconds, in UTC) as returned by {@link #toEpoch(ZonedDateTime)}
+     * @return the datetime in the local zone
      */
     @NonNull
-    public static LocalDateTime fromEpoc(long epoch) {
-        return LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC);
+    public static ZonedDateTime fromEpoc(long epoch) {
+        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epoch), UTC_ZONE).withZoneSameInstant(DEVICE_ZONE);
     }
 
     /**
      * get the number of years between the date and now
+     *
      * @param date the date to check
      * @return the number of years between now and the date
      */
-    public static int getYearsToNow(LocalDate date){
+    public static int getYearsToNow(LocalDate date) {
         return Period.between(date, getLocalTime().toLocalDate()).getYears();
     }
 
@@ -71,7 +88,7 @@ public class DateHelper {
      *
      * @return date and time in the local timezone
      */
-    public static LocalDateTime getLocalTime() {
+    public static ZonedDateTime getLocalTime() {
         return local();
     }
 
@@ -80,7 +97,7 @@ public class DateHelper {
      *
      * @return date and time in Tokyo
      */
-    public static LocalDateTime getJapanTime() {
+    public static ZonedDateTime getJapanTime() {
         return jp();
     }
 
@@ -126,6 +143,35 @@ public class DateHelper {
             case DECEMBER:
             default:
                 return YearSeason.Fall;
+        }
+    }
+
+    /**
+     * convert from {@link java.time.DayOfWeek} to {@link DayOfWeek}
+     *
+     * @param javaDoW the java8 day of week
+     * @return the MAL model day of week
+     */
+    @NonNull
+    public static DayOfWeek convertDayOfWeek(@NonNull java.time.DayOfWeek javaDoW) {
+        switch (javaDoW) {
+            default:
+                // any other day just defaults to monday
+                // really doesn't matter what this would default to
+            case MONDAY:
+                return DayOfWeek.Monday;
+            case TUESDAY:
+                return DayOfWeek.Tuesday;
+            case WEDNESDAY:
+                return DayOfWeek.Wednesday;
+            case THURSDAY:
+                return DayOfWeek.Thursday;
+            case FRIDAY:
+                return DayOfWeek.Friday;
+            case SATURDAY:
+                return DayOfWeek.Saturday;
+            case SUNDAY:
+                return DayOfWeek.Sunday;
         }
     }
     // endregion

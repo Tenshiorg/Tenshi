@@ -29,7 +29,7 @@ public class GlideHelper {
     @NonNull
     public static RequestBuilder<Drawable> glide(@NonNull Context context, @Nullable String imgUrl)
     {
-        return glide(context, imgUrl, R.drawable.ic_splash);
+        return glide(context, imgUrl, R.drawable.ic_icon_24);
     }
 
     /**

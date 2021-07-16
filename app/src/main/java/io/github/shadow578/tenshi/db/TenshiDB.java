@@ -10,6 +10,7 @@ import androidx.room.TypeConverters;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.github.shadow578.tenshi.db.dao.AnimeContentAdapterDao;
@@ -92,7 +93,7 @@ public abstract class TenshiDB extends RoomDatabase {
     public int cleanupDatabase() {
         // get target age
         // = one month old entries
-        final LocalDateTime killAge = DateHelper.getLocalTime().minusMonths(1);
+        final ZonedDateTime killAge = DateHelper.getLocalTime().minusMonths(1);
 
         // find all anime and users that were last accessed before the target time
         final List<LastAccessInfo> allToKill = accessDB().getBefore(killAge);

@@ -1,6 +1,9 @@
 package io.github.shadow578.tenshi.ui.settings;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -21,6 +24,9 @@ import androidx.preference.PreferenceManager;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -30,6 +36,9 @@ import io.github.shadow578.tenshi.TenshiApp;
 import io.github.shadow578.tenshi.db.TenshiDB;
 import io.github.shadow578.tenshi.extensionslib.content.Constants;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
+import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.async;
@@ -43,6 +52,8 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
  * the developer options preference screen
+ * <p>
+ * TODO: use methods for common functions ("labels", "buttons")
  */
 public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
@@ -51,16 +62,33 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
      */
     private static final int REQUEST_CHOOSE_DB_EXPORT_PATH = 21;
 
+    /**
+     * request id for document chooser used when choosing the notification database export path
+     */
+    private static final int REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH = 22;
+
+    /**
+     * context. setup before any setup*() functions are called.
+     */
+    private Context ctx;
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // export database to file
+        // export anime database to file
         if (requestCode == REQUEST_CHOOSE_DB_EXPORT_PATH
                 && resultCode == Activity.RESULT_OK
                 && notNull(data)
                 && notNull(data.getData()))
-            exportDatabaseTo(data.getData());
+            exportDatabaseTo(TenshiDB.getDatabasePath(requireContext()).getAbsolutePath(), data.getData());
+
+        // export notify database to file
+        if (requestCode == REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH
+                && resultCode == Activity.RESULT_OK
+                && notNull(data)
+                && notNull(data.getData()))
+            exportDatabaseTo(SentNotificationsDB.getDatabasePath(requireContext()).getAbsolutePath(), data.getData());
     }
 
     @Override
@@ -69,13 +97,15 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.settings_dev_screen, rootKey);
 
         // init dynamic stuff
-        final Context ctx = requireContext();
+        ctx = requireContext();
         setupVersionInfo();
         setupThrowExceptionFunctions();
         setupUtilFunctions();
-        setupDatabaseFunctions(ctx);
-        setupSharedPrefsFunctions(ctx);
-        setupContentAdapterFunctions(ctx);
+        setupNotificationFunctions();
+        setupDatabaseFunctions();
+        setupNotifyDatabaseFunctions();
+        setupSharedPrefsFunctions();
+        setupContentAdapterFunctions();
     }
 
     /**
@@ -143,11 +173,86 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * setup debug functions for database
-     *
-     * @param ctx the context to work in
+     * setup notification test functions
      */
-    private void setupDatabaseFunctions(@NonNull Context ctx) {
+    private void setupNotificationFunctions() {
+        // notification now
+        final Preference notifyNow = findPreference("dbg_notification_now");
+        with(notifyNow, notify -> notify.setOnPreferenceClickListener(preference -> {
+            TenshiApp.getNotifyManager().sendNow(getTestNotification("dbg_notification_now"));
+            Toast.makeText(ctx, "send notification", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification in 30s
+        final Preference notify30s = findPreference("dbg_notification_thirty_seconds");
+        with(notify30s, notify -> notify.setOnPreferenceClickListener(preference -> {
+            TenshiApp.getNotifyManager().sendIn(getTestNotification("dbg_notification_thirty_seconds"),
+                    30_000);
+            Toast.makeText(ctx, "scheduled notification in 30s", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification in 5m
+        final Preference notify5m = findPreference("dbg_notification_five_minutes");
+        with(notify5m, notify -> notify.setOnPreferenceClickListener(preference -> {
+            TenshiApp.getNotifyManager().sendIn(getTestNotification("dbg_notification_five_minutes"),
+                    5 * 60 * 1_000);
+            Toast.makeText(ctx, "scheduled notification in 5min", Toast.LENGTH_SHORT).show();
+            return true;
+        }));
+
+        // notification at time
+        // yes, this is callback hell :(
+        final Preference notifyAt = findPreference("dbg_notification_at_time");
+        with(notifyAt, notify -> notify.setOnPreferenceClickListener(preference -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                // select date
+                final DatePickerDialog dateDialog = new DatePickerDialog(ctx);
+                dateDialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+                    // select time
+                    final ZonedDateTime now = DateHelper.getLocalTime();
+                    final TimePickerDialog timeDialog = new TimePickerDialog(ctx, (view1, hourOfDay, minute) -> {
+                        // both date and time have been selected, build the target datetime
+                        final LocalDateTime target = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute, 0);
+
+                        // schedule the notification
+                        TenshiApp.getNotifyManager().sendAt(getTestNotification("dbg_notification_at_time at " + target.toString()),
+                                target.atZone(ZoneId.systemDefault()));
+                        Toast.makeText(ctx, "scheduled notification for " + target.toString(), Toast.LENGTH_SHORT).show();
+                    },
+                            now.getHour(),
+                            now.getMinute(),
+                            true);
+                    timeDialog.show();
+                });
+                dateDialog.show();
+            } else {
+                Toast.makeText(ctx, "only supported on Android N and above!", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }));
+    }
+
+    /**
+     * creates a test notification with the given text int the {@link TenshiNotificationChannel#Default} channel
+     *
+     * @param text the text of the notification
+     * @return the notification
+     */
+    @NonNull
+    private Notification getTestNotification(@NonNull String text) {
+        // create notification
+        return TenshiApp.getNotifyManager().notificationBuilder(TenshiNotificationChannel.Default)
+                .setContentTitle("Test Notification")
+                .setContentText(text)
+                .build();
+    }
+
+    /**
+     * setup debug functions for database
+     */
+    private void setupDatabaseFunctions() {
         // setup 'export database' button
         final Preference exportDbPref = findPreference("dbg_export_database");
         final String dbPath = TenshiDB.getDatabasePath(ctx).getAbsolutePath();
@@ -186,11 +291,40 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * setup debug functions for shared preferences
-     *
-     * @param ctx the context to work in
+     * setup debug functions for database
      */
-    private void setupSharedPrefsFunctions(@NonNull Context ctx) {
+    private void setupNotifyDatabaseFunctions() {
+        // setup 'export database' button
+        final Preference exportDbPref = findPreference("dbg_export_notify_database");
+        final String dbPath = SentNotificationsDB.getDatabasePath(ctx).getAbsolutePath();
+        with(exportDbPref, exportDb -> {
+            exportDb.setSummary(dbPath);
+            exportDb.setOnPreferenceClickListener(preference -> {
+                // print path to log
+                Log.e("Tenshi", "Database Path: " + dbPath);
+
+                // start document chooser
+                final Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                exportIntent.setType("*/*");
+                startActivityForResult(exportIntent, REQUEST_CHOOSE_NOTIFY_DB_EXPORT_PATH);
+                return true;
+            });
+        });
+
+        // setup 'delete database' button
+        final Preference deleteDbPref = findPreference("dbg_delete_notify_database");
+        with(deleteDbPref,
+                deleteDb -> deleteDb.setOnPreferenceClickListener(preference -> {
+                    async(() -> TenshiApp.getNotifyDB().clearAllTables());
+                    Toast.makeText(ctx, "Deleted Database", Toast.LENGTH_SHORT).show();
+                    return true;
+                }));
+    }
+
+    /**
+     * setup debug functions for shared preferences
+     */
+    private void setupSharedPrefsFunctions() {
         // find preferences container for key enum
         final PreferenceCategory enumPref = findPreference("dbg_prefs_of_enum");
         with(enumPref, container -> {
@@ -285,10 +419,8 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
 
     /**
      * setup debug functions for content adapters
-     *
-     * @param ctx the context to work in
      */
-    private void setupContentAdapterFunctions(@NonNull Context ctx) {
+    private void setupContentAdapterFunctions() {
         // find preferences container for key enum
         final PreferenceCategory enumPref = findPreference("dbg_content_adapters_container");
         with(enumPref, container -> {
@@ -326,13 +458,13 @@ public class DeveloperSettingsFragment extends PreferenceFragmentCompat {
     }
 
     /**
-     * export the database to a file
+     * export a database to a file
      *
      * @param targetPath the path of the file to export to
      */
-    private void exportDatabaseTo(@NonNull Uri targetPath) {
+    private void exportDatabaseTo(@NonNull String dbPath, @NonNull Uri targetPath) {
         // open output and database file and start copy
-        try (final FileInputStream dbIn = new FileInputStream(TenshiDB.getDatabasePath(requireContext()));
+        try (final FileInputStream dbIn = new FileInputStream(dbPath);
              final OutputStream out = requireContext().getContentResolver().openOutputStream(targetPath)) {
             // copy file
             final byte[] buf = new byte[1024];

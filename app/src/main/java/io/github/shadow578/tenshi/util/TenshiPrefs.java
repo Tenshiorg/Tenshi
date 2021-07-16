@@ -82,7 +82,25 @@ public class TenshiPrefs {
         /**
          * did the user finish / skip the anime details activity tutorial for anime in the user library?
          */
-        AnimeDetailsInLibTutorialFinished
+        AnimeDetailsInLibTutorialFinished,
+
+        /**
+         * enable anime update notifications
+         */
+        EnableNotifications,
+
+        /**
+         * if notification updates should run when on a mobile data or otherwise metered connection
+         */
+        AllowNotificationUpdatesOnMeteredConnection,
+
+        /**
+         * keys to hold the logging info of the two notification workers
+         * TODO should remove
+         */
+        DEV_AiringAnimeWorkerLog,
+        DEV_RelatedAnimeWorkerLog,
+        DEV_EnableHigehiroOverwrite
     }
 
     /**

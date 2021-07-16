@@ -128,6 +128,7 @@
     <string name="oobe_config_nsfw_confirm_no">@string/settings_dialog_confirm_nsfw_no</string>
     <string name="oobe_config_nsfw_confirm_yes">@string/settings_dialog_confirm_nsfw_yes</string>
     <string name="oobe_config_skip_tutorial">Skip App Tutorial</string>
+    <string name="oobe_config_enable_notifications">@string/settings_notifications_toggle_title</string>
 
     <string name="oobe_config_dummy_1">Randomly Crash the App</string>
     <string name="oobe_config_dummy_2">Use way too much data</string>
@@ -158,6 +159,12 @@
     <string name="settings_nsfw_toggle_title">Show NSFW</string>
     <string name="settings_nsfw_toggle_on">NSFW Content is visible</string>
     <string name="settings_nsfw_toggle_off">NSFW Content is filtered</string>
+    <string name="settings_notifications_toggle_title">Enable Notifications (Preview)</string>
+    <string name="settings_notifications_toggle_on">You\'ll receive notifications about Anime Updates</string>
+    <string name="settings_notifications_toggle_off">You won\'t receive any notifications</string>
+    <string name="settings_notifications_updates_on_metered_toggle_title">Update on metered connection</string>
+    <string name="settings_notifications_updates_on_metered_toggle_on">Notifications will update when on mobile data connection</string>
+    <string name="settings_notifications_updates_on_metered_toggle_off">Notifications will only update when connected to WiFi</string>
     <string name="settings_tut_reset_title">Reset Tutorial</string>
     <string name="settings_tut_reset_summary">Lets you repeat the app tutorial</string>
     <string name="settings_logout_title">Logout</string>
@@ -181,8 +188,11 @@
     <string name="settings_start_tab_profile">Profile</string>
 
     <string name="settings_section_main">Settings</string>
+    <string name="settings_section_notifications">Notifications</string>
     <string name="settings_section_actions">Actions</string>
     <string name="settings_section_info">About</string>
+
+    <string name="settings_notifications_preview_disclaimer">Warning: Notifications are still a preview feature.<br/>Expect notification- related bugs when enabling notifications.<br/>(Other parts of the app should not be affected)</string>
 
     <string name="settings_dialog_confirm_nsfw_title">Confirm Age</string>
     <string name="settings_dialog_confirm_nsfw_text">To enable NSFW content, you have to be of legal age. \nAre you 18 years or older?</string>
@@ -225,5 +235,12 @@
     <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
     <string name="tut_details_delete_title">Remove from Library</string>
     <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
+    <!-- endregion -->
+
+    <!-- region notifications -->
+    <!-- notification channels -->
+    <string name="notify_channel_default_name">Default</string>
+    <string name="notify_channel_default_desc">Fallback Notification channel. Tenshi uses this channel if no other channel is available. So don\'t expect many notifications on this.</string>
+
     <!-- endregion -->
 </resources>

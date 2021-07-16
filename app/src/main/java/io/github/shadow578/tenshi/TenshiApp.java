@@ -28,6 +28,10 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationChannel;
+import io.github.shadow578.tenshi.notifications.TenshiNotificationManager;
+import io.github.shadow578.tenshi.notifications.db.SentNotificationsDB;
+import io.github.shadow578.tenshi.notifications.workers.NotificationWorkerHelper;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
@@ -95,6 +99,16 @@ public class TenshiApp extends Application {
      */
     private TenshiDB database;
 
+    /**
+     * sent notifications database
+     */
+    private SentNotificationsDB notifyDatabase;
+
+    /**
+     * notification manager
+     */
+    private TenshiNotificationManager notificationManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -107,9 +121,20 @@ public class TenshiApp extends Application {
         TenshiPrefs.init(getApplicationContext());
         tryAuthInit();
 
+        // init notifications api
+        notificationManager = new TenshiNotificationManager(getApplicationContext());
+
+        // right now, no further configuration is required.
+        // because of this, the configure function just accepts all channels
+        TenshiNotificationChannel.registerAll(getApplicationContext(), (value, channel) -> true);
+
         // init database and start cleanup
         database = TenshiDB.create(getApplicationContext());
-        cleanupDatabase();
+        cleanupAnimeDatabase();
+
+        // cleanup notification database
+        notifyDatabase = SentNotificationsDB.create(getApplicationContext());
+        cleanupNotifyDatabase();
 
         // init and find content adapters
         contentAdapterManager = new ContentAdapterManager(getApplicationContext(), new ContentAdapterManager.IPersistentStorageProvider() {
@@ -127,6 +152,9 @@ public class TenshiApp extends Application {
         contentAdapterManager.discoverAndInit(false);
         contentAdapterManager.addOnDiscoveryEndCallback(p
                 -> Log.i("Tenshi", fmt("Discovery finished with %d content adapters found", contentAdapterManager.getAdapterCount())));
+
+        // register workers
+        NotificationWorkerHelper.registerNotificationWorkers(getApplicationContext());
     }
 
     /**
@@ -173,12 +201,22 @@ public class TenshiApp extends Application {
     }
 
     /**
-     * cleanup the database
+     * cleanup the anime database
      */
-    public void cleanupDatabase() {
+    public void cleanupAnimeDatabase() {
         async(() -> {
             final int removedEntities = database.cleanupDatabase();
-            Log.i("Tenshi", fmt("Database cleanup finished with %d entities removed", removedEntities));
+            Log.i("Tenshi", fmt("anime database cleanup finished with %d entities removed", removedEntities));
+        });
+    }
+
+    /**
+     * cleanup the notifications database
+     */
+    private void cleanupNotifyDatabase() {
+        async(() -> {
+            final int removedEntries = notifyDatabase.notificationsDB().removeExpired();
+            Log.i("Tenshi", fmt("notification database cleanup finished with %d entries removed", removedEntries));
         });
     }
 
@@ -225,12 +263,13 @@ public class TenshiApp extends Application {
             createRetrofit();
         }
     }
+
     /**
      * invalidate and remove the saved auth token, saved user data and preferences, then redirect to the Login activity
      *
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
-    public void logoutAndLogin(@NonNull Activity ctx){
+    public void logoutAndLogin(@NonNull Activity ctx) {
         // delete user data and config
         deleteUserData();
         TenshiPrefs.clear();
@@ -426,6 +465,22 @@ public class TenshiApp extends Application {
     @NonNull
     public static TenshiDB getDB() {
         return INSTANCE.database;
+    }
+
+    /**
+     * @return the sent notifications database instance
+     */
+    @NonNull
+    public static SentNotificationsDB getNotifyDB() {
+        return INSTANCE.notifyDatabase;
+    }
+
+    /**
+     * @return the notification manager
+     */
+    @NonNull
+    public static TenshiNotificationManager getNotifyManager() {
+        return INSTANCE.notificationManager;
     }
 
     /**
