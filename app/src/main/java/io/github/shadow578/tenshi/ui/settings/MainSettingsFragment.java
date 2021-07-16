@@ -15,6 +15,7 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 import io.github.shadow578.tenshi.BuildConfig;
 import io.github.shadow578.tenshi.R;
 import io.github.shadow578.tenshi.TenshiApp;
+import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
 import io.github.shadow578.tenshi.ui.MainActivity;
 import io.github.shadow578.tenshi.util.DateHelper;
 import io.github.shadow578.tenshi.util.EnumHelper;
@@ -67,6 +68,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
         setupThemeSelection();
         setupStartupSelection();
         setupNSFWToggle();
+        setupTitleModeSelection();
         setupResetTutorialButton();
         setupLogoutButton();
         setupResetPrefsButton();
@@ -181,6 +183,32 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
                 // no details on user, assume not legal
                 userIsLegalAge = false;
             }
+        });
+    }
+
+    /**
+     * setup the title mode selection
+     */
+    private void setupTitleModeSelection() {
+        final ListPreference titlePref = findPreference(getKeyName(Key.TitleDisplayMode));
+        with(titlePref, title -> {
+            // prepare property values and their display name
+            // the lists have to be in the same order
+            final String[] themeValues = listOf(
+                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.Canonical),
+                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.English),
+                    EnumHelper.valueOf(AnimeDetailsActivity.TitleDisplayMode.Japanese)
+            ).toArray(new String[0]);
+            final String[] themeNames = listOf(
+                    ctx.getString(R.string.settings_title_mode_canonical),
+                    ctx.getString(R.string.settings_title_mode_english),
+                    ctx.getString(R.string.settings_title_mode_japanese)
+            ).toArray(new String[0]);
+
+            // setup preference
+            title.setEntries(themeNames);
+            title.setEntryValues(themeValues);
+            title.setDefaultValue(themeValues[0]);
         });
     }
 

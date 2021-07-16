@@ -333,7 +333,7 @@
                     android:layout_marginStart="@dimen/margin_text"
                     android:layout_weight="1"
                     android:textColor="?attr/colorOnBackground"
-                    android:text="Anime ID" />
+                    android:text="@string/details_dev_anime_id" />
 
                 <TextView
                     android:id="@+id/dev_anime_id"

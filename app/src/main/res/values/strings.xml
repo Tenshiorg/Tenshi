@@ -53,6 +53,7 @@
 
     <!-- region Anime Details -->
     <string name="details_title">Anime Details</string>
+    <string name="details_dev_anime_id">Anime ID</string>
     <string name="details_synonyms">Synonyms</string>
     <string name="details_title_jp">Japanese</string>
     <string name="details_start_date">Start Date</string>
@@ -158,6 +159,11 @@
     <string name="settings_nsfw_toggle_title">Show NSFW</string>
     <string name="settings_nsfw_toggle_on">NSFW Content is visible</string>
     <string name="settings_nsfw_toggle_off">NSFW Content is filtered</string>
+    <string name="settings_timezone_adjust_toggle_title">Adjust Broadcast Timezone</string>
+    <string name="settings_timezone_adjust_toggle_on">Broadcast Times are shown in your Timezone</string>
+    <string name="settings_timezone_adjust_toggle_off">Broadcast Times are shown in JST</string>
+    <string name="settings_title_mode_title">Preferred Title</string>
+    <string name="settings_title_mode_summary">What title should be shown for anime</string>
     <string name="settings_tut_reset_title">Reset Tutorial</string>
     <string name="settings_tut_reset_summary">Lets you repeat the app tutorial</string>
     <string name="settings_logout_title">Logout</string>
@@ -183,6 +189,10 @@
     <string name="settings_section_main">Settings</string>
     <string name="settings_section_actions">Actions</string>
     <string name="settings_section_info">About</string>
+
+    <string name="settings_title_mode_canonical">Canonical</string>
+    <string name="settings_title_mode_english">English</string>
+    <string name="settings_title_mode_japanese">Japanese</string>
 
     <string name="settings_dialog_confirm_nsfw_title">Confirm Age</string>
     <string name="settings_dialog_confirm_nsfw_text">To enable NSFW content, you have to be of legal age. \nAre you 18 years or older?</string>
