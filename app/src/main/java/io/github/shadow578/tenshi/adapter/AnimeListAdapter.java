@@ -16,8 +16,10 @@ import io.github.shadow578.tenshi.databinding.RecyclerAnimeBigBinding;
 import io.github.shadow578.tenshi.extensionslib.lang.BiConsumer;
 import io.github.shadow578.tenshi.extensionslib.lang.Consumer;
 import io.github.shadow578.tenshi.mal.model.AnimeListItem;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
 import io.github.shadow578.tenshi.util.GlideHelper;
 import io.github.shadow578.tenshi.util.LocalizationHelper;
+import io.github.shadow578.tenshi.util.TenshiPrefs;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.*;
 
@@ -76,7 +78,8 @@ public class AnimeListAdapter extends RecyclerView.Adapter<AnimeListAdapter.Hold
                 -> GlideHelper.glide(ctx, p.mediumUrl).into(b.animeMainPoster));
 
         // title
-        b.animeTitle.setText(elvisEmpty(anime.anime.title, unknown));
+        final TitleDisplayMode titleMode = TenshiPrefs.getEnum(TenshiPrefs.Key.TitleDisplayMode, TitleDisplayMode.class, TitleDisplayMode.Canonical);
+        b.animeTitle.setText(elvisEmpty(anime.anime.getDisplayTitle(titleMode), unknown));
 
         // media status
         //TODO: hardcoded string, use resource

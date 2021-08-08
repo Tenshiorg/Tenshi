@@ -307,7 +307,7 @@
 
             <!-- divider -->
             <View
-                android:id="@+id/div_genres_title_synonyms"
+                android:id="@+id/div_genres_info"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@id/genres_group"
@@ -316,13 +316,43 @@
                 android:background="?android:attr/listDivider" />
 
             <!-- additional info -->
+            <!-- ... anime ID (developer options)-->
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/dev_anime_id_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/div_genres_info"
+                android:layout_marginEnd="54dp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_text"
+                    android:layout_weight="1"
+                    android:textColor="?attr/colorOnBackground"
+                    android:text="@string/details_dev_anime_id" />
+
+                <TextView
+                    android:id="@+id/dev_anime_id"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="123456"
+                    android:textColor="?attr/colorOnBackground"
+                    tools:ignore="HardcodedText" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
             <!-- ... synonyms -->
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/title_synonyms_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/div_genres_title_synonyms"
-                android:layout_marginTop="16dp"
+                android:layout_below="@id/dev_anime_id_group"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="54dp">
 
                 <TextView

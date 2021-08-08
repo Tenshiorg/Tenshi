@@ -26,6 +26,8 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URLConnection;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,10 +41,12 @@ import io.github.shadow578.tenshi.databinding.ActivityAnimeDetailsBinding;
 import io.github.shadow578.tenshi.extensionslib.content.ContentAdapterWrapper;
 import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
+import io.github.shadow578.tenshi.mal.model.BroadcastInfo;
 import io.github.shadow578.tenshi.mal.model.LibraryStatus;
 import io.github.shadow578.tenshi.mal.model.RelatedMedia;
 import io.github.shadow578.tenshi.mal.model.type.LibraryEntryStatus;
 import io.github.shadow578.tenshi.mal.model.type.MediaType;
+import io.github.shadow578.tenshi.mal.model.type.TitleDisplayMode;
 import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsInLibTutorial;
 import io.github.shadow578.tenshi.ui.tutorial.AnimeDetailsNoLibTutorial;
 import io.github.shadow578.tenshi.util.CustomTabsHelper;
@@ -753,7 +757,8 @@ public class AnimeDetailsActivity extends TenshiActivity {
         b.animeMainPoster.setOnClickListener(v -> openPoster());
 
         // title
-        b.animeMainTitle.setText(animeDetails.title);
+        final TitleDisplayMode titleMode = TenshiPrefs.getEnum(TenshiPrefs.Key.TitleDisplayMode, TitleDisplayMode.class, TitleDisplayMode.Canonical);
+        b.animeMainTitle.setText(elvisEmpty(animeDetails.getDisplayTitle(titleMode), unknown));
 
         // media type
         if (notNull(animeDetails.mediaType))
@@ -812,7 +817,15 @@ public class AnimeDetailsActivity extends TenshiActivity {
             b.genresChips.addView(chip);
         });
 
+
         // additional info:
+        // anime id (developer options)
+        if (TenshiPrefs.getBool(TenshiPrefs.Key.ShowDeveloperOptions, false)) {
+            b.devAnimeId.setText(String.valueOf(animeDetails.animeId));
+            b.devAnimeIdGroup.setVisibility(View.VISIBLE);
+        } else
+            b.devAnimeIdGroup.setVisibility(View.GONE);
+
         // alternative titles
         if (notNull(animeDetails.titleSynonyms)) {
             // synonyms
@@ -834,11 +847,28 @@ public class AnimeDetailsActivity extends TenshiActivity {
             b.titleJpGroup.setVisibility(View.GONE);
         }
 
-        // start date
-        b.startDate.setText(DateHelper.format(animeDetails.startDate, noValue));
+        // start date (with local time zone adjust)
+        final boolean useLocalTimeZone = TenshiPrefs.getBool(TenshiPrefs.Key.ShowAnimeDatesInLocalTimeZone, false);
+        LocalDate startDate = animeDetails.startDate;
+        if (useLocalTimeZone && notNull(startDate)) {
+            startDate = startDate.atStartOfDay()
+                    .atZone(DateHelper.jpZone())
+                    .withZoneSameInstant(DateHelper.localZone())
+                    .toLocalDate();
+        }
+
+        b.startDate.setText(DateHelper.format(startDate, noValue));
 
         // end date
-        b.endDate.setText(DateHelper.format(animeDetails.endDate, noValue));
+        LocalDate endDate = animeDetails.endDate;
+        if (useLocalTimeZone && notNull(endDate)) {
+            endDate = endDate.atStartOfDay()
+                    .atZone(DateHelper.jpZone())
+                    .withZoneSameInstant(DateHelper.localZone())
+                    .toLocalDate();
+        }
+
+        b.endDate.setText(DateHelper.format(endDate, noValue));
 
         // year & season
         b.season.setText(elvisEmpty(withRet(animeDetails.startSeason,
@@ -846,11 +876,28 @@ public class AnimeDetailsActivity extends TenshiActivity {
                 noValue));
 
         // broadcast time
-        if (animeDetails.broadcastInfo != null
+        if (notNull(animeDetails.broadcastInfo)
                 && notNull(animeDetails.broadcastInfo.weekday)
-                && notNull(animeDetails.broadcastInfo.startTime))
-            b.broadcast.setText(concat(LocalizationHelper.localizeWeekday(animeDetails.broadcastInfo.weekday, this), " ", DateHelper.format(animeDetails.broadcastInfo.startTime, unknown)));
+                && notNull(animeDetails.broadcastInfo.startTime)) {
+            // get broadcast info
+            BroadcastInfo broadcast = animeDetails.broadcastInfo;
 
+            // transform to local timezone if enabled
+            if (useLocalTimeZone) {
+                final ZonedDateTime nextBroadcastLocal = broadcast.getNextBroadcast(DateHelper.getJapanTime()
+                        .atZone(DateHelper.jpZone()))
+                        .withZoneSameInstant(DateHelper.localZone());
+
+                broadcast.startTime = nextBroadcastLocal.toLocalTime();
+                broadcast.weekday = DateHelper.convertDayOfWeek(nextBroadcastLocal.getDayOfWeek());
+            }
+
+            // set text
+            b.broadcast.setText(concat(LocalizationHelper.localizeWeekday(broadcast.weekday, this), " ", DateHelper.format(broadcast.startTime, unknown)));
+        } else {
+            // no broadcast info available
+            b.broadcastGroup.setVisibility(View.GONE);
+        }
 
         // episode duration
         b.duration.setText(elvisEmpty(withRet(animeDetails.averageEpisodeDuration,

@@ -85,6 +85,16 @@ public class TenshiPrefs {
         AnimeDetailsInLibTutorialFinished,
 
         /**
+         * show dates, times and broadcast schedule in the details page in the local device timezone
+         */
+        ShowAnimeDatesInLocalTimeZone,
+
+        /**
+         * display mode of titles in the details page. values: {@link io.github.shadow578.tenshi.ui.AnimeDetailsActivity.TitleDisplayMode}
+         */
+        TitleDisplayMode,
+
+        /**
          * did the user finish / skip the search activity tutorial?
          */
         SearchTutorialFinished

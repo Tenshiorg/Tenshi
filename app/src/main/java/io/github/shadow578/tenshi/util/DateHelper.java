@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import io.github.shadow578.tenshi.mal.model.Season;
+import io.github.shadow578.tenshi.mal.model.type.DayOfWeek;
 import io.github.shadow578.tenshi.mal.model.type.YearSeason;
 
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.isNull;
@@ -34,7 +35,21 @@ public class DateHelper {
      * the date and time in Tokyo
      */
     private static LocalDateTime jp() {
-        return LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
+        return LocalDateTime.now(jpZone());
+    }
+
+    /**
+     * @return the local timezone
+     */
+    public static ZoneId localZone() {
+        return ZoneId.systemDefault();
+    }
+
+    /**
+     * @return the japanese timezone
+     */
+    public static ZoneId jpZone() {
+        return ZoneId.of("Asia/Tokyo");
     }
 
     /**
@@ -59,10 +74,11 @@ public class DateHelper {
 
     /**
      * get the number of years between the date and now
+     *
      * @param date the date to check
      * @return the number of years between now and the date
      */
-    public static int getYearsToNow(LocalDate date){
+    public static int getYearsToNow(LocalDate date) {
         return Period.between(date, getLocalTime().toLocalDate()).getYears();
     }
 
@@ -126,6 +142,35 @@ public class DateHelper {
             case DECEMBER:
             default:
                 return YearSeason.Fall;
+        }
+    }
+
+    /**
+     * convert from {@link java.time.DayOfWeek} to {@link DayOfWeek}
+     *
+     * @param javaDoW the java8 day of week
+     * @return the MAL model day of week
+     */
+    @NonNull
+    public static DayOfWeek convertDayOfWeek(@NonNull java.time.DayOfWeek javaDoW) {
+        switch (javaDoW) {
+            default:
+                // any other day just defaults to monday
+                // really doesn't matter what this would default to
+            case MONDAY:
+                return DayOfWeek.Monday;
+            case TUESDAY:
+                return DayOfWeek.Tuesday;
+            case WEDNESDAY:
+                return DayOfWeek.Wednesday;
+            case THURSDAY:
+                return DayOfWeek.Thursday;
+            case FRIDAY:
+                return DayOfWeek.Friday;
+            case SATURDAY:
+                return DayOfWeek.Saturday;
+            case SUNDAY:
+                return DayOfWeek.Sunday;
         }
     }
     // endregion

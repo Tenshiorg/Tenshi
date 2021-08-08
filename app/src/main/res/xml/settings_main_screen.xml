@@ -26,6 +26,19 @@
             android:summaryOn="@string/settings_nsfw_toggle_on"
             android:title="@string/settings_nsfw_toggle_title" />
 
+        <!-- Show dates in local timezone -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="ShowAnimeDatesInLocalTimeZone"
+            android:summaryOff="@string/settings_timezone_adjust_toggle_off"
+            android:summaryOn="@string/settings_timezone_adjust_toggle_on"
+            android:title="@string/settings_timezone_adjust_toggle_title" />
+
+        <!-- title mode-->
+        <ListPreference
+            android:key="TitleDisplayMode"
+            android:summary="@string/settings_title_mode_summary"
+            android:title="@string/settings_title_mode_title" />
     </PreferenceCategory>
 
     <!-- primary actions -->
