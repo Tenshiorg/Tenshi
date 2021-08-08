@@ -92,7 +92,12 @@ public class TenshiPrefs {
         /**
          * display mode of titles in the details page. values: {@link io.github.shadow578.tenshi.ui.AnimeDetailsActivity.TitleDisplayMode}
          */
-        TitleDisplayMode
+        TitleDisplayMode,
+
+        /**
+         * did the user finish / skip the search activity tutorial?
+         */
+        SearchTutorialFinished
     }
 
     /**

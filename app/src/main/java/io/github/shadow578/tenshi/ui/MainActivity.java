@@ -17,6 +17,7 @@ import io.github.shadow578.tenshi.databinding.ActivityMainBinding;
 import io.github.shadow578.tenshi.ui.fragments.HomeFragment;
 import io.github.shadow578.tenshi.ui.fragments.ProfileFragment;
 import io.github.shadow578.tenshi.ui.fragments.UserLibraryFragment;
+import io.github.shadow578.tenshi.ui.search.SearchActivity;
 import io.github.shadow578.tenshi.ui.settings.SettingsActivity;
 import io.github.shadow578.tenshi.ui.tutorial.MainTutorial;
 import io.github.shadow578.tenshi.util.EnumHelper;

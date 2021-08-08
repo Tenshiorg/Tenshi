@@ -143,6 +143,27 @@
     <string name="search_title">Search</string>
     <string name="search_no_results">No results</string>
     <string name="search_query_hint">Search</string>
+    <string name="search_open_image_search_content_desc">Open Image Search</string>
+    <!-- endregion -->
+
+    <!-- region Image Search Activity -->
+    <string name="trace_title">Image Search</string>
+    <string name="trace_select_image_button">Select a Image</string>
+    <string name="trace_frames_searched_fmt">Searched %s frames</string>
+
+    <string name="trace_snack_no_quota">No search quota left this month! \ntry again next month (or get a different IP somehow)</string>
+    <string name="trace_snack_low_quota">You used over 80% of your search quota this month</string>
+    <string name="trace_snack_cannot_connect">Cannot connect to trace.moe</string>
+    <string name="trace_snack_api_error_fmt">Search failed. \n%s</string>
+    <string name="trace_snack_share_fail">Failed to load shared image</string>
+
+    <string name="trace_episode_no_fmt">Episode %d</string>
+    <string name="trace_unknown_episode">Unknown Episode</string>
+    <string name="trace_span_ss_fmt">%.0f</string>
+    <string name="trace_span_mm_ss_fmt">%.0f:%02.0f</string>
+    <string name="trace_span_hh_mm_ss_fmt">%.0f:%02.0f:%02.0f</string>
+    <string name="trace_span_fmt">%s - %s</string>
+    <string name="trace_match_confidence_fmt">%.0f%%</string>
     <!-- endregion -->
 
     <!-- region Fullscreen image Activity -->
@@ -176,6 +197,9 @@
     <string name="settings_app_build_date_title">Build Time</string>
     <string name="settings_about_libraries_title">About Libraries</string>
     <string name="settings_about_libraries_summary">Show Open Source Licenses</string>
+    <string name="settings_about_trace_title">trace.moe</string>
+    <string name="settings_about_trace_summary">Tenshi uses trace.moe for reverse image search</string>
+    <string name="settings_about_trace_url">https://trace.moe/</string>
 
     <string name="settings_theme_follow_system">Default</string>
     <string name="settings_theme_light">Light</string>
@@ -235,5 +259,10 @@
     <string name="tut_details_watch_text">Watch the next episode using your favorite source</string>
     <string name="tut_details_delete_title">Remove from Library</string>
     <string name="tut_details_delete_text">No longer like this anime? Remove it from your library</string>
+
+    <!-- search -->
+    <string name="tut_search_trace_title">Image Search</string>
+    <string name="tut_search_trace_text">Searching for a anime, but only have a screenshot? \nFind it with the Image Search, powered by trace.moe</string>
+
     <!-- endregion -->
 </resources>

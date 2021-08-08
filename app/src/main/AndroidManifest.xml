@@ -73,13 +73,26 @@
             android:hardwareAccelerated="true"
             android:configChanges="keyboard|orientation|screenSize"/>
 
-        <activity android:name=".ui.SearchActivity"
+        <activity android:name=".ui.search.SearchActivity"
             android:parentActivityName=".ui.MainActivity"
             android:label="@string/search_title"
             android:hardwareAccelerated="true"
             android:exported="true"
             android:configChanges="keyboard|orientation|screenSize"
             android:theme="@style/TenshiTheme.SplashScreen"/>
+
+        <activity android:name=".ui.search.ImageSearchActivity"
+            android:parentActivityName=".ui.MainActivity"
+            android:label="@string/trace_title"
+            android:hardwareAccelerated="true"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:theme="@style/TenshiTheme.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+        </activity>
 
         <activity android:name=".ui.settings.SettingsActivity"
             android:parentActivityName=".ui.MainActivity"

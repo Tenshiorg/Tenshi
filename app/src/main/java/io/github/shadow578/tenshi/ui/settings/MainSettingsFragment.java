@@ -222,6 +222,7 @@ public class MainSettingsFragment extends PreferenceFragmentCompat {
                     TenshiPrefs.clear(Key.MainTutorialFinished);
                     TenshiPrefs.clear(Key.AnimeDetailsNoLibTutorialFinished);
                     TenshiPrefs.clear(Key.AnimeDetailsInLibTutorialFinished);
+                    TenshiPrefs.clear(Key.SearchTutorialFinished);
                     Toast.makeText(ctx, R.string.settings_toast_tut_reset, Toast.LENGTH_SHORT).show();
                     return true;
                 }));
