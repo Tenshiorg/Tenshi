@@ -82,7 +82,12 @@ public class TenshiPrefs {
         /**
          * did the user finish / skip the anime details activity tutorial for anime in the user library?
          */
-        AnimeDetailsInLibTutorialFinished
+        AnimeDetailsInLibTutorialFinished,
+
+        /**
+         * did the user finish / skip the search activity tutorial?
+         */
+        SearchTutorialFinished
     }
 
     /**

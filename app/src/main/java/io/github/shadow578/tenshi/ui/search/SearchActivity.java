@@ -1,4 +1,4 @@
-package io.github.shadow578.tenshi.ui;
+package io.github.shadow578.tenshi.ui.search;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +23,9 @@ import io.github.shadow578.tenshi.mal.MalApiHelper;
 import io.github.shadow578.tenshi.mal.model.Anime;
 import io.github.shadow578.tenshi.mal.model.AnimeList;
 import io.github.shadow578.tenshi.mal.model.AnimeListItem;
+import io.github.shadow578.tenshi.ui.AnimeDetailsActivity;
+import io.github.shadow578.tenshi.ui.TenshiActivity;
+import io.github.shadow578.tenshi.ui.tutorial.SearchTutorial;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.Util;
 import retrofit2.Call;
@@ -36,7 +39,7 @@ import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.nullOrE
 import static io.github.shadow578.tenshi.extensionslib.lang.LanguageUtil.with;
 
 /**
- * anime search activity
+ * anime search activity (search by text / MAL search)
  */
 public class SearchActivity extends TenshiActivity {
 
@@ -80,7 +83,6 @@ public class SearchActivity extends TenshiActivity {
         // setup search view
         final SearchView searchView = b.searchToolbar.findViewById(R.id.search_view);
         searchView.setQueryHint(getString(R.string.search_query_hint));
-        searchView.setIconifiedByDefault(false);
         searchView.requestFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -95,6 +97,12 @@ public class SearchActivity extends TenshiActivity {
                 return true;
             }
         });
+
+        // setup image search button
+        b.openImageSearch.setOnClickListener((v) -> openImageSearch());
+
+        // show tutorial
+        maybeStartTutorial();
     }
 
     /**
@@ -165,6 +173,16 @@ public class SearchActivity extends TenshiActivity {
     }
 
     /**
+     * maybe start the tutorial for this activity
+     */
+    private void maybeStartTutorial() {
+        if (!TenshiPrefs.getBool(TenshiPrefs.Key.SearchTutorialFinished, false))
+            new SearchTutorial(this, b)
+                    .setEndListener(c -> TenshiPrefs.setBool(TenshiPrefs.Key.SearchTutorialFinished, true))
+                    .start();
+    }
+
+    /**
      * open the details for a anime
      *
      * @param animeId the id of the anime to open the details of
@@ -175,6 +193,16 @@ public class SearchActivity extends TenshiActivity {
         final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, poster, poster.getTransitionName());
         final Intent i = new Intent(this, AnimeDetailsActivity.class);
         i.putExtra(AnimeDetailsActivity.EXTRA_ANIME_ID, animeId);
+        startActivity(i, opt.toBundle());
+    }
+
+
+    /**
+     * open the image search activity
+     */
+    private void openImageSearch() {
+        final Intent i = new Intent(this, ImageSearchActivity.class);
+        final ActivityOptionsCompat opt = ActivityOptionsCompat.makeSceneTransitionAnimation(this, b.mainAppbar, b.mainAppbar.getTransitionName());
         startActivity(i, opt.toBundle());
     }
 }

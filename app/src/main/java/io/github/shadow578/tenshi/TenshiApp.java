@@ -29,8 +29,8 @@ import io.github.shadow578.tenshi.mal.MalService;
 import io.github.shadow578.tenshi.mal.Urls;
 import io.github.shadow578.tenshi.mal.model.Token;
 import io.github.shadow578.tenshi.ui.MainActivity;
-import io.github.shadow578.tenshi.ui.SearchActivity;
 import io.github.shadow578.tenshi.ui.oobe.OnboardingActivity;
+import io.github.shadow578.tenshi.ui.search.SearchActivity;
 import io.github.shadow578.tenshi.util.TenshiPrefs;
 import io.github.shadow578.tenshi.util.converter.GSONLocalDateAdapter;
 import io.github.shadow578.tenshi.util.converter.GSONLocalTimeAdapter;
@@ -225,12 +225,13 @@ public class TenshiApp extends Application {
             createRetrofit();
         }
     }
+
     /**
      * invalidate and remove the saved auth token, saved user data and preferences, then redirect to the Login activity
      *
      * @param ctx the context to start the login activity from. has to be another activity, on which .finish() is called
      */
-    public void logoutAndLogin(@NonNull Activity ctx){
+    public void logoutAndLogin(@NonNull Activity ctx) {
         // delete user data and config
         deleteUserData();
         TenshiPrefs.clear();
